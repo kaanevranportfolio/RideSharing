@@ -13,24 +13,23 @@ import (
 // RedisDB represents a Redis database connection
 type RedisDB struct {
 	Client *redis.Client
-	config *config.DatabaseConfig
+	config *config.RedisConfig
 	logger *logger.Logger
 }
 
 // NewRedisDB creates a new Redis database connection
-func NewRedisDB(cfg *config.DatabaseConfig, log *logger.Logger) (*RedisDB, error) {
+func NewRedisDB(cfg *config.RedisConfig, log *logger.Logger) (*RedisDB, error) {
 	// Create Redis client options
 	opts := &redis.Options{
 		Addr:         fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 		Password:     cfg.Password,
-		DB:           0, // Use default DB
-		PoolSize:     cfg.MaxOpenConns,
-		MinIdleConns: cfg.MaxIdleConns,
-		MaxConnAge:   time.Duration(cfg.ConnMaxLifetime) * time.Second,
-		IdleTimeout:  time.Duration(cfg.ConnMaxIdleTime) * time.Second,
-		DialTimeout:  5 * time.Second,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
+		DB:           cfg.Database,
+		PoolSize:     cfg.PoolSize,
+		MinIdleConns: cfg.MinIdleConns,
+		DialTimeout:  cfg.DialTimeout,
+		ReadTimeout:  cfg.ReadTimeout,
+		WriteTimeout: cfg.WriteTimeout,
+		IdleTimeout:  cfg.IdleTimeout,
 	}
 
 	// Create Redis client

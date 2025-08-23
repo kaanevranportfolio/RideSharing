@@ -31,6 +31,12 @@ func (h *MatchingHandler) RegisterRoutes(router *gin.Engine) {
 		api.GET("/match/:trip_id/status", h.getMatchingStatus)
 		api.DELETE("/match/:trip_id", h.cancelMatching)
 
+		// Driver finding endpoints
+		matching := api.Group("/matching")
+		{
+			matching.POST("/find-drivers", h.findDrivers)
+		}
+
 		// Metrics
 		api.GET("/metrics", h.getMetrics)
 	}
@@ -39,7 +45,7 @@ func (h *MatchingHandler) RegisterRoutes(router *gin.Engine) {
 // healthCheck returns the health status of the service
 func (h *MatchingHandler) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
+		"status":  "healthy",
 		"service": "matching-service",
 		"version": "1.0.0",
 	})
@@ -139,4 +145,54 @@ func (h *MatchingHandler) getMetrics(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, metrics)
+}
+
+// FindDriversRequest represents a request to find available drivers
+type FindDriversRequest struct {
+	RiderLocation struct {
+		Lat float64 `json:"lat" binding:"required"`
+		Lng float64 `json:"lng" binding:"required"`
+	} `json:"rider_location" binding:"required"`
+	Destination struct {
+		Lat float64 `json:"lat" binding:"required"`
+		Lng float64 `json:"lng" binding:"required"`
+	} `json:"destination" binding:"required"`
+	RideType string `json:"ride_type" binding:"required"`
+}
+
+// findDrivers handles requests to find available drivers
+func (h *MatchingHandler) findDrivers(c *gin.Context) {
+	var request FindDriversRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Invalid request format",
+			"details": err.Error(),
+		})
+		return
+	}
+
+	// Mock response for now - return sample drivers
+	drivers := []map[string]interface{}{
+		{
+			"driver_id":    "driver-001",
+			"vehicle_type": "sedan",
+			"distance_km":  1.2,
+			"eta_minutes":  5,
+			"rating":       4.8,
+		},
+		{
+			"driver_id":    "driver-002",
+			"vehicle_type": "suv",
+			"distance_km":  2.1,
+			"eta_minutes":  8,
+			"rating":       4.6,
+		},
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"drivers":       drivers,
+		"total_found":   len(drivers),
+		"ride_type":     request.RideType,
+		"search_radius": 5.0,
+	})
 }

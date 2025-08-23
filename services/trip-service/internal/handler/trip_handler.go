@@ -46,7 +46,7 @@ func (h *TripHandler) RegisterRoutes(router *gin.Engine) {
 // healthCheck returns the health status of the service
 func (h *TripHandler) healthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
-		"status":  "ok",
+		"status":  "healthy",
 		"service": "trip-service",
 		"version": "1.0.0",
 	})

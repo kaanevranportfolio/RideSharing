@@ -39,6 +39,13 @@ cleanup() {
 # Set trap to cleanup on script exit
 trap cleanup EXIT
 
+# Kill existing processes on ports
+echo -e "${YELLOW}Ensuring all service ports are free...${NC}"
+for port in 8080 8081 8082 8083 8084 8085; do
+    lsof -ti tcp:"$port" | xargs -r kill -9 || true
+done
+echo "✓ Ports are free"
+
 # Helper function to wait for service
 wait_for_service() {
     local service_name=$1
@@ -126,10 +133,10 @@ echo "Building all services with Makefile..."
 make build
 
 # Start geo service (port 8083)
-if [ -f "services/geo-service/bin/geo-service" ]; then
+if [ -f "services/geo-service/geo-service" ]; then
     echo "Starting geo service..."
     cd services/geo-service 
-    DB_HOST=localhost DB_PORT=27017 DB_NAME=rideshare_geo DB_USERNAME=rideshare_user DB_PASSWORD=rideshare_password HTTP_PORT=8083 REDIS_HOST=localhost REDIS_PORT=6379 ./bin/geo-service &
+    DB_HOST=localhost DB_PORT=27017 DB_NAME=rideshare_geo DB_USERNAME=rideshare_user DB_PASSWORD=rideshare_password HTTP_PORT=8083 REDIS_HOST=localhost REDIS_PORT=6379 ./geo-service &
     GEO_PID=$!
     SERVICE_PIDS+=($GEO_PID)
     cd ../..
@@ -139,9 +146,10 @@ else
 fi
 
 # Start vehicle service (port 8082) - skip if build failed
-if [ -f "services/vehicle-service/bin/vehicle-service" ]; then
+if [ -f "services/vehicle-service/vehicle-service" ]; then
     echo "Starting vehicle service..."
-    cd services/vehicle-service && ./bin/vehicle-service &
+    cd services/vehicle-service
+    ./vehicle-service &
     VEHICLE_PID=$!
     SERVICE_PIDS+=($VEHICLE_PID)
     cd ../..
@@ -151,10 +159,10 @@ else
 fi
 
 # Start matching service (port 8084)
-if [ -f "services/matching-service/bin/matching-service" ]; then
+if [ -f "services/matching-service/matching-service" ]; then
     echo "Starting matching service..."
     cd services/matching-service
-    HTTP_PORT=8084 ./bin/matching-service &
+    HTTP_PORT=8084 ./matching-service &
     MATCHING_PID=$!
     SERVICE_PIDS+=($MATCHING_PID)
     cd ../..
@@ -164,10 +172,10 @@ else
 fi
 
 # Start trip service (port 8085)
-if [ -f "services/trip-service/bin/trip-service" ]; then
+if [ -f "services/trip-service/trip-service" ]; then
     echo "Starting trip service..."
     cd services/trip-service
-    HTTP_PORT=8085 ./bin/trip-service &
+    HTTP_PORT=8085 ./trip-service &
     TRIP_PID=$!
     SERVICE_PIDS+=($TRIP_PID)
     cd ../..
@@ -177,10 +185,10 @@ else
 fi
 
 # Start user service (port 8081) - if it builds successfully
-if [ -f "services/user-service/bin/user-service" ]; then
+if [ -f "services/user-service/user-service" ]; then
     echo "Starting user service..."
     cd services/user-service
-    HTTP_PORT=8081 ./bin/user-service &
+    HTTP_PORT=8081 ./user-service &
     USER_PID=$!
     SERVICE_PIDS+=($USER_PID)
     cd ../..
@@ -502,8 +510,20 @@ echo "• Vehicle Management: ✓ Basic vehicle endpoints"
 echo "• Data Persistence: ✓ Multi-database storage"
 echo ""
 
-# Determine overall status
+
+# Determine overall status (API endpoints and DB checks)
 OVERALL_SUCCESS=true
+
+# Check all API endpoint results
+if ! echo "$DISTANCE_RESPONSE" | grep -q "distance"; then OVERALL_SUCCESS=false; fi
+if ! echo "$ETA_RESPONSE" | grep -q "eta"; then OVERALL_SUCCESS=false; fi
+if ! echo "$DRIVERS_RESPONSE" | grep -q "drivers"; then OVERALL_SUCCESS=false; fi
+if ! echo "$TRIP_RESPONSE" | grep -q "trip_id\|id"; then OVERALL_SUCCESS=false; fi
+if ! echo "$GET_TRIP_RESPONSE" | grep -q "trip_id\|id"; then OVERALL_SUCCESS=false; fi
+if ! echo "$USERS_RESPONSE" | grep -q "users\|message"; then OVERALL_SUCCESS=false; fi
+if ! echo "$VEHICLES_RESPONSE" | grep -q "vehicles\|message"; then OVERALL_SUCCESS=false; fi
+
+# Check DB and infra results
 if [ "$USER_COUNT" = "0" ] || [ "$LOCATION_COUNT" = "0" ] || [ "$REDIS_RESULT" != "PONG" ] || [ "$NEARBY_COUNT" = "0" ]; then
     OVERALL_SUCCESS=false
 fi
@@ -523,7 +543,7 @@ if [ "$OVERALL_SUCCESS" = true ]; then
     echo "Business Logic: Distance calculation, driver matching, trip management validated"
 else
     echo -e "${RED}⚠️ Some integration tests failed. Check the output above for details.${NC}"
-    echo "Note: User service may have known build issues (file corruption)"
+    echo "Note: Not all endpoints or infrastructure are working. See above for failures."
     exit 1
 fi
 

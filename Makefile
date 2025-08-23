@@ -47,17 +47,17 @@ stop-all:
 # Build all services
 build:
 	@echo "Building all services..."
+	@echo "Building user service..."
+	@cd services/user-service && go build -o user-service .
 	@echo "Building vehicle service..."
-	@cd services/vehicle-service && go build -o vehicle-service main.go || echo "⚠ Vehicle service build failed"
+	@cd services/vehicle-service && go build -o vehicle-service .
 	@echo "Building geo service..."
-	@cd services/geo-service && go build -o geo-service main.go
+	@cd services/geo-service && go build -o geo-service .
 	@echo "Building matching service..."
-	@cd services/matching-service && go build -o matching-service main.go
+	@cd services/matching-service && go build -o matching-service .
 	@echo "Building trip service..."
-	@cd services/trip-service && go build -o trip-service main.go
-	@echo "Building test service..."
-	@go build -o test-service simple-test-service.go
-	@echo "✓ Core services built successfully (user service skipped due to build issues)"
+	@cd services/trip-service && go build -o trip-service .
+	@echo "✓ All services built successfully"
 
 # Build all services with Docker Compose
 build-docker:

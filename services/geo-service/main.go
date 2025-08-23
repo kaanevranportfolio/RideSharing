@@ -52,7 +52,7 @@ func main() {
 		}
 	}()
 
-	redisDB, err := database.NewRedisDB(&cfg.Redis, appLogger)
+	redisDB, err := database.NewRedisDB(cfg.Redis, appLogger)
 	if err != nil {
 		appLogger.WithError(err).Fatal("Failed to connect to Redis")
 	}
@@ -69,7 +69,7 @@ func main() {
 	testService(geoService, appLogger)
 
 	// Initialize HTTP handler
-	httpHandler := handler.NewHTTPHandler(appLogger)
+	httpHandler := handler.NewHTTPHandler(appLogger, geoService)
 	router := httpHandler.SetupRoutes()
 
 	// Start HTTP server

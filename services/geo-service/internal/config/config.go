@@ -23,7 +23,7 @@ type Config struct {
 	Database config.DatabaseConfig `json:"database"`
 
 	// Redis configuration
-	Redis config.DatabaseConfig `json:"redis"`
+	Redis *config.RedisConfig `json:"redis"`
 
 	// Geospatial configuration
 	Geospatial GeospatialConfig `json:"geospatial"`
@@ -109,17 +109,17 @@ func Load() (*Config, error) {
 	}
 
 	// Load Redis configuration
-	cfg.Redis = config.DatabaseConfig{
-		Host:            getEnv("REDIS_HOST", "localhost"),
-		Port:            getEnvInt("REDIS_PORT", 6379),
-		Database:        getEnv("REDIS_DB", "0"),
-		Username:        getEnv("REDIS_USERNAME", ""),
-		Password:        getEnv("REDIS_PASSWORD", ""),
-		SSLMode:         getEnv("REDIS_SSLMODE", "disable"),
-		MaxOpenConns:    getEnvInt("REDIS_MAX_OPEN_CONNS", 10),
-		MaxIdleConns:    getEnvInt("REDIS_MAX_IDLE_CONNS", 5),
-		ConnMaxLifetime: time.Duration(getEnvInt("REDIS_CONN_MAX_LIFETIME", 3600)) * time.Second,
-		ConnMaxIdleTime: time.Duration(getEnvInt("REDIS_CONN_MAX_IDLE_TIME", 900)) * time.Second,
+	cfg.Redis = &config.RedisConfig{
+		Host:         getEnv("REDIS_HOST", "localhost"),
+		Port:         getEnvInt("REDIS_PORT", 6379),
+		Password:     getEnv("REDIS_PASSWORD", ""),
+		Database:     getEnvInt("REDIS_DATABASE", 0),
+		PoolSize:     getEnvInt("REDIS_POOL_SIZE", 100),
+		MinIdleConns: getEnvInt("REDIS_MIN_IDLE_CONNS", 10),
+		DialTimeout:  5 * time.Second,
+		ReadTimeout:  3 * time.Second,
+		WriteTimeout: 3 * time.Second,
+		IdleTimeout:  5 * time.Minute,
 	}
 
 	// Load geospatial configuration

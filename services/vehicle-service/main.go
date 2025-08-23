@@ -5,18 +5,22 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
+	_ "github.com/lib/pq"
+
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/vehicle-service/internal/config"
 	"github.com/rideshare-platform/services/vehicle-service/internal/handler"
 	"github.com/rideshare-platform/services/vehicle-service/internal/repository"
 	"github.com/rideshare-platform/services/vehicle-service/internal/service"
 	"github.com/rideshare-platform/shared/database"
 	"github.com/rideshare-platform/shared/events"
-	"github.com/rideshare-platform/shared/grpc"
 	"github.com/rideshare-platform/shared/logger"
-	"github.com/rideshare-platform/shared/middleware"
 )
 
 func main() {
@@ -42,7 +46,7 @@ func main() {
 	}
 	defer postgresDB.Close()
 
-	redisDB, err := database.NewRedisDB(&cfg.Database, appLogger)
+	redisDB, err := database.NewRedisDB(cfg.Redis, appLogger)
 	if err != nil {
 		appLogger.WithError(err).Fatal("Failed to connect to Redis")
 	}
@@ -61,30 +65,29 @@ func main() {
 	// Initialize services
 	vehicleService := service.NewVehicleService(vehicleRepo, cacheRepo, eventPublisher, appLogger)
 
-	// Initialize middleware
-	authMiddleware := middleware.NewAuthMiddleware(cfg.JWTSecret, appLogger)
-	metricsMiddleware := middleware.NewMetricsMiddleware("vehicle-service", appLogger)
+	// Initialize Gin HTTP handler
+	vehicleHandler := handler.NewVehicleHandler(vehicleService)
 
-	// Initialize gRPC server
-	grpcConfig := grpc.DefaultServerConfig()
-	grpcConfig.Port = cfg.GRPCPort
-	grpcServer := grpc.NewServer(grpcConfig, appLogger)
+	router := gin.New()
+	vehicleHandler.RegisterRoutes(router)
 
-	// Register gRPC handlers
-	vehicleHandler := handler.NewVehicleHandler(vehicleService, appLogger)
-	vehicleHandler.RegisterWithServer(grpcServer.GetServer())
+	// Register /ready endpoint for readiness probe
+	router.GET("/ready", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":    "ready",
+			"service":   "vehicle-service",
+			"timestamp": time.Now().UTC(),
+			"version":   "1.0.0",
+		})
+	})
 
-	// Start gRPC server in a goroutine
+	httpServer := &http.Server{
+		Addr:    ":" + strconv.Itoa(cfg.HTTPPort),
+		Handler: router,
+	}
+
 	go func() {
-		if err := grpcServer.Start(); err != nil {
-			appLogger.WithError(err).Fatal("Failed to start gRPC server")
-		}
-	}()
-
-	// Initialize HTTP server for health checks and metrics
-	httpServer := handler.NewHTTPServer(cfg.HTTPPort, authMiddleware, metricsMiddleware, appLogger)
-	go func() {
-		if err := httpServer.Start(); err != nil {
+		if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			appLogger.WithError(err).Fatal("Failed to start HTTP server")
 		}
 	}()
@@ -100,13 +103,9 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Shutdown HTTP server
 	if err := httpServer.Shutdown(ctx); err != nil {
 		appLogger.WithError(err).Error("Failed to shutdown HTTP server")
 	}
-
-	// Shutdown gRPC server
-	grpcServer.Stop()
 
 	appLogger.Logger.Info("Vehicle Management Service stopped")
 }

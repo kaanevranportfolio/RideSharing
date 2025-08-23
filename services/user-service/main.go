@@ -38,6 +38,10 @@ func main() {
 	// Register routes
 	userHandler.RegisterRoutes(router)
 
+	router.GET("/ready", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ready"})
+	})
+
 	server := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,
 		Handler: router,

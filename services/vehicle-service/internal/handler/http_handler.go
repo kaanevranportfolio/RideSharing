@@ -2,10 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/vehicle-service/internal/service"
-	"github.com/rideshare-platform/shared/models"
 )
 
 // VehicleHandler handles HTTP requests for vehicle operations
@@ -29,39 +29,16 @@ func (h *VehicleHandler) RegisterRoutes(router *gin.Engine) {
 		vehicles.PUT("/:id", h.UpdateVehicle)
 		vehicles.DELETE("/:id", h.DeleteVehicle)
 		vehicles.GET("/driver/:driver_id", h.GetVehiclesByDriver)
+		vehicles.GET("/", h.ListVehicles)
 	}
 
 	// Health check
 	router.GET("/health", h.HealthCheck)
 }
 
-// CreateVehicleRequest represents the request to create a vehicle
-type CreateVehicleRequest struct {
-	DriverID     string             `json:"driver_id" binding:"required"`
-	Make         string             `json:"make" binding:"required"`
-	Model        string             `json:"model" binding:"required"`
-	Year         int                `json:"year" binding:"required"`
-	Color        string             `json:"color" binding:"required"`
-	LicensePlate string             `json:"license_plate" binding:"required"`
-	VehicleType  models.VehicleType `json:"vehicle_type" binding:"required"`
-	Capacity     int                `json:"capacity" binding:"required"`
-}
-
-// UpdateVehicleRequest represents the request to update a vehicle
-type UpdateVehicleRequest struct {
-	Make         string               `json:"make"`
-	Model        string               `json:"model"`
-	Year         int                  `json:"year"`
-	Color        string               `json:"color"`
-	LicensePlate string               `json:"license_plate"`
-	VehicleType  models.VehicleType   `json:"vehicle_type"`
-	Status       models.VehicleStatus `json:"status"`
-	Capacity     int                  `json:"capacity"`
-}
-
 // CreateVehicle creates a new vehicle
 func (h *VehicleHandler) CreateVehicle(c *gin.Context) {
-	var req CreateVehicleRequest
+	var req service.CreateVehicleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request",
@@ -69,12 +46,7 @@ func (h *VehicleHandler) CreateVehicle(c *gin.Context) {
 		})
 		return
 	}
-
-	// Create vehicle model
-	vehicle := models.NewVehicle(req.DriverID, req.Make, req.Model, req.Year, req.Color, req.LicensePlate, req.VehicleType, req.Capacity)
-
-	// Create vehicle
-	createdVehicle, err := h.vehicleService.CreateVehicle(c.Request.Context(), vehicle)
+	createdVehicle, err := h.vehicleService.CreateVehicle(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to create vehicle",
@@ -82,7 +54,6 @@ func (h *VehicleHandler) CreateVehicle(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusCreated, createdVehicle)
 }
 
@@ -118,7 +89,7 @@ func (h *VehicleHandler) UpdateVehicle(c *gin.Context) {
 		return
 	}
 
-	var req UpdateVehicleRequest
+	var req service.UpdateVehicleRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Invalid request",
@@ -127,43 +98,10 @@ func (h *VehicleHandler) UpdateVehicle(c *gin.Context) {
 		return
 	}
 
-	// Get existing vehicle
-	vehicle, err := h.vehicleService.GetVehicle(c.Request.Context(), vehicleID)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error":   "Vehicle not found",
-			"details": err.Error(),
-		})
-		return
-	}
+	// Set the ID from the URL param
+	req.ID = vehicleID
 
-	// Update fields
-	if req.Make != "" {
-		vehicle.Make = req.Make
-	}
-	if req.Model != "" {
-		vehicle.Model = req.Model
-	}
-	if req.Year != 0 {
-		vehicle.Year = req.Year
-	}
-	if req.Color != "" {
-		vehicle.Color = req.Color
-	}
-	if req.LicensePlate != "" {
-		vehicle.LicensePlate = req.LicensePlate
-	}
-	if req.VehicleType != "" {
-		vehicle.VehicleType = req.VehicleType
-	}
-	if req.Status != "" {
-		vehicle.Status = req.Status
-	}
-	if req.Capacity != 0 {
-		vehicle.Capacity = req.Capacity
-	}
-
-	updatedVehicle, err := h.vehicleService.UpdateVehicle(c.Request.Context(), vehicle)
+	updatedVehicle, err := h.vehicleService.UpdateVehicle(c.Request.Context(), &req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Failed to update vehicle",
@@ -171,7 +109,6 @@ func (h *VehicleHandler) UpdateVehicle(c *gin.Context) {
 		})
 		return
 	}
-
 	c.JSON(http.StatusOK, updatedVehicle)
 }
 
@@ -222,6 +159,39 @@ func (h *VehicleHandler) GetVehiclesByDriver(c *gin.Context) {
 		"vehicles": vehicles,
 		"count":    len(vehicles),
 	})
+}
+
+// ListVehicles returns a list of vehicles
+func (h *VehicleHandler) ListVehicles(c *gin.Context) {
+	// Parse query params for pagination and filtering
+	limit := 20
+	offset := 0
+	if l := c.Query("limit"); l != "" {
+		if v, err := strconv.Atoi(l); err == nil {
+			limit = v
+		}
+	}
+	if o := c.Query("offset"); o != "" {
+		if v, err := strconv.Atoi(o); err == nil {
+			offset = v
+		}
+	}
+	status := c.Query("status")
+	vehicleType := c.Query("vehicle_type")
+
+	req := &service.ListVehiclesRequest{
+		Limit:       limit,
+		Offset:      offset,
+		Status:      status,
+		VehicleType: vehicleType,
+	}
+
+	resp, err := h.vehicleService.ListVehicles(c.Request.Context(), req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, resp)
 }
 
 // HealthCheck returns the health status of the service
