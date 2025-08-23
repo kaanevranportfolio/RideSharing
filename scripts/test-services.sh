@@ -120,51 +120,10 @@ echo "✓ Sample data initialized"
 # Build and start test service
 echo -e "${YELLOW}Building and starting all services...${NC}"
 
-# Build services individually (skip problematic ones)
-echo "Building services individually..."
 
-# Build geo service
-echo -n "Building geo service... "
-if cd services/geo-service && go build -o bin/geo-service . 2>/dev/null; then
-    echo "✓"
-    cd ../..
-else
-    echo "✗"
-    cd ../..
-fi
 
-# Build matching service
-echo -n "Building matching service... "
-if cd services/matching-service && go build -o bin/matching-service . 2>/dev/null; then
-    echo "✓"
-    cd ../..
-else
-    echo "✗"
-    cd ../..
-fi
-
-# Build trip service
-echo -n "Building trip service... "
-if cd services/trip-service && go build -o bin/trip-service . 2>/dev/null; then
-    echo "✓"
-    cd ../..
-else
-    echo "✗"
-    cd ../..
-fi
-
-# Build user service
-echo -n "Building user service... "
-if cd services/user-service && go build -o bin/user-service . 2>/dev/null; then
-    echo "✓"
-    cd ../..
-else
-    echo "✗"
-    cd ../..
-fi
-
-# Skip vehicle service for now due to dependency issues
-echo "Skipping vehicle service (dependency conflicts)"
+echo "Building all services with Makefile..."
+make build
 
 # Start geo service (port 8083)
 if [ -f "services/geo-service/bin/geo-service" ]; then
