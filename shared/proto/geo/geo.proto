@@ -1,0 +1,144 @@
+syntax = "proto3";
+
+package geo;
+
+option go_package = "github.com/rideshare-platform/shared/proto/geo";
+
+import "google/protobuf/timestamp.proto";
+
+// Location represents a geographical coordinate
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  double accuracy = 3; // accuracy in meters
+  google.protobuf.Timestamp timestamp = 4;
+  string address = 5;
+}
+
+// Distance calculation request
+message DistanceRequest {
+  Location origin = 1;
+  Location destination = 2;
+  string calculation_method = 3; // "haversine", "manhattan", "euclidean"
+}
+
+// Distance calculation response
+message DistanceResponse {
+  double distance_meters = 1;
+  double distance_km = 2;
+  double bearing_degrees = 3;
+  string calculation_method = 4;
+}
+
+// ETA calculation request
+message ETARequest {
+  Location origin = 1;
+  Location destination = 2;
+  string vehicle_type = 3; // "car", "bike", "walking"
+  google.protobuf.Timestamp departure_time = 4;
+  bool include_traffic = 5;
+}
+
+// ETA calculation response
+message ETAResponse {
+  int32 duration_seconds = 1;
+  double distance_meters = 2;
+  string route_summary = 3;
+  repeated Location waypoints = 4;
+  google.protobuf.Timestamp estimated_arrival = 5;
+}
+
+// Nearby drivers request
+message NearbyDriversRequest {
+  Location center = 1;
+  double radius_km = 2;
+  int32 limit = 3;
+  repeated string vehicle_types = 4;
+  bool only_available = 5;
+}
+
+// Driver location information
+message DriverLocation {
+  string driver_id = 1;
+  string vehicle_id = 2;
+  Location location = 3;
+  double distance_from_center = 4;
+  string status = 5; // "online", "busy", "offline"
+  string vehicle_type = 6;
+  double rating = 7;
+}
+
+// Nearby drivers response
+message NearbyDriversResponse {
+  repeated DriverLocation drivers = 1;
+  int32 total_count = 2;
+  double search_radius_km = 3;
+}
+
+// Update driver location request
+message UpdateDriverLocationRequest {
+  string driver_id = 1;
+  Location location = 2;
+  string status = 3;
+  string vehicle_id = 4;
+}
+
+// Update driver location response
+message UpdateDriverLocationResponse {
+  bool success = 1;
+  string message = 2;
+  google.protobuf.Timestamp updated_at = 3;
+}
+
+// Geohash request
+message GeohashRequest {
+  Location location = 1;
+  int32 precision = 2; // 1-12, higher = more precise
+}
+
+// Geohash response
+message GeohashResponse {
+  string geohash = 1;
+  Location center = 2;
+  double width_meters = 3;
+  double height_meters = 4;
+}
+
+// Route optimization request
+message RouteOptimizationRequest {
+  Location start = 1;
+  repeated Location waypoints = 2;
+  Location end = 3;
+  string optimization_type = 4; // "shortest", "fastest", "fuel_efficient"
+  string vehicle_type = 5;
+}
+
+// Route optimization response
+message RouteOptimizationResponse {
+  repeated Location optimized_route = 1;
+  double total_distance_meters = 2;
+  int32 total_duration_seconds = 3;
+  double fuel_consumption_estimate = 4;
+  string optimization_type = 5;
+}
+
+// Geospatial service definition
+service GeospatialService {
+  // Calculate distance between two points
+  rpc CalculateDistance(DistanceRequest) returns (DistanceResponse);
+  
+  // Calculate ETA and route
+  rpc CalculateETA(ETARequest) returns (ETAResponse);
+  
+  // Find nearby drivers
+  rpc FindNearbyDrivers(NearbyDriversRequest) returns (NearbyDriversResponse);
+  
+  // Update driver location
+  rpc UpdateDriverLocation(UpdateDriverLocationRequest) returns (UpdateDriverLocationResponse);
+  
+  // Generate geohash for location
+  rpc GenerateGeohash(GeohashRequest) returns (GeohashResponse);
+  
+  // Optimize route with multiple waypoints
+  rpc OptimizeRoute(RouteOptimizationRequest) returns (RouteOptimizationResponse);
+}

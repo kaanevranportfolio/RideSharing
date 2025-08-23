@@ -1,0 +1,57 @@
+services:
+  # PostgreSQL for User and Vehicle services
+  postgres:
+    image: postgres:15-alpine
+    container_name: rideshare-postgres
+    environment:
+      POSTGRES_DB: rideshare
+      POSTGRES_USER: rideshare_user
+      POSTGRES_PASSWORD: rideshare_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rideshare_user -d rideshare"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB for Geospatial service
+  mongodb:
+    image: mongo:7.0
+    container_name: rideshare-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: rideshare_user
+      MONGO_INITDB_ROOT_PASSWORD: rideshare_password
+      MONGO_INITDB_DATABASE: rideshare_geo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/init-mongodb.js:/docker-entrypoint-initdb.d/init-mongodb.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: rideshare-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
