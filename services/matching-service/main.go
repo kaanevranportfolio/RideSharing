@@ -25,7 +25,7 @@ func main() {
 	log.Printf("Starting Matching Service on port %s", cfg.HTTPPort)
 
 	// Initialize services
-	matchingService := service.NewMatchingService(cfg)
+	matchingService := service.NewSimpleMatchingService(cfg)
 
 	// Initialize HTTP handler
 	matchingHandler := handler.NewMatchingHandler(matchingService)

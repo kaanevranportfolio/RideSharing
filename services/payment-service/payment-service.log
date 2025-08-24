@@ -1,0 +1,26 @@
+nohup: ignoring input
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> main.main.func1 (3 handlers)
+[GIN-debug] POST   /api/v1/payments          --> main.main.func2 (3 handlers)
+[GIN-debug] POST   /api/v1/refunds           --> main.main.func3 (3 handlers)
+[GIN-debug] POST   /api/v1/payment-methods   --> main.main.func4 (3 handlers)
+[GIN-debug] GET    /api/v1/users/:user_id/payment-methods --> main.main.func5 (3 handlers)
+[GIN-debug] GET    /api/v1/payments/:payment_id --> main.main.func6 (3 handlers)
+[GIN-debug] GET    /api/v1/stats             --> main.main.func7 (3 handlers)
+2025/08/24 20:33:37 Payment service starting on port :8005
+[GIN] 2025/08/24 - 20:33:45 | 200 |      64.969µs |             ::1 | GET      "/health"
+[GIN] 2025/08/24 - 20:33:52 | 201 |  100.589459ms |             ::1 | POST     "/api/v1/payment-methods"
+[GIN] 2025/08/24 - 20:33:58 | 200 |  201.231169ms |             ::1 | POST     "/api/v1/payments"
+[GIN] 2025/08/24 - 20:34:04 | 200 |   300.56377ms |             ::1 | POST     "/api/v1/refunds"
+[GIN] 2025/08/24 - 20:34:09 | 200 |      43.816µs |             ::1 | GET      "/api/v1/stats"
+[GIN] 2025/08/24 - 20:34:13 | 200 |      79.044µs |             ::1 | GET      "/api/v1/users/user_123/payment-methods"
+[GIN] 2025/08/24 - 20:34:19 | 201 |   50.293581ms |             ::1 | POST     "/api/v1/payment-methods"
+[GIN] 2025/08/24 - 20:34:25 | 200 |  150.672342ms |             ::1 | POST     "/api/v1/payments"
+[GIN] 2025/08/24 - 20:34:33 | 400 |  200.730705ms |             ::1 | POST     "/api/v1/payments"
+2025/08/24 20:34:40 Shutting down payment service...
+2025/08/24 20:34:40 Payment service shut down successfully

@@ -1,10 +1,9 @@
 #!/bin/bash
 
-# Self-contained service integration test script
-# Automatically starts infrastructure, builds services, runs tests, and cleans up
+# Self-contained service integration test script using Docker Compose
 set -e
 
-echo "=== Rideshare Platform Service Integration Tests ==="
+echo "=== Rideshare Platform Service Integration Tests (Docker Compose) ==="
 echo ""
 
 # Colors for output
@@ -13,46 +12,38 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Track started services for cleanup
-STARTED_SERVICES=()
-SERVICE_PIDS=()
+# Always clean up at the start
+echo -e "${YELLOW}Cleaning up any previous containers...${NC}"
+docker compose down -v
 
-# Cleanup function
-cleanup() {
-    echo -e "\n${YELLOW}Cleaning up services and infrastructure...${NC}"
-    
-    # Kill service processes
-    for pid in "${SERVICE_PIDS[@]}"; do
-        kill "$pid" >/dev/null 2>&1 || true
-    done
-    
-    # Stop Docker containers
-    docker compose -f docker-compose-db.yml down -v >/dev/null 2>&1 || true
-    
-    # Remove built binaries
-    rm -f test-service user-service vehicle-service geo-service
-    rm -f services/*/bin/*-service 2>/dev/null || true
-    
-    echo "✓ Cleanup completed"
+overall_success=true
+
+# Final cleanup function (only if all tests pass)
+final_cleanup() {
+    if [ "$overall_success" = true ]; then
+        echo -e "\n${YELLOW}All tests passed. Cleaning up containers...${NC}"
+        docker compose down -v
+        echo "✓ Cleanup completed"
+    else
+        echo -e "\n${RED}Some tests failed. Containers left running for log inspection.${NC}"
+    fi
 }
+trap final_cleanup EXIT
 
-# Set trap to cleanup on script exit
-trap cleanup EXIT
+# Build all service images
+echo -e "${YELLOW}Building all service images...${NC}"
+docker compose build
 
-# Kill existing processes on ports
-echo -e "${YELLOW}Ensuring all service ports are free...${NC}"
-for port in 8080 8081 8082 8083 8084 8085; do
-    lsof -ti tcp:"$port" | xargs -r kill -9 || true
-done
-echo "✓ Ports are free"
+# Start all services
+echo -e "${YELLOW}Starting all services with Docker Compose...${NC}"
+docker compose up -d
 
-# Helper function to wait for service
-wait_for_service() {
-    local service_name=$1
+# Wait for all services to be healthy
+wait_for_health() {
+    local service=$1
     local url=$2
     local max_attempts=30
-    
-    echo -n "Waiting for $service_name to start..."
+    echo -n "Waiting for $service to be healthy..."
     for i in $(seq 1 $max_attempts); do
         if curl -s -f "$url" >/dev/null 2>&1; then
             echo " ✓"
@@ -62,164 +53,29 @@ wait_for_service() {
         echo -n "."
     done
     echo " ✗"
-    echo "Error: $service_name failed to start within $max_attempts seconds"
+    echo "Error: $service failed to become healthy within $max_attempts seconds"
+    overall_success=false
     return 1
 }
 
-# Start infrastructure
-echo -e "${YELLOW}Starting infrastructure...${NC}"
-if [ ! -f docker-compose-db.yml ]; then
-    echo "Error: docker-compose-db.yml not found"
-    exit 1
-fi
-
-docker compose -f docker-compose-db.yml up -d
-echo "✓ Database containers started"
-
-# Wait for databases to be ready
-echo -e "${YELLOW}Waiting for databases to initialize...${NC}"
-for i in {1..30}; do
-    if docker exec rideshare-postgres pg_isready -U rideshare_user -d rideshare >/dev/null 2>&1 && \
-       docker exec rideshare-mongodb mongosh --eval "db.adminCommand('ping')" >/dev/null 2>&1 && \
-       docker exec rideshare-redis redis-cli ping >/dev/null 2>&1; then
-        echo "✓ All databases are ready"
-        break
-    fi
-    
-    if [ $i -eq 30 ]; then
-        echo "Error: Databases failed to start within 30 seconds"
-        exit 1
-    fi
-    
-    sleep 1
-done
-
-# Initialize sample data
-echo -e "${YELLOW}Initializing sample data...${NC}"
-docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --eval "
-db.driver_locations.drop();
-db.driver_locations.createIndex({location: '2dsphere'});
-db.driver_locations.insertMany([
-  {
-    driver_id: '00000000-0000-0000-0000-000000000001',
-    vehicle_id: '00000000-0000-0000-0000-000000000101',
-    location: { type: 'Point', coordinates: [-74.0060, 40.7128] },
-    status: 'online',
-    vehicle_type: 'sedan',
-    rating: 4.8,
-    updated_at: new Date(),
-    expires_at: new Date(Date.now() + 5 * 60 * 1000)
-  },
-  {
-    driver_id: '00000000-0000-0000-0000-000000000003',
-    vehicle_id: '00000000-0000-0000-0000-000000000102',
-    location: { type: 'Point', coordinates: [-73.9851, 40.7589] },
-    status: 'online',
-    vehicle_type: 'suv',
-    rating: 4.6,
-    updated_at: new Date(),
-    expires_at: new Date(Date.now() + 5 * 60 * 1000)
-  }
-]);
-" >/dev/null 2>&1
-echo "✓ Sample data initialized"
-
-# Build and start test service
-echo -e "${YELLOW}Building and starting all services...${NC}"
-
-
-
-echo "Building all services with Makefile..."
-make build
-
-# Start geo service (port 8083)
-if [ -f "services/geo-service/geo-service" ]; then
-    echo "Starting geo service..."
-    cd services/geo-service 
-    DB_HOST=localhost DB_PORT=27017 DB_NAME=rideshare_geo DB_USERNAME=rideshare_user DB_PASSWORD=rideshare_password HTTP_PORT=8083 REDIS_HOST=localhost REDIS_PORT=6379 ./geo-service &
-    GEO_PID=$!
-    SERVICE_PIDS+=($GEO_PID)
-    cd ../..
-    wait_for_service "Geo Service" "http://localhost:8083/health"
-else
-    echo "Skipping geo service (build failed)"
-fi
-
-# Start vehicle service (port 8082) - skip if build failed
-if [ -f "services/vehicle-service/vehicle-service" ]; then
-    echo "Starting vehicle service..."
-    cd services/vehicle-service
-    ./vehicle-service &
-    VEHICLE_PID=$!
-    SERVICE_PIDS+=($VEHICLE_PID)
-    cd ../..
-    wait_for_service "Vehicle Service" "http://localhost:8082/health"
-else
-    echo "Skipping vehicle service (build failed)"
-fi
-
-# Start matching service (port 8084)
-if [ -f "services/matching-service/matching-service" ]; then
-    echo "Starting matching service..."
-    cd services/matching-service
-    HTTP_PORT=8084 ./matching-service &
-    MATCHING_PID=$!
-    SERVICE_PIDS+=($MATCHING_PID)
-    cd ../..
-    wait_for_service "Matching Service" "http://localhost:8084/api/v1/health"
-else
-    echo "Skipping matching service (build failed)"
-fi
-
-# Start trip service (port 8085)
-if [ -f "services/trip-service/trip-service" ]; then
-    echo "Starting trip service..."
-    cd services/trip-service
-    HTTP_PORT=8085 ./trip-service &
-    TRIP_PID=$!
-    SERVICE_PIDS+=($TRIP_PID)
-    cd ../..
-    wait_for_service "Trip Service" "http://localhost:8085/api/v1/health"
-else
-    echo "Skipping trip service (build failed)"
-fi
-
-# Start user service (port 8081) - if it builds successfully
-if [ -f "services/user-service/user-service" ]; then
-    echo "Starting user service..."
-    cd services/user-service
-    HTTP_PORT=8081 ./user-service &
-    USER_PID=$!
-    SERVICE_PIDS+=($USER_PID)
-    cd ../..
-    wait_for_service "User Service" "http://localhost:8081/health"
-else
-    echo "Skipping user service (build failed)"
-fi
-
-# Start api-gateway service (port 8080)
-if [ -f "services/api-gateway/api-gateway" ]; then
-    echo "Starting api-gateway service..."
-    cd services/api-gateway
-    ./api-gateway &
-    APIGW_PID=$!
-    SERVICE_PIDS+=($APIGW_PID)
-    cd ../..
-    wait_for_service "API Gateway Service" "http://localhost:8080/api/drivers/nearby?lat=40.7128&lng=-74.0060&radius=5000"
-else
-    echo "Skipping api-gateway service (build failed)"
-fi
+wait_for_health "Geo Service" "http://localhost:8053/health"
+wait_for_health "Vehicle Service" "http://localhost:8052/health"
+wait_for_health "Matching Service" "http://localhost:8084/api/v1/health"
+wait_for_health "Trip Service" "http://localhost:8085/api/v1/health"
+wait_for_health "User Service" "http://localhost:8051/health"
+wait_for_health "API Gateway" "http://localhost:8080/health"
+wait_for_health "Payment Service" "http://localhost:8086/health"
 
 # Test service endpoints
 echo -e "\n${YELLOW}Testing Service Endpoints...${NC}"
 
 # Base URLs
 TEST_SERVICE="http://localhost:8080"
-GEO_SERVICE="http://localhost:8083"
-VEHICLE_SERVICE="http://localhost:8082"
+GEO_SERVICE="http://localhost:8053"
+VEHICLE_SERVICE="http://localhost:8052"
 MATCHING_SERVICE="http://localhost:8084"
 TRIP_SERVICE="http://localhost:8085"
-USER_SERVICE="http://localhost:8081"
+USER_SERVICE="http://localhost:8051"
 
 # Test health endpoints for all services
 echo -e "\n${YELLOW}Health Check Tests:${NC}"
@@ -529,11 +385,11 @@ if [ "$OVERALL_SUCCESS" = true ]; then
     echo -e "${GREEN}🎉 All integration tests passed! Rideshare platform is ready for production use.${NC}"
     echo ""
     echo "Available Services:"
-    echo "• Geo Service: http://localhost:8083 (Distance, ETA, Location)"
-    echo "• Vehicle Service: http://localhost:8082 (Vehicle Management)"
+    echo "• Geo Service: http://localhost:8053 (Distance, ETA, Location)"
+    echo "• Vehicle Service: http://localhost:8052 (Vehicle Management)"
     echo "• Matching Service: http://localhost:8084 (Driver-Rider Matching)"
     echo "• Trip Service: http://localhost:8085 (Trip Lifecycle)"
-    echo "• User Service: http://localhost:8081 (User Management)"
+    echo "• User Service: http://localhost:8051 (User Management)"
     echo "• Test Service: http://localhost:8080 (Infrastructure Testing)"
     echo ""
     echo "API Documentation: All core endpoints tested and working"

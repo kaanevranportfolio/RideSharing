@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package matching;
+
+option go_package = "github.com/rideshare-platform/shared/proto/matching";
+
+import "google/protobuf/timestamp.proto";
+
+// Location represents a geographical coordinate
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  string address = 3;
+}
+
+// Driver information for matching
+message Driver {
+  string id = 1;
+  string user_id = 2;
+  Location current_location = 3;
+  string vehicle_id = 4;
+  string vehicle_type = 5;
+  double rating = 6;
+  int32 total_trips = 7;
+  bool is_available = 8;
+  double distance_km = 9;
+  int32 eta_minutes = 10;
+  MatchingScore score = 11;
+}
+
+// Matching score breakdown
+message MatchingScore {
+  double total_score = 1;
+  double distance_score = 2;
+  double rating_score = 3;
+  double availability_score = 4;
+  double demand_score = 5;
+  double historical_score = 6;
+}
+
+// Ride request for matching
+message RideRequest {
+  string id = 1;
+  string rider_id = 2;
+  Location pickup_location = 3;
+  Location destination = 4;
+  string vehicle_type = 5;
+  int32 passenger_count = 6;
+  google.protobuf.Timestamp requested_at = 7;
+  map<string, string> preferences = 8;
+}
+
+// Matching result
+message MatchResult {
+  string request_id = 1;
+  repeated Driver matched_drivers = 2;
+  Driver best_match = 3;
+  MatchingMetadata metadata = 4;
+  bool success = 5;
+  string message = 6;
+}
+
+// Matching metadata
+message MatchingMetadata {
+  int32 total_drivers_considered = 1;
+  int32 available_drivers_in_area = 2;
+  double search_radius_km = 3;
+  int32 processing_time_ms = 4;
+  string algorithm_version = 5;
+  map<string, double> algorithm_weights = 6;
+}
+
+// Real-time driver tracking
+message DriverLocationUpdate {
+  string driver_id = 1;
+  Location location = 2;
+  bool is_available = 3;
+  string status = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+// Request/Response messages
+message FindNearbyDriversRequest {
+  Location pickup_location = 1;
+  string vehicle_type = 2;
+  double radius_km = 3;
+  int32 max_drivers = 4;
+  map<string, string> filters = 5;
+}
+
+message FindNearbyDriversResponse {
+  repeated Driver drivers = 1;
+  int32 total_count = 2;
+  MatchingMetadata metadata = 3;
+}
+
+message MatchDriverRequest {
+  RideRequest ride_request = 1;
+  MatchingPreferences preferences = 2;
+}
+
+message MatchingPreferences {
+  double max_pickup_distance_km = 1;
+  double min_driver_rating = 2;
+  bool prefer_experienced_drivers = 3;
+  bool allow_pool_matching = 4;
+  map<string, string> custom_preferences = 5;
+}
+
+message MatchDriverResponse {
+  MatchResult result = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message UpdateDriverLocationRequest {
+  string driver_id = 1;
+  Location location = 2;
+  bool is_available = 3;
+  string status = 4;
+}
+
+message UpdateDriverLocationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetDriverRequest {
+  string driver_id = 1;
+}
+
+message GetDriverResponse {
+  Driver driver = 1;
+  bool found = 2;
+}
+
+message GetActiveDriversRequest {
+  Location center = 1;
+  double radius_km = 2;
+  string vehicle_type = 3;
+  int32 limit = 4;
+}
+
+message GetActiveDriversResponse {
+  repeated Driver drivers = 1;
+  int32 total_count = 2;
+  MatchingMetadata metadata = 3;
+}
+
+// Batch operations
+message BatchUpdateDriversRequest {
+  repeated DriverLocationUpdate updates = 1;
+}
+
+message BatchUpdateDriversResponse {
+  int32 successful_updates = 1;
+  int32 failed_updates = 2;
+  repeated string errors = 3;
+}
+
+// Performance metrics
+message GetMatchingStatsRequest {
+  google.protobuf.Timestamp from_time = 1;
+  google.protobuf.Timestamp to_time = 2;
+}
+
+message MatchingStats {
+  int32 total_requests = 1;
+  int32 successful_matches = 2;
+  int32 failed_matches = 3;
+  double average_match_time_ms = 4;
+  double average_pickup_distance_km = 5;
+  double match_success_rate = 6;
+  map<string, int32> vehicle_type_distribution = 7;
+}
+
+message GetMatchingStatsResponse {
+  MatchingStats stats = 1;
+  bool success = 2;
+}
+
+// MatchingService defines the gRPC service for driver-rider matching
+service MatchingService {
+  rpc FindNearbyDrivers(FindNearbyDriversRequest) returns (FindNearbyDriversResponse);
+  rpc MatchDriver(MatchDriverRequest) returns (MatchDriverResponse);
+  rpc UpdateDriverLocation(UpdateDriverLocationRequest) returns (UpdateDriverLocationResponse);
+  rpc GetDriver(GetDriverRequest) returns (GetDriverResponse);
+  rpc GetActiveDrivers(GetActiveDriversRequest) returns (GetActiveDriversResponse);
+  rpc BatchUpdateDrivers(BatchUpdateDriversRequest) returns (BatchUpdateDriversResponse);
+  rpc GetMatchingStats(GetMatchingStatsRequest) returns (GetMatchingStatsResponse);
+  
+  // Real-time streaming
+  rpc StreamDriverUpdates(stream DriverLocationUpdate) returns (stream UpdateDriverLocationResponse);
+}

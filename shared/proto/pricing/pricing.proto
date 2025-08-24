@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+package pricing;
+
+option go_package = "github.com/rideshare-platform/shared/proto/pricing";
+
+import "google/protobuf/timestamp.proto";
+
+// Location represents a geographical coordinate
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  string address = 3;
+}
+
+// Pricing estimate
+message PriceEstimate {
+  string id = 1;
+  double base_fare = 2;
+  double distance_fare = 3;
+  double time_fare = 4;
+  double surge_multiplier = 5;
+  double surge_amount = 6;
+  double discount_amount = 7;
+  double total_amount = 8;
+  string currency = 9;
+  PricingBreakdown breakdown = 10;
+  google.protobuf.Timestamp valid_until = 11;
+}
+
+// Detailed pricing breakdown
+message PricingBreakdown {
+  double base_rate = 1;
+  double per_km_rate = 2;
+  double per_minute_rate = 3;
+  double distance_km = 4;
+  int32 duration_minutes = 5;
+  double booking_fee = 6;
+  double service_fee = 7;
+  double taxes = 8;
+  double tolls = 9;
+  repeated AppliedDiscount discounts = 10;
+  SurgeInfo surge_info = 11;
+}
+
+// Applied discount information
+message AppliedDiscount {
+  string id = 1;
+  string name = 2;
+  string type = 3; // "percentage", "fixed_amount", "first_ride"
+  double value = 4;
+  double amount_saved = 5;
+  string description = 6;
+}
+
+// Surge pricing information
+message SurgeInfo {
+  bool is_active = 1;
+  double multiplier = 2;
+  string reason = 3;
+  google.protobuf.Timestamp started_at = 4;
+  google.protobuf.Timestamp ends_at = 5;
+  string zone_id = 6;
+}
+
+// Dynamic pricing factors
+message PricingFactors {
+  double demand_multiplier = 1;
+  double supply_multiplier = 2;
+  double weather_multiplier = 3;
+  double event_multiplier = 4;
+  double time_of_day_multiplier = 5;
+  map<string, double> custom_factors = 6;
+}
+
+// Vehicle type with pricing
+message VehicleType {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  PricingRates rates = 4;
+  int32 capacity = 5;
+  bool available = 6;
+}
+
+// Pricing rates for a vehicle type
+message PricingRates {
+  double base_fare = 1;
+  double per_km_rate = 2;
+  double per_minute_rate = 3;
+  double minimum_fare = 4;
+  double maximum_fare = 5;
+  double booking_fee = 6;
+  double cancellation_fee = 7;
+}
+
+// Request/Response messages
+message GetPriceEstimateRequest {
+  Location pickup_location = 1;
+  Location destination = 2;
+  string vehicle_type = 3;
+  google.protobuf.Timestamp departure_time = 4;
+  string rider_id = 5;
+  map<string, string> options = 6;
+}
+
+message GetPriceEstimateResponse {
+  PriceEstimate estimate = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message GetMultipleEstimatesRequest {
+  Location pickup_location = 1;
+  Location destination = 2;
+  repeated string vehicle_types = 3;
+  google.protobuf.Timestamp departure_time = 4;
+  string rider_id = 5;
+}
+
+message GetMultipleEstimatesResponse {
+  repeated PriceEstimate estimates = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message CalculateFinalFareRequest {
+  string trip_id = 1;
+  Location actual_pickup = 2;
+  Location actual_destination = 3;
+  double actual_distance_km = 4;
+  int32 actual_duration_minutes = 5;
+  string vehicle_type = 6;
+  google.protobuf.Timestamp trip_start_time = 7;
+  google.protobuf.Timestamp trip_end_time = 8;
+  map<string, string> adjustments = 9;
+}
+
+message CalculateFinalFareResponse {
+  PriceEstimate final_fare = 1;
+  PriceEstimate original_estimate = 2;
+  repeated FareAdjustment adjustments = 3;
+  bool success = 4;
+  string message = 5;
+}
+
+message FareAdjustment {
+  string type = 1; // "route_change", "wait_time", "tolls", "cleanup_fee"
+  double amount = 2;
+  string description = 3;
+  string reason = 4;
+}
+
+message GetSurgePricingRequest {
+  Location location = 1;
+  string vehicle_type = 2;
+}
+
+message GetSurgePricingResponse {
+  SurgeInfo surge_info = 1;
+  double current_multiplier = 2;
+  bool is_active = 3;
+}
+
+message GetVehicleTypesRequest {
+  Location location = 1;
+}
+
+message GetVehicleTypesResponse {
+  repeated VehicleType vehicle_types = 1;
+  int32 count = 2;
+}
+
+message UpdateSurgePricingRequest {
+  string zone_id = 1;
+  double multiplier = 2;
+  string reason = 3;
+  int32 duration_minutes = 4;
+}
+
+message UpdateSurgePricingResponse {
+  bool success = 1;
+  string message = 2;
+  SurgeInfo updated_surge = 3;
+}
+
+message GetPricingStatsRequest {
+  google.protobuf.Timestamp from_time = 1;
+  google.protobuf.Timestamp to_time = 2;
+  string region = 3;
+}
+
+message PricingStats {
+  double average_fare = 1;
+  double total_revenue = 2;
+  int32 total_trips = 3;
+  double average_surge_multiplier = 4;
+  int32 surge_periods = 5;
+  map<string, double> vehicle_type_averages = 6;
+  map<string, int32> discount_usage = 7;
+}
+
+message GetPricingStatsResponse {
+  PricingStats stats = 1;
+  bool success = 2;
+}
+
+// Real-time pricing updates
+message PricingUpdateEvent {
+  string zone_id = 1;
+  string vehicle_type = 2;
+  double old_multiplier = 3;
+  double new_multiplier = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  string reason = 6;
+}
+
+message SubscribeToPricingUpdatesRequest {
+  repeated string zone_ids = 1;
+  repeated string vehicle_types = 2;
+}
+
+// PricingService defines the gRPC service for fare calculation
+service PricingService {
+  rpc GetPriceEstimate(GetPriceEstimateRequest) returns (GetPriceEstimateResponse);
+  rpc GetMultipleEstimates(GetMultipleEstimatesRequest) returns (GetMultipleEstimatesResponse);
+  rpc CalculateFinalFare(CalculateFinalFareRequest) returns (CalculateFinalFareResponse);
+  rpc GetSurgePricing(GetSurgePricingRequest) returns (GetSurgePricingResponse);
+  rpc GetVehicleTypes(GetVehicleTypesRequest) returns (GetVehicleTypesResponse);
+  rpc UpdateSurgePricing(UpdateSurgePricingRequest) returns (UpdateSurgePricingResponse);
+  rpc GetPricingStats(GetPricingStatsRequest) returns (GetPricingStatsResponse);
+  
+  // Real-time features
+  rpc SubscribeToPricingUpdates(SubscribeToPricingUpdatesRequest) returns (stream PricingUpdateEvent);
+}

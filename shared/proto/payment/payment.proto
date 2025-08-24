@@ -1,0 +1,191 @@
+syntax = "proto3";
+
+package payment;
+
+option go_package = "github.com/rideshare-platform/shared/proto/payment";
+
+import "google/protobuf/timestamp.proto";
+
+// Payment represents a payment transaction
+message Payment {
+  string id = 1;
+  string trip_id = 2;
+  string user_id = 3;
+  string driver_id = 4;
+  double amount = 5;
+  string currency = 6;
+  PaymentMethod payment_method = 7;
+  PaymentStatus status = 8;
+  TransactionType transaction_type = 9;
+  string processor_response = 10;
+  FraudRiskLevel fraud_risk = 11;
+  map<string, double> fraud_scores = 12;
+  map<string, string> metadata = 13;
+  string failure_reason = 14;
+  google.protobuf.Timestamp processed_at = 15;
+  google.protobuf.Timestamp created_at = 16;
+  google.protobuf.Timestamp updated_at = 17;
+}
+
+// Payment method enumeration
+enum PaymentMethod {
+  UNKNOWN_PAYMENT_METHOD = 0;
+  CREDIT_CARD = 1;
+  DEBIT_CARD = 2;
+  DIGITAL_WALLET = 3;
+  BANK_TRANSFER = 4;
+  CASH = 5;
+}
+
+// Payment status enumeration
+enum PaymentStatus {
+  UNKNOWN_PAYMENT_STATUS = 0;
+  PENDING = 1;
+  PROCESSING = 2;
+  COMPLETED = 3;
+  FAILED = 4;
+  REFUNDED = 5;
+  CANCELLED = 6;
+  CHARGEBACK = 7;
+}
+
+// Transaction type enumeration
+enum TransactionType {
+  UNKNOWN_TRANSACTION_TYPE = 0;
+  PAYMENT = 1;
+  REFUND = 2;
+  CHARGEBACK_TXN = 3;
+  AUTHORIZATION = 4;
+  CAPTURE = 5;
+}
+
+// Fraud risk level enumeration
+enum FraudRiskLevel {
+  UNKNOWN_FRAUD_RISK = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+}
+
+// Payment method details
+message PaymentMethodDetails {
+  string id = 1;
+  string user_id = 2;
+  PaymentMethod type = 3;
+  bool is_default = 4;
+  string fingerprint = 5;
+  google.protobuf.Timestamp expiry_date = 6;
+  string last_four_digits = 7;
+  string bank_name = 8;
+  string wallet_provider = 9;
+  map<string, string> details = 10;
+  google.protobuf.Timestamp created_at = 11;
+  google.protobuf.Timestamp updated_at = 12;
+}
+
+// Fraud detection result
+message FraudDetectionResult {
+  string transaction_id = 1;
+  FraudRiskLevel risk_level = 2;
+  double risk_score = 3;
+  repeated string reasons = 4;
+  map<string, double> scores = 5;
+  bool requires_review = 6;
+}
+
+// Request/Response messages
+message ProcessPaymentRequest {
+  string trip_id = 1;
+  string user_id = 2;
+  string driver_id = 3;
+  double amount = 4;
+  string currency = 5;
+  string payment_method_id = 6;
+  string description = 7;
+  map<string, string> metadata = 8;
+}
+
+message ProcessPaymentResponse {
+  Payment payment = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message ProcessRefundRequest {
+  string payment_id = 1;
+  double amount = 2;
+  string reason = 3;
+  string requested_by = 4;
+}
+
+message ProcessRefundResponse {
+  bool success = 1;
+  string message = 2;
+  string refund_id = 3;
+  repeated string errors = 4;
+}
+
+message AddPaymentMethodRequest {
+  string user_id = 1;
+  PaymentMethod type = 2;
+  map<string, string> details = 3;
+  bool is_default = 4;
+}
+
+message AddPaymentMethodResponse {
+  PaymentMethodDetails payment_method = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message GetPaymentRequest {
+  string payment_id = 1;
+}
+
+message GetPaymentResponse {
+  Payment payment = 1;
+  bool found = 2;
+}
+
+message GetUserPaymentMethodsRequest {
+  string user_id = 1;
+}
+
+message GetUserPaymentMethodsResponse {
+  repeated PaymentMethodDetails payment_methods = 1;
+  int32 count = 2;
+}
+
+message GetUserPaymentsRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetUserPaymentsResponse {
+  repeated Payment payments = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+}
+
+message GetTripPaymentsRequest {
+  string trip_id = 1;
+}
+
+message GetTripPaymentsResponse {
+  repeated Payment payments = 1;
+  int32 count = 2;
+}
+
+// PaymentService defines the gRPC service for payment processing
+service PaymentService {
+  rpc ProcessPayment(ProcessPaymentRequest) returns (ProcessPaymentResponse);
+  rpc ProcessRefund(ProcessRefundRequest) returns (ProcessRefundResponse);
+  rpc AddPaymentMethod(AddPaymentMethodRequest) returns (AddPaymentMethodResponse);
+  rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
+  rpc GetUserPaymentMethods(GetUserPaymentMethodsRequest) returns (GetUserPaymentMethodsResponse);
+  rpc GetUserPayments(GetUserPaymentsRequest) returns (GetUserPaymentsResponse);
+  rpc GetTripPayments(GetTripPaymentsRequest) returns (GetTripPaymentsResponse);
+}

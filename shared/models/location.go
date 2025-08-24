@@ -105,15 +105,15 @@ func (l *Location) Geohash(precision int) string {
 	}
 
 	const base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
-	
+
 	latRange := []float64{-90.0, 90.0}
 	lonRange := []float64{-180.0, 180.0}
-	
+
 	var geohash string
 	var bit int
 	var ch int
 	even := true
-	
+
 	for len(geohash) < precision {
 		if even {
 			// longitude
@@ -134,17 +134,17 @@ func (l *Location) Geohash(precision int) string {
 				latRange[1] = mid
 			}
 		}
-		
+
 		even = !even
 		bit++
-		
+
 		if bit == 5 {
 			geohash += string(base32[ch])
 			bit = 0
 			ch = 0
 		}
 	}
-	
+
 	return geohash
 }
 
@@ -210,7 +210,7 @@ func (a *Address) String() string {
 	if a.Country != "" {
 		parts = append(parts, a.Country)
 	}
-	
+
 	result := ""
 	for i, part := range parts {
 		if i > 0 {
@@ -233,12 +233,12 @@ func DecodeGeohash(geohash string) *Location {
 	}
 
 	const base32 = "0123456789bcdefghjkmnpqrstuvwxyz"
-	
+
 	latRange := []float64{-90.0, 90.0}
 	lonRange := []float64{-180.0, 180.0}
-	
+
 	even := true
-	
+
 	for _, char := range geohash {
 		idx := -1
 		for i, c := range base32 {
@@ -247,14 +247,14 @@ func DecodeGeohash(geohash string) *Location {
 				break
 			}
 		}
-		
+
 		if idx == -1 {
 			return nil // Invalid character
 		}
-		
+
 		for i := 4; i >= 0; i-- {
 			bit := (idx >> i) & 1
-			
+
 			if even {
 				// longitude
 				mid := (lonRange[0] + lonRange[1]) / 2
@@ -272,14 +272,39 @@ func DecodeGeohash(geohash string) *Location {
 					latRange[1] = mid
 				}
 			}
-			
+
 			even = !even
 		}
 	}
-	
+
 	return &Location{
 		Latitude:  (latRange[0] + latRange[1]) / 2,
 		Longitude: (lonRange[0] + lonRange[1]) / 2,
 		Timestamp: time.Now(),
+	}
+}
+
+// DriverLocation represents a driver's real-time location with additional metadata
+type DriverLocation struct {
+	DriverID           string    `json:"driver_id" db:"driver_id"`
+	VehicleID          string    `json:"vehicle_id" db:"vehicle_id"`
+	Location           *Location `json:"location" db:"location"`
+	DistanceFromCenter float64   `json:"distance_from_center" db:"distance_from_center"`
+	Status             string    `json:"status" db:"status"`
+	VehicleType        string    `json:"vehicle_type" db:"vehicle_type"`
+	Rating             float32   `json:"rating" db:"rating"`
+	LastUpdated        time.Time `json:"last_updated" db:"last_updated"`
+}
+
+// NewDriverLocation creates a new driver location entry
+func NewDriverLocation(driverID, vehicleID string, location *Location, status, vehicleType string, rating float32) *DriverLocation {
+	return &DriverLocation{
+		DriverID:    driverID,
+		VehicleID:   vehicleID,
+		Location:    location,
+		Status:      status,
+		VehicleType: vehicleType,
+		Rating:      rating,
+		LastUpdated: time.Now(),
 	}
 }

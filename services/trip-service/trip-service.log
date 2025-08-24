@@ -1,0 +1,17 @@
+nohup: ignoring input
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> main.main.func1 (3 handlers)
+[GIN-debug] POST   /api/v1/trips             --> main.main.func2 (3 handlers)
+[GIN-debug] GET    /api/v1/trips/:trip_id    --> main.main.func3 (3 handlers)
+[GIN-debug] GET    /api/v1/trips/active      --> main.main.func4 (3 handlers)
+2025/08/24 20:27:22 Trip service starting on port :8006
+[GIN] 2025/08/24 - 20:27:29 | 200 |     120.252µs |             ::1 | GET      "/health"
+[GIN] 2025/08/24 - 20:27:34 | 200 |     139.299µs |             ::1 | GET      "/api/v1/trips/active"
+[GIN] 2025/08/24 - 20:27:40 | 201 |       50.26µs |             ::1 | POST     "/api/v1/trips"
+2025/08/24 20:27:46 Shutting down trip service...
+2025/08/24 20:27:46 Trip service shut down successfully

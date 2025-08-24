@@ -1,19 +1,28 @@
 package handler
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/matching-service/internal/service"
 )
 
+// MatchingServiceInterface defines the interface for matching services
+type MatchingServiceInterface interface {
+	FindMatch(ctx context.Context, request *service.MatchingRequest) (*service.MatchingResult, error)
+	CancelMatching(ctx context.Context, tripID string) error
+	GetMatchingMetrics(ctx context.Context) (map[string]interface{}, error)
+	GetMatchingStatus(ctx context.Context, tripID string) (map[string]interface{}, error)
+}
+
 // MatchingHandler handles HTTP requests for the matching service
 type MatchingHandler struct {
-	service *service.MatchingService
+	service MatchingServiceInterface
 }
 
 // NewMatchingHandler creates a new matching handler
-func NewMatchingHandler(service *service.MatchingService) *MatchingHandler {
+func NewMatchingHandler(service MatchingServiceInterface) *MatchingHandler {
 	return &MatchingHandler{
 		service: service,
 	}

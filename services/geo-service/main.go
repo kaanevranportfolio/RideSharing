@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,13 +12,18 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
 	"github.com/rideshare-platform/services/geo-service/internal/config"
+	grpcServer "github.com/rideshare-platform/services/geo-service/internal/grpc"
 	"github.com/rideshare-platform/services/geo-service/internal/handler"
 	"github.com/rideshare-platform/services/geo-service/internal/repository"
 	"github.com/rideshare-platform/services/geo-service/internal/service"
 	"github.com/rideshare-platform/shared/database"
 	"github.com/rideshare-platform/shared/logger"
 	"github.com/rideshare-platform/shared/models"
+	geopb "github.com/rideshare-platform/shared/proto/geo"
 )
 
 func main() {
@@ -83,6 +89,29 @@ func main() {
 	// Register routes
 	geoHandler.RegisterRoutes(router)
 
+	// Start gRPC server
+	grpcSrv := grpc.NewServer()
+	geoGrpcServer := grpcServer.NewServer(*geoService, *appLogger)
+	geopb.RegisterGeospatialServiceServer(grpcSrv, geoGrpcServer)
+
+	// Enable gRPC reflection for debugging
+	reflection.Register(grpcSrv)
+
+	go func() {
+		lis, err := net.Listen("tcp", ":"+strconv.Itoa(cfg.GRPCPort))
+		if err != nil {
+			appLogger.WithError(err).Fatal("Failed to listen on gRPC port")
+		}
+
+		appLogger.WithFields(logger.Fields{
+			"port": cfg.GRPCPort,
+		}).Info("Starting gRPC server")
+
+		if err := grpcSrv.Serve(lis); err != nil {
+			appLogger.WithError(err).Fatal("Failed to start gRPC server")
+		}
+	}()
+
 	// Start HTTP server
 	server := &http.Server{
 		Addr:    ":" + strconv.Itoa(cfg.HTTPPort),
@@ -117,6 +146,9 @@ func main() {
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		appLogger.WithError(err).Error("Failed to shutdown HTTP server gracefully")
 	}
+
+	// Shutdown gRPC server gracefully
+	grpcSrv.GracefulStop()
 
 	// Perform cleanup operations
 	select {

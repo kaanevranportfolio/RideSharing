@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "github.com/rideshare-platform/shared/proto/user";
+
+import "google/protobuf/timestamp.proto";
+
+// Location represents a geographical coordinate (duplicated for independence)
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  double accuracy = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  string address = 5;
+}
+
+// User represents a platform user (rider or driver)
+message User {
+  string id = 1;
+  string email = 2;
+  string phone = 3;
+  string first_name = 4;
+  string last_name = 5;
+  UserRole role = 6;
+  UserStatus status = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  UserProfile profile = 10;
+}
+
+// User roles
+enum UserRole {
+  UNKNOWN_ROLE = 0;
+  RIDER = 1;
+  DRIVER = 2;
+  ADMIN = 3;
+}
+
+// User status
+enum UserStatus {
+  UNKNOWN_STATUS = 0;
+  ACTIVE = 1;
+  INACTIVE = 2;
+  SUSPENDED = 3;
+  BANNED = 4;
+}
+
+// Extended user profile information
+message UserProfile {
+  string avatar_url = 1;
+  string date_of_birth = 2;
+  string gender = 3;
+  string preferred_language = 4;
+  double rating = 5;
+  int32 total_trips = 6;
+  bool email_verified = 7;
+  bool phone_verified = 8;
+  UserPreferences preferences = 9;
+}
+
+// User preferences
+message UserPreferences {
+  bool allow_notifications = 1;
+  bool share_location = 2;
+  string default_payment_method = 3;
+  bool quiet_rides = 4;
+  bool accessibility_features = 5;
+}
+
+// Requests and responses
+message CreateUserRequest {
+  string email = 1;
+  string phone = 2;
+  string first_name = 3;
+  string last_name = 4;
+  UserRole role = 5;
+  string password = 6;
+}
+
+message CreateUserResponse {
+  User user = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message GetUserRequest {
+  string id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+  bool found = 2;
+}
+
+message UpdateUserRequest {
+  string id = 1;
+  User user = 2;
+  repeated string update_fields = 3;
+}
+
+message UpdateUserResponse {
+  User user = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message ListUsersRequest {
+  UserRole role = 1;
+  UserStatus status = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListUsersResponse {
+  repeated User users = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+}
+
+// Driver-specific messages
+message Driver {
+  string user_id = 1;
+  string license_number = 2;
+  google.protobuf.Timestamp license_expiry = 3;
+  DriverStatus status = 4;
+  Location current_location = 5;
+  double rating = 6;
+  int32 total_trips = 7;
+  string vehicle_id = 8;
+  bool is_available = 9;
+  google.protobuf.Timestamp last_active = 10;
+}
+
+enum DriverStatus {
+  UNKNOWN_DRIVER_STATUS = 0;
+  OFFLINE = 1;
+  ONLINE = 2;
+  ON_TRIP = 3;
+  BREAK = 4;
+}
+
+message UpdateDriverLocationRequest {
+  string driver_id = 1;
+  Location location = 2;
+  DriverStatus status = 3;
+}
+
+message UpdateDriverLocationResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetDriverRequest {
+  string driver_id = 1;
+}
+
+message GetDriverResponse {
+  Driver driver = 1;
+  bool found = 2;
+}
+
+// UserService defines the gRPC service for user management
+service UserService {
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
+  
+  // Driver-specific methods
+  rpc UpdateDriverLocation(UpdateDriverLocationRequest) returns (UpdateDriverLocationResponse);
+  rpc GetDriver(GetDriverRequest) returns (GetDriverResponse);
+}

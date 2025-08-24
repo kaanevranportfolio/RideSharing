@@ -56,8 +56,8 @@ services:
   # User Service
   user-service:
     build:
-      context: ./services/user-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/user-service/Dockerfile
     container_name: rideshare-user-service
     environment:
       - ENVIRONMENT=development
@@ -88,8 +88,8 @@ services:
   # Vehicle Service
   vehicle-service:
     build:
-      context: ./services/vehicle-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/vehicle-service/Dockerfile
     container_name: rideshare-vehicle-service
     environment:
       - ENVIRONMENT=development
@@ -120,8 +120,8 @@ services:
   # Geo Service
   geo-service:
     build:
-      context: ./services/geo-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./services/geo-service/Dockerfile
     container_name: rideshare-geo-service
     environment:
       - ENVIRONMENT=development
@@ -145,6 +145,125 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "grpc-health-probe", "-addr=:50053"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Matching Service
+  matching-service:
+    build:
+      context: .
+      dockerfile: ./services/matching-service/Dockerfile
+    container_name: rideshare-matching-service
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - HTTP_PORT=8084
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=rideshare
+      - DB_USERNAME=rideshare_user
+      - DB_PASSWORD=rideshare_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Trip Service
+  trip-service:
+    build:
+      context: .
+      dockerfile: ./services/trip-service/Dockerfile
+    container_name: rideshare-trip-service
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - HTTP_PORT=8085
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=rideshare
+      - DB_USERNAME=rideshare_user
+      - DB_PASSWORD=rideshare_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./services/api-gateway/Dockerfile
+    container_name: rideshare-api-gateway
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - HTTP_PORT=8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      geo-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      vehicle-service:
+        condition: service_healthy
+      matching-service:
+        condition: service_healthy
+      trip-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Payment Service
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
+    container_name: rideshare-payment-service
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+      - HTTP_PORT=9087
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=rideshare
+      - DB_USERNAME=rideshare_user
+      - DB_PASSWORD=rideshare_password
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "9087:9087"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9087/health"]
       interval: 10s
       timeout: 5s
       retries: 5

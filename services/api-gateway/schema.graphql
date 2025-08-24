@@ -1,0 +1,532 @@
+# GraphQL Schema for Rideshare Platform
+scalar Time
+scalar Map
+
+# =====================
+# User Management Types
+# =====================
+
+type User {
+  id: ID!
+  email: String!
+  phone: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole!
+  status: UserStatus!
+  createdAt: Time!
+  updatedAt: Time!
+  profile: UserProfile
+}
+
+enum UserRole {
+  RIDER
+  DRIVER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  BANNED
+}
+
+type UserProfile {
+  avatarUrl: String
+  dateOfBirth: String
+  gender: String
+  preferredLanguage: String
+  rating: Float
+  totalTrips: Int
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  preferences: UserPreferences
+}
+
+type UserPreferences {
+  allowNotifications: Boolean
+  shareLocation: Boolean
+  defaultPaymentMethod: String
+  quietRides: Boolean
+  accessibilityFeatures: Boolean
+}
+
+# =====================
+# Driver Management Types
+# =====================
+
+type Driver {
+  userId: ID!
+  user: User
+  licenseNumber: String!
+  licenseExpiry: Time!
+  status: DriverStatus!
+  currentLocation: Location
+  rating: Float
+  totalTrips: Int
+  vehicleId: String
+  isAvailable: Boolean
+  lastActive: Time
+  vehicle: Vehicle
+}
+
+enum DriverStatus {
+  OFFLINE
+  ONLINE
+  ON_TRIP
+  BREAK
+}
+
+# =====================
+# Location Types
+# =====================
+
+type Location {
+  latitude: Float!
+  longitude: Float!
+  address: String
+  accuracy: Float
+  timestamp: Time
+}
+
+# =====================
+# Vehicle Types
+# =====================
+
+type Vehicle {
+  id: ID!
+  type: String!
+  make: String!
+  model: String!
+  year: Int!
+  licensePlate: String!
+  color: String!
+  capacity: Int!
+  features: [String!]
+}
+
+# =====================
+# Trip Management Types
+# =====================
+
+type Trip {
+  id: ID!
+  riderId: ID!
+  driverId: ID
+  rider: User
+  driver: Driver
+  status: TripStatus!
+  pickupLocation: Location!
+  destination: Location!
+  estimatedFare: Float
+  actualFare: Float
+  paymentMethodId: String
+  requestedAt: Time!
+  acceptedAt: Time
+  startedAt: Time
+  completedAt: Time
+  metadata: TripMetadata
+  realTimeUpdates: [TripUpdate!]
+}
+
+enum TripStatus {
+  REQUESTED
+  MATCHED
+  DRIVER_EN_ROUTE
+  DRIVER_ARRIVED
+  TRIP_STARTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED_BY_RIDER
+  CANCELLED_BY_DRIVER
+  FAILED
+}
+
+type TripMetadata {
+  vehicleType: String
+  distanceKm: Float
+  estimatedDurationMinutes: Int
+  actualDurationMinutes: Int
+  surgeMultiplier: Float
+  cancellationReason: String
+  riderRating: Float
+  driverRating: Float
+}
+
+type TripUpdate {
+  tripId: ID!
+  oldStatus: TripStatus!
+  newStatus: TripStatus!
+  currentLocation: Location
+  timestamp: Time!
+  metadata: Map
+}
+
+# =====================
+# Matching Types
+# =====================
+
+type MatchResult {
+  requestId: ID!
+  matchedDrivers: [Driver!]!
+  bestMatch: Driver
+  metadata: MatchingMetadata
+  success: Boolean!
+  message: String
+}
+
+type MatchingMetadata {
+  totalDriversConsidered: Int
+  availableDriversInArea: Int
+  searchRadiusKm: Float
+  processingTimeMs: Int
+  algorithmVersion: String
+  algorithmWeights: Map
+}
+
+type MatchingScore {
+  totalScore: Float!
+  distanceScore: Float!
+  ratingScore: Float!
+  availabilityScore: Float!
+  demandScore: Float!
+  historicalScore: Float!
+}
+
+# =====================
+# Pricing Types
+# =====================
+
+type PriceEstimate {
+  id: ID!
+  baseFare: Float!
+  distanceFare: Float!
+  timeFare: Float!
+  surgeMultiplier: Float!
+  surgeAmount: Float!
+  discountAmount: Float!
+  totalAmount: Float!
+  currency: String!
+  breakdown: PricingBreakdown
+  validUntil: Time!
+}
+
+type PricingBreakdown {
+  baseRate: Float
+  perKmRate: Float
+  perMinuteRate: Float
+  distanceKm: Float
+  durationMinutes: Int
+  bookingFee: Float
+  serviceFee: Float
+  taxes: Float
+  tolls: Float
+  discounts: [AppliedDiscount!]
+  surgeInfo: SurgeInfo
+}
+
+type AppliedDiscount {
+  id: ID!
+  name: String!
+  type: String!
+  value: Float!
+  amountSaved: Float!
+  description: String
+}
+
+type SurgeInfo {
+  isActive: Boolean!
+  multiplier: Float!
+  reason: String
+  startedAt: Time
+  endsAt: Time
+  zoneId: String
+}
+
+type VehicleType {
+  id: ID!
+  name: String!
+  description: String
+  rates: PricingRates
+  capacity: Int
+  available: Boolean
+}
+
+type PricingRates {
+  baseFare: Float!
+  perKmRate: Float!
+  perMinuteRate: Float!
+  minimumFare: Float!
+  maximumFare: Float!
+  bookingFee: Float
+  cancellationFee: Float
+}
+
+# =====================
+# Payment Types
+# =====================
+
+type Payment {
+  id: ID!
+  tripId: ID!
+  userId: ID!
+  driverId: ID!
+  amount: Float!
+  currency: String!
+  paymentMethod: PaymentMethod!
+  status: PaymentStatus!
+  transactionType: TransactionType!
+  processorResponse: String
+  fraudRisk: FraudRiskLevel
+  fraudScores: Map
+  metadata: Map
+  failureReason: String
+  processedAt: Time
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  DIGITAL_WALLET
+  BANK_TRANSFER
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+  CHARGEBACK
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
+  CHARGEBACK_TXN
+  AUTHORIZATION
+  CAPTURE
+}
+
+enum FraudRiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+type PaymentMethodDetails {
+  id: ID!
+  userId: ID!
+  type: PaymentMethod!
+  isDefault: Boolean!
+  fingerprint: String
+  expiryDate: Time
+  lastFourDigits: String
+  bankName: String
+  walletProvider: String
+  details: Map
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+# =====================
+# Analytics Types
+# =====================
+
+type Analytics {
+  tripStats: TripStats
+  paymentStats: PaymentStats
+  userStats: UserStats
+  driverStats: DriverStats
+}
+
+type TripStats {
+  totalTrips: Int
+  completedTrips: Int
+  cancelledTrips: Int
+  averageRating: Float
+  averageDuration: Int
+  averageDistance: Float
+}
+
+type PaymentStats {
+  totalRevenue: Float
+  averageFare: Float
+  totalTransactions: Int
+  successfulPayments: Int
+  failedPayments: Int
+  fraudBlocked: Int
+}
+
+type UserStats {
+  totalUsers: Int
+  activeUsers: Int
+  newSignups: Int
+  riderToDriverRatio: Float
+}
+
+type DriverStats {
+  totalDrivers: Int
+  activeDrivers: Int
+  averageRating: Float
+  onlineDrivers: Int
+}
+
+# =====================
+# Input Types
+# =====================
+
+input LocationInput {
+  latitude: Float!
+  longitude: Float!
+  address: String
+}
+
+input CreateUserInput {
+  email: String!
+  phone: String!
+  firstName: String!
+  lastName: String!
+  role: UserRole!
+  password: String!
+}
+
+input UpdateUserInput {
+  email: String
+  phone: String
+  firstName: String
+  lastName: String
+  profile: UserProfileInput
+}
+
+input UserProfileInput {
+  avatarUrl: String
+  dateOfBirth: String
+  gender: String
+  preferredLanguage: String
+  preferences: UserPreferencesInput
+}
+
+input UserPreferencesInput {
+  allowNotifications: Boolean
+  shareLocation: Boolean
+  defaultPaymentMethod: String
+  quietRides: Boolean
+  accessibilityFeatures: Boolean
+}
+
+input CreateTripInput {
+  riderId: ID!
+  pickupLocation: LocationInput!
+  destination: LocationInput!
+  vehicleType: String!
+  paymentMethodId: String!
+}
+
+input ProcessPaymentInput {
+  tripId: ID!
+  userId: ID!
+  driverId: ID!
+  amount: Float!
+  currency: String!
+  paymentMethodId: String!
+  description: String
+}
+
+input AddPaymentMethodInput {
+  userId: ID!
+  type: PaymentMethod!
+  details: Map!
+  isDefault: Boolean
+}
+
+# =====================
+# Query Root
+# =====================
+
+type Query {
+  # User queries
+  user(id: ID!): User
+  users(role: UserRole, status: UserStatus, limit: Int, offset: Int): [User!]!
+  
+  # Driver queries
+  driver(id: ID!): Driver
+  nearbyDrivers(location: LocationInput!, radius: Float, vehicleType: String, limit: Int): [Driver!]!
+  activeDrivers(location: LocationInput!, radius: Float, limit: Int): [Driver!]!
+  
+  # Trip queries
+  trip(id: ID!): Trip
+  userTrips(userId: ID!, role: String!, limit: Int, offset: Int, status: TripStatus): [Trip!]!
+  activeTrips(region: String, limit: Int): [Trip!]!
+  
+  # Pricing queries
+  priceEstimate(pickup: LocationInput!, destination: LocationInput!, vehicleType: String!, departureTime: Time): PriceEstimate
+  multipleEstimates(pickup: LocationInput!, destination: LocationInput!, vehicleTypes: [String!]!, departureTime: Time): [PriceEstimate!]!
+  surgePricing(location: LocationInput!, vehicleType: String!): SurgeInfo
+  vehicleTypes(location: LocationInput!): [VehicleType!]!
+  
+  # Payment queries
+  payment(id: ID!): Payment
+  userPayments(userId: ID!, limit: Int, offset: Int): [Payment!]!
+  userPaymentMethods(userId: ID!): [PaymentMethodDetails!]!
+  tripPayments(tripId: ID!): [Payment!]!
+  
+  # Analytics queries
+  analytics(fromTime: Time, toTime: Time, region: String): Analytics
+  
+  # Real-time status
+  systemHealth: Map
+}
+
+# =====================
+# Mutation Root
+# =====================
+
+type Mutation {
+  # User mutations
+  createUser(input: CreateUserInput!): User
+  updateUser(id: ID!, input: UpdateUserInput!): User
+  updateDriverLocation(driverId: ID!, location: LocationInput!, status: DriverStatus!): Boolean
+  
+  # Trip mutations
+  createTrip(input: CreateTripInput!): Trip
+  updateTripStatus(tripId: ID!, status: TripStatus!, driverId: ID, reason: String): Trip
+  cancelTrip(tripId: ID!, reason: String!): Trip
+  
+  # Matching mutations
+  matchDriver(tripId: ID!, preferences: Map): MatchResult
+  
+  # Payment mutations
+  processPayment(input: ProcessPaymentInput!): Payment
+  processRefund(paymentId: ID!, amount: Float!, reason: String!): Boolean
+  addPaymentMethod(input: AddPaymentMethodInput!): PaymentMethodDetails
+  
+  # Admin mutations
+  updateSurgePricing(zoneId: String!, multiplier: Float!, reason: String!, durationMinutes: Int!): SurgeInfo
+}
+
+# =====================
+# Subscription Root
+# =====================
+
+type Subscription {
+  # Real-time trip updates
+  tripUpdates(tripId: ID!): TripUpdate
+  
+  # Real-time driver location updates
+  driverLocationUpdates(region: String!): Driver
+  
+  # Real-time pricing updates
+  pricingUpdates(zoneIds: [String!]!, vehicleTypes: [String!]!): SurgeInfo
+  
+  # Real-time payment notifications
+  paymentUpdates(userId: ID!): Payment
+  
+  # System notifications
+  systemNotifications(userId: ID!): Map
+}

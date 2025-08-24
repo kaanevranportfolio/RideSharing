@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package trip;
+
+option go_package = "github.com/rideshare-platform/shared/proto/trip";
+
+import "google/protobuf/timestamp.proto";
+
+// Location represents a geographical coordinate (simplified version)
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  string address = 3;
+}
+
+// Trip represents a ride request and its lifecycle
+message Trip {
+  string id = 1;
+  string rider_id = 2;
+  string driver_id = 3;
+  TripStatus status = 4;
+  Location pickup_location = 5;
+  Location destination = 6;
+  double estimated_fare = 7;
+  double actual_fare = 8;
+  string payment_method_id = 9;
+  google.protobuf.Timestamp requested_at = 10;
+  google.protobuf.Timestamp accepted_at = 11;
+  google.protobuf.Timestamp started_at = 12;
+  google.protobuf.Timestamp completed_at = 13;
+  TripMetadata metadata = 14;
+}
+
+// Trip status enumeration
+enum TripStatus {
+  UNKNOWN_STATUS = 0;
+  REQUESTED = 1;
+  MATCHED = 2;
+  DRIVER_EN_ROUTE = 3;
+  DRIVER_ARRIVED = 4;
+  TRIP_STARTED = 5;
+  IN_PROGRESS = 6;
+  COMPLETED = 7;
+  CANCELLED_BY_RIDER = 8;
+  CANCELLED_BY_DRIVER = 9;
+  FAILED = 10;
+}
+
+// Additional trip metadata
+message TripMetadata {
+  string vehicle_type = 1;
+  double distance_km = 2;
+  int32 estimated_duration_minutes = 3;
+  int32 actual_duration_minutes = 4;
+  double surge_multiplier = 5;
+  string cancellation_reason = 6;
+  double rider_rating = 7;
+  double driver_rating = 8;
+}
+
+// Request/Response messages
+message CreateTripRequest {
+  string rider_id = 1;
+  Location pickup_location = 2;
+  Location destination = 3;
+  string vehicle_type = 4;
+  string payment_method_id = 5;
+  TripMetadata metadata = 6;
+}
+
+message CreateTripResponse {
+  Trip trip = 1;
+  bool success = 2;
+  string message = 3;
+  repeated string errors = 4;
+}
+
+message GetTripRequest {
+  string trip_id = 1;
+}
+
+message GetTripResponse {
+  Trip trip = 1;
+  bool found = 2;
+}
+
+message UpdateTripStatusRequest {
+  string trip_id = 1;
+  TripStatus status = 2;
+  string driver_id = 3;
+  string reason = 4;
+}
+
+message UpdateTripStatusResponse {
+  Trip trip = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message GetUserTripsRequest {
+  string user_id = 1;
+  string role = 2; // "rider" or "driver"
+  int32 limit = 3;
+  int32 offset = 4;
+  TripStatus status = 5;
+}
+
+message GetUserTripsResponse {
+  repeated Trip trips = 1;
+  int32 total_count = 2;
+  bool has_more = 3;
+}
+
+message GetActiveTripsRequest {
+  string region = 1;
+  int32 limit = 2;
+}
+
+message GetActiveTripsResponse {
+  repeated Trip trips = 1;
+  int32 count = 2;
+}
+
+// Real-time trip updates
+message TripUpdateEvent {
+  string trip_id = 1;
+  TripStatus old_status = 2;
+  TripStatus new_status = 3;
+  Location current_location = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  map<string, string> metadata = 6;
+}
+
+message SubscribeToTripUpdatesRequest {
+  string trip_id = 1;
+  string user_id = 2;
+}
+
+// TripService defines the gRPC service for trip management
+service TripService {
+  rpc CreateTrip(CreateTripRequest) returns (CreateTripResponse);
+  rpc GetTrip(GetTripRequest) returns (GetTripResponse);
+  rpc UpdateTripStatus(UpdateTripStatusRequest) returns (UpdateTripStatusResponse);
+  rpc GetUserTrips(GetUserTripsRequest) returns (GetUserTripsResponse);
+  rpc GetActiveTrips(GetActiveTripsRequest) returns (GetActiveTripsResponse);
+  
+  // Real-time features
+  rpc SubscribeToTripUpdates(SubscribeToTripUpdatesRequest) returns (stream TripUpdateEvent);
+}
