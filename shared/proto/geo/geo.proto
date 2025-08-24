@@ -116,10 +116,41 @@ message RouteOptimizationRequest {
 // Route optimization response
 message RouteOptimizationResponse {
   repeated Location optimized_route = 1;
-  double total_distance_meters = 2;
-  int32 total_duration_seconds = 3;
-  double fuel_consumption_estimate = 4;
-  string optimization_type = 5;
+  double total_distance_km = 2;
+  int32 estimated_duration_seconds = 3;
+  string optimization_algorithm = 4;
+}
+
+// Driver location update subscription request
+message SubscribeToDriverLocationRequest {
+  string area_id = 1;  // Geographic area to monitor (geohash or area identifier)
+  double radius_km = 2; // Radius around the area
+  repeated string driver_ids = 3; // Specific drivers to track (optional)
+}
+
+// Real-time driver location event
+message DriverLocationEvent {
+  string driver_id = 1;
+  Location location = 2;
+  string status = 3; // "available", "busy", "offline"
+  string vehicle_id = 4;
+  double speed_kmh = 5;
+  double heading = 6; // Direction in degrees
+  google.protobuf.Timestamp timestamp = 7;
+  map<string, string> metadata = 8;
+}
+
+// Location tracking session request
+message StartLocationTrackingRequest {
+  string driver_id = 1;
+  int32 update_interval_seconds = 2; // How often to send updates
+}
+
+// Location tracking session response
+message StartLocationTrackingResponse {
+  bool success = 1;
+  string session_id = 2;
+  string message = 3;
 }
 
 // Geospatial service definition
@@ -141,4 +172,10 @@ service GeospatialService {
   
   // Optimize route with multiple waypoints
   rpc OptimizeRoute(RouteOptimizationRequest) returns (RouteOptimizationResponse);
+  
+  // Real-time driver location streaming
+  rpc SubscribeToDriverLocations(SubscribeToDriverLocationRequest) returns (stream DriverLocationEvent);
+  
+  // Start location tracking session for a driver
+  rpc StartLocationTracking(StartLocationTrackingRequest) returns (StartLocationTrackingResponse);
 }

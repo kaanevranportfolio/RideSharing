@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"fmt"
+	"math/rand"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -261,10 +263,102 @@ func (s *Server) OptimizeRoute(ctx context.Context, req *geopb.RouteOptimization
 	totalDuration = int(totalDistance / 1000 / 50 * 3600) // seconds
 
 	return &geopb.RouteOptimizationResponse{
-		OptimizedRoute:          optimizedRoute,
-		TotalDistanceMeters:     totalDistance,
-		TotalDurationSeconds:    int32(totalDuration),
-		FuelConsumptionEstimate: totalDistance * 0.08 / 1000, // 8L/100km
-		OptimizationType:        req.OptimizationType,
+		OptimizedRoute:           optimizedRoute,
+		TotalDistanceKm:          totalDistance / 1000, // Convert to km
+		EstimatedDurationSeconds: int32(totalDuration),
+		OptimizationAlgorithm:    "nearest_neighbor",
+	}, nil
+}
+
+// SubscribeToDriverLocations implements real-time driver location streaming
+func (s *Server) SubscribeToDriverLocations(req *geopb.SubscribeToDriverLocationRequest, stream geopb.GeospatialService_SubscribeToDriverLocationsServer) error {
+	s.logger.WithFields(map[string]interface{}{
+		"area_id":    req.AreaId,
+		"radius_km":  req.RadiusKm,
+		"driver_ids": req.DriverIds,
+	}).Info("New driver location subscription")
+
+	// Create a context that can be cancelled
+	ctx := stream.Context()
+
+	// Mock implementation for now - in reality, this would:
+	// 1. Subscribe to driver location updates from Redis/Kafka
+	// 2. Filter by area and driver IDs
+	// 3. Stream updates to the client
+
+	// Simulate streaming driver locations
+	for {
+		select {
+		case <-ctx.Done():
+			s.logger.Info("Driver location subscription cancelled")
+			return ctx.Err()
+		case <-time.After(5 * time.Second):
+			// Send mock driver location update
+			event := &geopb.DriverLocationEvent{
+				DriverId: "driver_123",
+				Location: &geopb.Location{
+					Latitude:  37.7749 + (rand.Float64()-0.5)*0.01,
+					Longitude: -122.4194 + (rand.Float64()-0.5)*0.01,
+					Accuracy:  5.0,
+					Timestamp: timestamppb.New(time.Now()),
+				},
+				Status:    "available",
+				VehicleId: "vehicle_456",
+				SpeedKmh:  25.5,
+				Heading:   180.0,
+				Timestamp: timestamppb.New(time.Now()),
+				Metadata: map[string]string{
+					"area":      req.AreaId,
+					"zone":      "downtown",
+					"direction": "north",
+				},
+			}
+
+			if err := stream.Send(event); err != nil {
+				s.logger.WithError(err).Error("Failed to send driver location event")
+				return err
+			}
+
+			s.logger.WithFields(map[string]interface{}{
+				"driver_id": event.DriverId,
+				"lat":       event.Location.Latitude,
+				"lng":       event.Location.Longitude,
+			}).Debug("Sent driver location update")
+		}
+	}
+}
+
+// StartLocationTracking implements location tracking session initiation
+func (s *Server) StartLocationTracking(ctx context.Context, req *geopb.StartLocationTrackingRequest) (*geopb.StartLocationTrackingResponse, error) {
+	s.logger.WithFields(map[string]interface{}{
+		"driver_id":               req.DriverId,
+		"update_interval_seconds": req.UpdateIntervalSeconds,
+	}).Info("Starting location tracking session")
+
+	// Validate request
+	if req.DriverId == "" {
+		return &geopb.StartLocationTrackingResponse{
+			Success: false,
+			Message: "Driver ID is required",
+		}, nil
+	}
+
+	// Generate session ID
+	sessionID := fmt.Sprintf("track_%s_%d", req.DriverId, time.Now().Unix())
+
+	// In a real implementation, this would:
+	// 1. Register the driver for location tracking
+	// 2. Set up location update intervals
+	// 3. Create tracking session in Redis/database
+
+	s.logger.WithFields(map[string]interface{}{
+		"driver_id":  req.DriverId,
+		"session_id": sessionID,
+	}).Info("Location tracking session started")
+
+	return &geopb.StartLocationTrackingResponse{
+		Success:   true,
+		SessionId: sessionID,
+		Message:   "Location tracking session started successfully",
 	}, nil
 }
