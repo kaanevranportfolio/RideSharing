@@ -37,6 +37,10 @@ func (h *HTTPHandler) SetupRoutes() *gin.Engine {
 	// Health check endpoint
 	router.GET("/health", h.healthCheck)
 
+	// Health check endpoints for MongoDB and Redis
+	router.GET("/health/mongodb", h.mongoHealth)
+	router.GET("/health/redis", h.redisHealth)
+
 	// API routes
 	v1 := router.Group("/api/v1")
 	{
@@ -71,6 +75,24 @@ func (h *HTTPHandler) ping(c *gin.Context) {
 		"message": "pong",
 		"service": "geo-service",
 	})
+}
+
+// mongoHealth checks the health of the MongoDB dependency
+func (h *HTTPHandler) mongoHealth(c *gin.Context) {
+	status := "healthy"
+	if err := h.geoService.PingMongo(c.Request.Context()); err != nil {
+		status = "unhealthy"
+	}
+	c.JSON(200, gin.H{"status": status, "service": "geo-service", "dependency": "mongodb"})
+}
+
+// redisHealth checks the health of the Redis dependency
+func (h *HTTPHandler) redisHealth(c *gin.Context) {
+	status := "healthy"
+	if err := h.geoService.PingRedis(c.Request.Context()); err != nil {
+		status = "unhealthy"
+	}
+	c.JSON(200, gin.H{"status": status, "service": "geo-service", "dependency": "redis"})
 }
 
 // LocationRequest represents a location coordinate

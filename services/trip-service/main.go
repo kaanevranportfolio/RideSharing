@@ -10,9 +10,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq" // PostgreSQL driver
 	"github.com/rideshare-platform/services/trip-service/internal/config"
 	"github.com/rideshare-platform/services/trip-service/internal/handler"
+	"github.com/rideshare-platform/services/trip-service/internal/repository"
 	"github.com/rideshare-platform/services/trip-service/internal/service"
+	sharedconfig "github.com/rideshare-platform/shared/config"
+	"github.com/rideshare-platform/shared/database"
+	"github.com/rideshare-platform/shared/logger"
 )
 
 func main() {
@@ -24,8 +29,29 @@ func main() {
 
 	log.Printf("Starting Trip Service on port %s", cfg.HTTPPort)
 
-	// Initialize services
-	tripService := service.NewTripService(cfg)
+	// Map service config to shared database config
+	dbCfg := &sharedconfig.DatabaseConfig{
+		Host:            cfg.DatabaseHost,
+		Port:            cfg.DatabasePort,
+		Database:        cfg.DatabaseName,
+		Username:        cfg.DatabaseUser,
+		Password:        cfg.DatabasePassword,
+		SSLMode:         "disable",
+		MaxOpenConns:    10,
+		MaxIdleConns:    5,
+		ConnMaxLifetime: 300 * time.Second,
+		ConnMaxIdleTime: 60 * time.Second,
+	}
+
+	logr := logger.NewLogger(cfg.LogLevel, cfg.Environment)
+	pg, err := database.NewPostgresDB(dbCfg, logr)
+	if err != nil {
+		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
+	}
+
+	// Initialize repository and service
+	tripRepo := repository.NewTripRepository(pg.DB)
+	tripService := service.NewTripService(tripRepo)
 
 	// Initialize HTTP handler
 	tripHandler := handler.NewTripHandler(tripService)

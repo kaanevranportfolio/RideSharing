@@ -3,50 +3,55 @@ package service
 import (
 	"context"
 	"errors"
-	"time"
 
-	"github.com/rideshare-platform/services/user-service/internal/config"
+	"github.com/rideshare-platform/services/user-service/internal/repository"
 	"github.com/rideshare-platform/shared/models"
 )
 
 // UserService handles user business logic
 type UserService struct {
-	config *config.Config
-	users  map[string]*models.User // In-memory storage for demo
+	repo *repository.UserRepository
 }
 
 // NewUserService creates a new user service
-func NewUserService(config *config.Config) *UserService {
+func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{
-		config: config,
-		users:  make(map[string]*models.User),
+		repo: repo,
 	}
 }
 
 // CreateUser creates a new user
 func (s *UserService) CreateUser(ctx context.Context, user *models.User) (*models.User, error) {
-	if user.ID == "" {
-		return nil, errors.New("user ID is required")
-	}
-
 	if user.Email == "" {
 		return nil, errors.New("user email is required")
 	}
 
-	// Check if user already exists
-	if _, exists := s.users[user.ID]; exists {
-		return nil, errors.New("user already exists")
+	if user.FirstName == "" {
+		return nil, errors.New("user first name is required")
 	}
 
-	// Set timestamps
-	now := time.Now()
-	user.CreatedAt = now
-	user.UpdatedAt = now
+	if user.LastName == "" {
+		return nil, errors.New("user last name is required")
+	}
 
-	// Store user
-	s.users[user.ID] = user
+	// Check if user already exists by email
+	existingUser, err := s.repo.GetUserByEmail(ctx, user.Email)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser != nil {
+		return nil, errors.New("user with this email already exists")
+	}
 
-	return user, nil
+	// Set defaults
+	if user.UserType == "" {
+		user.UserType = "rider"
+	}
+	if user.Status == "" {
+		user.Status = "active"
+	}
+
+	return s.repo.CreateUser(ctx, user)
 }
 
 // GetUser retrieves a user by ID
@@ -55,12 +60,16 @@ func (s *UserService) GetUser(ctx context.Context, userID string) (*models.User,
 		return nil, errors.New("user ID is required")
 	}
 
-	user, exists := s.users[userID]
-	if !exists {
-		return nil, errors.New("user not found")
+	return s.repo.GetUser(ctx, userID)
+}
+
+// GetUserByEmail retrieves a user by email
+func (s *UserService) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	if email == "" {
+		return nil, errors.New("email is required")
 	}
 
-	return user, nil
+	return s.repo.GetUserByEmail(ctx, email)
 }
 
 // UpdateUser updates an existing user
@@ -69,74 +78,77 @@ func (s *UserService) UpdateUser(ctx context.Context, user *models.User) (*model
 		return nil, errors.New("user ID is required")
 	}
 
-	existingUser, exists := s.users[user.ID]
-	if !exists {
+	// Check if user exists
+	existingUser, err := s.repo.GetUser(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	if existingUser == nil {
 		return nil, errors.New("user not found")
 	}
 
 	// Update fields
+	if user.Email != "" {
+		existingUser.Email = user.Email
+	}
 	if user.FirstName != "" {
 		existingUser.FirstName = user.FirstName
 	}
 	if user.LastName != "" {
 		existingUser.LastName = user.LastName
 	}
-	if user.Email != "" {
-		existingUser.Email = user.Email
-	}
 	if user.Phone != "" {
 		existingUser.Phone = user.Phone
-	}
-	if user.UserType != "" {
-		existingUser.UserType = user.UserType
 	}
 	if user.Status != "" {
 		existingUser.Status = user.Status
 	}
+	if user.ProfileImageURL != "" {
+		existingUser.ProfileImageURL = user.ProfileImageURL
+	}
 
-	// Update timestamp
-	existingUser.UpdatedAt = time.Now()
-
-	return existingUser, nil
+	return s.repo.UpdateUser(ctx, existingUser)
 }
 
-// DeleteUser deletes a user by ID
+// DeleteUser deletes a user
 func (s *UserService) DeleteUser(ctx context.Context, userID string) error {
 	if userID == "" {
 		return errors.New("user ID is required")
 	}
 
-	if _, exists := s.users[userID]; !exists {
-		return errors.New("user not found")
-	}
-
-	delete(s.users, userID)
-	return nil
+	return s.repo.DeleteUser(ctx, userID)
 }
 
-// ListUsers returns all users
-func (s *UserService) ListUsers(ctx context.Context) ([]*models.User, error) {
-	users := make([]*models.User, 0, len(s.users))
-	for _, user := range s.users {
-		users = append(users, user)
+// ListUsers lists all users
+func (s *UserService) ListUsers(ctx context.Context, limit, offset int) ([]*models.User, error) {
+	if limit <= 0 {
+		limit = 10
 	}
-	return users, nil
+	if offset < 0 {
+		offset = 0
+	}
+
+	return s.repo.ListUsers(ctx, limit, offset)
 }
 
-// AuthenticateUser authenticates a user with email and password
+// AuthenticateUser authenticates a user by email and password
 func (s *UserService) AuthenticateUser(ctx context.Context, email, password string) (*models.User, error) {
-	if email == "" || password == "" {
-		return nil, errors.New("email and password are required")
+	if email == "" {
+		return nil, errors.New("email is required")
+	}
+	if password == "" {
+		return nil, errors.New("password is required")
 	}
 
-	// Find user by email
-	for _, user := range s.users {
-		if user.Email == email {
-			// In a real implementation, you would hash and compare passwords
-			// For demo purposes, we'll just return the user
-			return user, nil
-		}
+	user, err := s.repo.GetUserByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, errors.New("invalid credentials")
 	}
 
-	return nil, errors.New("invalid credentials")
+	// TODO: Implement proper password hashing verification
+	// For now, just return the user (this is not secure!)
+	return user, nil
 }

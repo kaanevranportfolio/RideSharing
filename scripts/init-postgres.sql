@@ -91,3 +91,61 @@ VALUES
     ('00000000-0000-0000-0000-000000000101', '00000000-0000-0000-0000-000000000001', 'Toyota', 'Camry', 2022, 'Silver', 'ABC123', 'sedan', 4),
     ('00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000003', 'Honda', 'CR-V', 2023, 'Blue', 'XYZ789', 'suv', 5)
 ON CONFLICT (license_plate) DO NOTHING;
+
+-- Create trips table
+CREATE TABLE IF NOT EXISTS trips (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    rider_id UUID NOT NULL REFERENCES users(id),
+    driver_id UUID REFERENCES drivers(user_id),
+    vehicle_id UUID REFERENCES vehicles(id),
+    
+    -- Location data (stored as JSON for flexibility)
+    pickup_location JSONB NOT NULL,
+    destination JSONB NOT NULL,
+    actual_route JSONB, -- actual route taken
+    
+    -- Trip details
+    status VARCHAR(20) NOT NULL DEFAULT 'requested' CHECK (status IN (
+        'requested', 'matched', 'driver_assigned', 'driver_arriving', 
+        'driver_arrived', 'trip_started', 'in_progress', 'completed', 
+        'cancelled', 'failed'
+    )),
+    
+    -- Pricing
+    estimated_fare_cents BIGINT,
+    actual_fare_cents BIGINT,
+    currency VARCHAR(3) DEFAULT 'USD',
+    
+    -- Metrics
+    estimated_distance_km DECIMAL(8,2),
+    actual_distance_km DECIMAL(8,2),
+    estimated_duration_seconds INTEGER,
+    actual_duration_seconds INTEGER,
+    
+    -- Timestamps
+    requested_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    matched_at TIMESTAMP WITH TIME ZONE,
+    driver_assigned_at TIMESTAMP WITH TIME ZONE,
+    driver_arrived_at TIMESTAMP WITH TIME ZONE,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    
+    -- Cancellation
+    cancelled_by VARCHAR(20), -- 'rider', 'driver', 'system'
+    cancellation_reason TEXT,
+    
+    -- Additional metadata
+    passenger_count INTEGER DEFAULT 1,
+    special_requests TEXT,
+    promo_code VARCHAR(50),
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes for trips table
+CREATE INDEX IF NOT EXISTS idx_trips_rider_id ON trips(rider_id);
+CREATE INDEX IF NOT EXISTS idx_trips_driver_id ON trips(driver_id);
+CREATE INDEX IF NOT EXISTS idx_trips_status ON trips(status);
+CREATE INDEX IF NOT EXISTS idx_trips_requested_at ON trips(requested_at);
+CREATE INDEX IF NOT EXISTS idx_trips_completed_at ON trips(completed_at);

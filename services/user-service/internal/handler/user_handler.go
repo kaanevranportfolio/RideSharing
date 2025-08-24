@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -180,7 +181,23 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 // ListUsers returns all users
 func (h *UserHandler) ListUsers(c *gin.Context) {
-	users, err := h.userService.ListUsers(c.Request.Context())
+	// Parse query parameters
+	limit := 10
+	offset := 0
+
+	if limitStr := c.Query("limit"); limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	if offsetStr := c.Query("offset"); offsetStr != "" {
+		if o, err := strconv.Atoi(offsetStr); err == nil && o >= 0 {
+			offset = o
+		}
+	}
+
+	users, err := h.userService.ListUsers(c.Request.Context(), limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Failed to list users",

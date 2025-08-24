@@ -2,10 +2,14 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"sort"
 	"time"
+
+	"github.com/go-redis/redis/v8"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/rideshare-platform/services/geo-service/internal/config"
 	"github.com/rideshare-platform/services/geo-service/internal/repository"
@@ -19,6 +23,8 @@ type GeospatialService struct {
 	logger     *logger.Logger
 	driverRepo *repository.DriverLocationRepository
 	cacheRepo  *repository.CacheRepository
+	mongo      *mongo.Client
+	redis      *redis.Client
 }
 
 // NewGeospatialService creates a new geospatial service
@@ -27,12 +33,16 @@ func NewGeospatialService(
 	log *logger.Logger,
 	driverRepo *repository.DriverLocationRepository,
 	cacheRepo *repository.CacheRepository,
+	mongo *mongo.Client,
+	redis *redis.Client,
 ) *GeospatialService {
 	return &GeospatialService{
 		config:     cfg,
 		logger:     log,
 		driverRepo: driverRepo,
 		cacheRepo:  cacheRepo,
+		mongo:      mongo,
+		redis:      redis,
 	}
 }
 
@@ -272,6 +282,22 @@ func (s *GeospatialService) GenerateGeohash(ctx context.Context, location models
 	}).Debug("Geohash generated")
 
 	return geohash, nil
+}
+
+// PingMongo pings the MongoDB instance
+func (s *GeospatialService) PingMongo(ctx context.Context) error {
+	if s.mongo == nil {
+		return errors.New("mongo client not initialized")
+	}
+	return s.mongo.Ping(ctx, nil)
+}
+
+// PingRedis pings the Redis instance
+func (s *GeospatialService) PingRedis(ctx context.Context) error {
+	if s.redis == nil {
+		return errors.New("redis client not initialized")
+	}
+	return s.redis.Ping(ctx).Err()
 }
 
 // Private helper methods

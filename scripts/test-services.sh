@@ -197,16 +197,17 @@ else
     echo "Skipping user service (build failed)"
 fi
 
-# Also start the simple test service for backward compatibility (optional)
-if [ -f simple-test-service.go ]; then
-    echo "Starting legacy test service..."
-    go build -o test-service simple-test-service.go
-    ./test-service &
-    TEST_PID=$!
-    SERVICE_PIDS+=($TEST_PID)
-    wait_for_service "Test Service" "http://localhost:8080/health"
+# Start api-gateway service (port 8080)
+if [ -f "services/api-gateway/api-gateway" ]; then
+    echo "Starting api-gateway service..."
+    cd services/api-gateway
+    ./api-gateway &
+    APIGW_PID=$!
+    SERVICE_PIDS+=($APIGW_PID)
+    cd ../..
+    wait_for_service "API Gateway Service" "http://localhost:8080/api/drivers/nearby?lat=40.7128&lng=-74.0060&radius=5000"
 else
-    echo "Legacy test service not found (optional)"
+    echo "Skipping api-gateway service (build failed)"
 fi
 
 # Test service endpoints
@@ -270,6 +271,28 @@ else
     services_health+=("user:✗")
 fi
 
+# Test geo service dependency endpoints
+echo -n "Testing MongoDB connection... "
+if curl -s -f "$GEO_SERVICE/test/mongodb" | grep -q "healthy"; then
+    echo -e "${GREEN}✓ Success${NC}"
+else
+    echo -e "${RED}✗ Failed${NC}"
+fi
+
+echo -n "Testing Redis connection... "
+if curl -s -f "$GEO_SERVICE/test/redis" | grep -q "healthy"; then
+    echo -e "${GREEN}✓ Success${NC}"
+else
+    echo -e "${RED}✗ Failed${NC}"
+fi
+
+echo -n "Testing geospatial query... "
+if curl -s -f "$GEO_SERVICE/test/geospatial" | grep -q "success"; then
+    echo -e "${GREEN}✓ Success${NC}"
+else
+    echo -e "${RED}✗ Failed${NC}"
+fi
+
 # Test API endpoints
 echo -e "\n${YELLOW}API Endpoint Tests:${NC}"
 
@@ -313,7 +336,7 @@ fi
 echo -n "Testing trip service create trip... "
 TRIP_RESPONSE=$(curl -s -X POST "$TRIP_SERVICE/api/v1/trips" \
     -H "Content-Type: application/json" \
-    -d '{"rider_id":"test-rider","driver_id":"test-driver","pickup_location":{"lat":40.7128,"lng":-74.0060},"destination":{"lat":40.7589,"lng":-73.9851}}' || echo "error")
+    -d '{"rider_id":"00000000-0000-0000-0000-000000000002","pickup_location":{"lat":40.7128,"lng":-74.0060},"destination":{"lat":40.7589,"lng":-73.9851}}' || echo "error")
 
 if echo "$TRIP_RESPONSE" | grep -q "trip_id\|id"; then
     echo -e "${GREEN}✓ Success${NC}"
@@ -349,35 +372,6 @@ echo -n "Testing vehicle service list vehicles... "
 VEHICLES_RESPONSE=$(curl -s "$VEHICLE_SERVICE/api/v1/vehicles" || echo "error")
 
 if echo "$VEHICLES_RESPONSE" | grep -q "vehicles\|message"; then
-    echo -e "${GREEN}✓ Success${NC}"
-else
-    echo -e "${RED}✗ Failed${NC}"
-fi
-
-# Test backward compatibility with original test service
-echo -n "Testing original test service health... "
-if curl -s -f "$TEST_SERVICE/health" | grep -q "healthy"; then
-    echo -e "${GREEN}✓ Success${NC}"
-else
-    echo -e "${RED}✗ Failed${NC}"
-fi
-
-echo -n "Testing MongoDB connection... "
-if curl -s -f "$TEST_SERVICE/test/mongodb" | grep -q "success"; then
-    echo -e "${GREEN}✓ Success${NC}"
-else
-    echo -e "${RED}✗ Failed${NC}"
-fi
-
-echo -n "Testing Redis connection... "
-if curl -s -f "$TEST_SERVICE/test/redis" | grep -q "success"; then
-    echo -e "${GREEN}✓ Success${NC}"
-else
-    echo -e "${RED}✗ Failed${NC}"
-fi
-
-echo -n "Testing geospatial query... "
-if curl -s -f "$TEST_SERVICE/test/geospatial" | grep -q "drivers"; then
     echo -e "${GREEN}✓ Success${NC}"
 else
     echo -e "${RED}✗ Failed${NC}"
@@ -437,13 +431,15 @@ echo -e "\n${YELLOW}Running Integration Tests...${NC}"
 
 # Test creating a user via API
 echo -n "Creating test user via API... "
-CREATE_RESPONSE=$(curl -s -X POST "$TEST_SERVICE/api/users" \
+CREATE_RESPONSE=$(curl -s -X POST "$USER_SERVICE/api/v1/users/" \
     -H "Content-Type: application/json" \
     -d '{
         "email": "integration@test.com",
         "phone": "+1555000001",
         "first_name": "Integration",
-        "last_name": "Test"
+        "last_name": "Test",
+        "user_type": "rider",
+        "password": "testpass"
     }' || echo "error")
 
 if echo "$CREATE_RESPONSE" | grep -q "integration@test.com"; then
@@ -454,7 +450,7 @@ fi
 
 # Test distance calculation
 echo -n "Testing distance calculation... "
-DISTANCE_RESPONSE=$(curl -s -X POST "$TEST_SERVICE/api/distance" \
+DISTANCE_RESPONSE=$(curl -s -X POST "$GEO_SERVICE/api/v1/geo/distance" \
     -H "Content-Type: application/json" \
     -d '{
         "origin": {"latitude": 40.7128, "longitude": -74.0060},
@@ -522,6 +518,7 @@ if ! echo "$TRIP_RESPONSE" | grep -q "trip_id\|id"; then OVERALL_SUCCESS=false; 
 if ! echo "$GET_TRIP_RESPONSE" | grep -q "trip_id\|id"; then OVERALL_SUCCESS=false; fi
 if ! echo "$USERS_RESPONSE" | grep -q "users\|message"; then OVERALL_SUCCESS=false; fi
 if ! echo "$VEHICLES_RESPONSE" | grep -q "vehicles\|message"; then OVERALL_SUCCESS=false; fi
+if ! echo "$NEARBY_RESPONSE" | grep -q "driver_id"; then OVERALL_SUCCESS=false; fi
 
 # Check DB and infra results
 if [ "$USER_COUNT" = "0" ] || [ "$LOCATION_COUNT" = "0" ] || [ "$REDIS_RESULT" != "PONG" ] || [ "$NEARBY_COUNT" = "0" ]; then

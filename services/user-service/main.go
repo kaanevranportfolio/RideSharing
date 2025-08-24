@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,8 +12,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
 	"github.com/rideshare-platform/services/user-service/internal/config"
 	"github.com/rideshare-platform/services/user-service/internal/handler"
+	"github.com/rideshare-platform/services/user-service/internal/repository"
 	"github.com/rideshare-platform/services/user-service/internal/service"
 )
 
@@ -24,8 +28,27 @@ func main() {
 
 	log.Printf("Starting User Service on port %s", cfg.HTTPPort)
 
-	// Initialize services
-	userService := service.NewUserService(cfg)
+	// Connect to database
+	dbConnectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		cfg.DatabaseHost, cfg.DatabasePort, cfg.DatabaseUser,
+		cfg.DatabasePassword, cfg.DatabaseName, cfg.DatabaseSSLMode)
+
+	db, err := sql.Open("postgres", dbConnectionString)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
+
+	// Test database connection
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+
+	log.Printf("Connected to PostgreSQL database")
+
+	// Initialize repository and service
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
 
 	// Initialize HTTP handler
 	userHandler := handler.NewUserHandler(userService)

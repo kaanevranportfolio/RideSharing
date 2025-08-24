@@ -47,8 +47,8 @@ func Load() (*Config, error) {
 		DatabaseHost:     getEnv("DB_HOST", "localhost"),
 		DatabasePort:     getEnvInt("DB_PORT", 5432),
 		DatabaseName:     getEnv("DB_NAME", "rideshare"),
-		DatabaseUser:     getEnv("DB_USER", "postgres"),
-		DatabasePassword: getEnv("DB_PASSWORD", "postgres"),
+		DatabaseUser:     getEnv("DB_USER", "rideshare_user"),
+		DatabasePassword: getEnv("DB_PASSWORD", "rideshare_password"),
 
 		// MongoDB config
 		MongoURI:      getEnv("MONGO_URI", "mongodb://localhost:27017"),

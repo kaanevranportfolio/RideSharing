@@ -10,6 +10,14 @@ type Config struct {
 	HTTPPort    string
 	Environment string
 	LogLevel    string
+
+	// Database configuration
+	DatabaseHost     string
+	DatabasePort     string
+	DatabaseUser     string
+	DatabasePassword string
+	DatabaseName     string
+	DatabaseSSLMode  string
 }
 
 // Load loads configuration from environment variables
@@ -18,6 +26,14 @@ func Load() (*Config, error) {
 		HTTPPort:    getEnv("HTTP_PORT", "8081"),
 		Environment: getEnv("ENVIRONMENT", "development"),
 		LogLevel:    getEnv("LOG_LEVEL", "info"),
+
+		// Database configuration
+		DatabaseHost:     getEnv("DATABASE_HOST", "localhost"),
+		DatabasePort:     getEnv("DATABASE_PORT", "5432"),
+		DatabaseUser:     getEnv("DATABASE_USER", "rideshare_user"),
+		DatabasePassword: getEnv("DATABASE_PASSWORD", "rideshare_password"),
+		DatabaseName:     getEnv("DATABASE_NAME", "rideshare"),
+		DatabaseSSLMode:  getEnv("DATABASE_SSL_MODE", "disable"),
 	}, nil
 }
 

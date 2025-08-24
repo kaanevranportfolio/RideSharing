@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/geo-service/internal/config"
 	"github.com/rideshare-platform/services/geo-service/internal/handler"
 	"github.com/rideshare-platform/services/geo-service/internal/repository"
@@ -63,14 +64,24 @@ func main() {
 	cacheRepo := repository.NewCacheRepository(redisDB, appLogger)
 
 	// Initialize services
-	geoService := service.NewGeospatialService(cfg, appLogger, driverLocationRepo, cacheRepo)
+	geoService := service.NewGeospatialService(cfg, appLogger, driverLocationRepo, cacheRepo, mongoDB.Client, redisDB.Client)
 
 	// Test the service with sample data
 	testService(geoService, appLogger)
 
 	// Initialize HTTP handler
-	httpHandler := handler.NewHTTPHandler(appLogger, geoService)
-	router := httpHandler.SetupRoutes()
+	geoHandler := &handler.GeoHandler{
+		Logger:     appLogger,
+		GeoService: geoService,
+	}
+
+	// Setup Gin router
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.Use(gin.Recovery())
+
+	// Register routes
+	geoHandler.RegisterRoutes(router)
 
 	// Start HTTP server
 	server := &http.Server{

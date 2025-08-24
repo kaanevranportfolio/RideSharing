@@ -44,20 +44,13 @@ stop-all:
 	@docker compose -f docker-compose-db.yml down 2>/dev/null || true
 	@docker compose down 2>/dev/null || true
 
-# Build all services
-build:
-	@echo "Building all services..."
-	@echo "Building user service..."
-	@cd services/user-service && go build -o user-service .
-	@echo "Building vehicle service..."
-	@cd services/vehicle-service && go build -o vehicle-service .
-	@echo "Building geo service..."
-	@cd services/geo-service && go build -o geo-service .
-	@echo "Building matching service..."
-	@cd services/matching-service && go build -o matching-service .
-	@echo "Building trip service..."
-	@cd services/trip-service && go build -o trip-service .
-	@echo "✓ All services built successfully"
+# DRY build rules for all services
+SERVICES := geo-service vehicle-service matching-service trip-service user-service api-gateway
+
+build: $(SERVICES)
+
+$(SERVICES):
+	cd services/$@ && go build -o $@ main.go
 
 # Build all services with Docker Compose
 build-docker:
