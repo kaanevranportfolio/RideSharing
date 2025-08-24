@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,10 @@ import (
 	"pricing-service/internal/service"
 
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+
+	"github.com/rideshare-platform/shared/logger"
+	pricingpb "github.com/rideshare-platform/shared/proto/pricing"
 )
 
 func main() {
@@ -23,8 +28,29 @@ func main() {
 	// Initialize services
 	pricingService := service.NewAdvancedPricingService()
 
+	// Initialize logger
+	appLogger := logger.NewLogger("info", "development")
+
 	// Initialize handlers
 	pricingHandler := handler.NewPricingHandler(pricingService)
+	grpcPricingHandler := handler.NewGRPCPricingHandler(pricingService, appLogger)
+
+	// Setup gRPC server
+	lis, err := net.Listen("tcp", ":50053") // Different port for pricing service
+	if err != nil {
+		log.Fatalf("Failed to listen on gRPC port: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	pricingpb.RegisterPricingServiceServer(grpcServer, grpcPricingHandler)
+
+	// Start gRPC server in a goroutine
+	go func() {
+		log.Printf("Pricing gRPC service starting on port 50053")
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("Failed to serve gRPC: %v", err)
+		}
+	}()
 
 	// Setup router
 	router := gin.Default()
@@ -76,7 +102,10 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Shutdown server gracefully
+	// Shutdown gRPC server gracefully
+	grpcServer.GracefulStop()
+
+	// Shutdown HTTP server gracefully
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Server forced to shutdown: %v", err)
 	}
