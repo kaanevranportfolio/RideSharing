@@ -1,0 +1,96 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'rideshare-monitor'
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # User Service
+  - job_name: 'user-service'
+    static_configs:
+      - targets: ['user-service:9084']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Vehicle Service
+  - job_name: 'vehicle-service'
+    static_configs:
+      - targets: ['vehicle-service:9085']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Trip Service
+  - job_name: 'trip-service'
+    static_configs:
+      - targets: ['trip-service:9086']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Geo Service
+  - job_name: 'geo-service'
+    static_configs:
+      - targets: ['geo-service:9087']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Matching Service
+  - job_name: 'matching-service'
+    static_configs:
+      - targets: ['matching-service:9088']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Payment Service
+  - job_name: 'payment-service'
+    static_configs:
+      - targets: ['payment-service:9089']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # Pricing Service
+  - job_name: 'pricing-service'
+    static_configs:
+      - targets: ['pricing-service:9090']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  # MongoDB Exporter
+  - job_name: 'mongodb-exporter'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+
+  # Redis Exporter
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']

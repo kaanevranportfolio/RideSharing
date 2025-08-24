@@ -1,0 +1,3 @@
+package integration
+
+// ...add trip integration tests here...

@@ -1,0 +1,3 @@
+package integration
+
+// ...add pricing integration tests here...

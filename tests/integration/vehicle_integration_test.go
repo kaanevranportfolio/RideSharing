@@ -1,0 +1,3 @@
+package integration
+
+// ...add vehicle integration tests here...

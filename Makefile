@@ -130,3 +130,50 @@ status:
 	@echo ""
 	@echo "=== Service Processes ==="
 	@pgrep -f "service" | while read pid; do ps -p $$pid -o pid,comm,args; done 2>/dev/null || echo "No service processes running"
+
+# Unified local testing and deployment
+# Test targets - consolidated and following Go best practices
+.PHONY: test unit-test integration-test e2e-test load-test test-all test-coverage test-race test-bench
+
+# Run all tests (unit + integration + e2e)
+test-all: unit-test integration-test e2e-test
+
+# Unit tests for individual packages (fast, no external dependencies)
+unit-test:
+	@echo "Running unit tests..."
+	@go test -v -short ./services/... ./shared/... -count=1
+
+# Integration tests (require external services like databases)
+integration-test:
+	@echo "Running integration tests..."
+	@go test -v -tags=integration ./tests/integration/... -count=1
+
+# End-to-end tests (require full system running)
+e2e-test:
+	@echo "Running end-to-end tests..."
+	@go test -v -tags=e2e ./tests/e2e/... -count=1
+
+# Legacy test target (consolidated with unit-test)
+test: unit-test
+
+# Test coverage report
+test-coverage:
+	@echo "Generating test coverage report..."
+	@go test -coverprofile=coverage.out ./services/... ./shared/... ./tests/...
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "Coverage report generated: coverage.html"
+
+# Race condition detection
+test-race:
+	@echo "Running tests with race detection..."
+	@go test -race -short ./services/... ./shared/... ./tests/...
+
+# Benchmark tests
+test-bench:
+	@echo "Running benchmark tests..."
+	@go test -bench=. -benchmem ./services/... ./shared/... ./tests/...
+
+# Load testing
+load-test:
+	@echo "Running load tests..."
+	@bash tests/load/load_test.sh

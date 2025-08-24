@@ -1,0 +1,5 @@
+{
+    "yaml.schemas": {
+        "kubernetes://schema/v1%40persistentvolumeclaim": "file:///home/kaan/Projects/rideshare-platform/k8s/database/postgres.yaml"
+    }
+}

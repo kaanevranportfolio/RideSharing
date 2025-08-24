@@ -1,0 +1,108 @@
+# Alert Rules for Rideshare Platform
+groups:
+  - name: rideshare_alerts
+    rules:
+      # High-level service availability alerts
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "Service {{ $labels.job }} has been down for more than 30 seconds."
+
+      # API Gateway specific alerts
+      - alert: HighAPIGatewayLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="api-gateway"}[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API Gateway latency"
+          description: "95th percentile latency is {{ $value }}s for API Gateway"
+
+      - alert: HighAPIGatewayErrorRate
+        expr: rate(http_requests_total{job="api-gateway",status=~"5.."}[5m]) / rate(http_requests_total{job="api-gateway"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High API Gateway error rate"
+          description: "Error rate is {{ $value | humanizePercentage }} for API Gateway"
+
+      # Database alerts
+      - alert: PostgreSQLDown
+        expr: up{job="postgres"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 30 seconds"
+
+      - alert: MongoDBDown
+        expr: up{job="mongodb"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "MongoDB is down"
+          description: "MongoDB database has been down for more than 30 seconds"
+
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 30 seconds"
+
+      # Resource utilization alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+
+      # Business logic alerts
+      - alert: HighTripFailureRate
+        expr: rate(trip_requests_total{status="failed"}[5m]) / rate(trip_requests_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High trip failure rate"
+          description: "Trip failure rate is {{ $value | humanizePercentage }}"
+
+      - alert: LowDriverAvailability
+        expr: available_drivers_total < 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low driver availability"
+          description: "Only {{ $value }} drivers available in the system"
+
+      # gRPC specific alerts
+      - alert: HighGRPCErrorRate
+        expr: rate(grpc_server_handled_total{grpc_code!="OK"}[5m]) / rate(grpc_server_handled_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High gRPC error rate"
+          description: "gRPC error rate is {{ $value | humanizePercentage }} for {{ $labels.grpc_service }}"
