@@ -23,7 +23,7 @@ type TestConfig struct {
 // DefaultTestConfig returns default test configuration
 func DefaultTestConfig() *TestConfig {
 	// Build PostgreSQL connection string from environment variables
-	postgresHost := getEnv("TEST_POSTGRES_HOST", "localhost")
+	postgresHost := getEnv("TEST_POSTGRES_HOST", getEnv("POSTGRES_HOST", "postgres"))
 	postgresPort := getEnv("TEST_POSTGRES_PORT", "5433")
 	postgresUser := getEnv("TEST_POSTGRES_USER", "postgres")
 	postgresPassword := getEnv("TEST_POSTGRES_PASSWORD", "testpass123")
@@ -34,9 +34,9 @@ func DefaultTestConfig() *TestConfig {
 
 	return &TestConfig{
 		DatabaseURL:    databaseURL,
-		APIGatewayURL:  getEnv("API_GATEWAY_URL", "http://localhost:8080"),
-		UserServiceURL: getEnv("USER_SERVICE_URL", "http://localhost:8081"),
-		TripServiceURL: getEnv("TRIP_SERVICE_URL", "http://localhost:8084"),
+		APIGatewayURL:  getEnv("API_GATEWAY_URL", "http://api-gateway:8080"),
+		UserServiceURL: getEnv("USER_SERVICE_URL", "http://user-service:8081"),
+		TripServiceURL: getEnv("TRIP_SERVICE_URL", "http://trip-service:8084"),
 		TestTimeout:    30 * time.Second,
 	}
 }

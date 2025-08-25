@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rideshare-platform/services/vehicle-service/internal/middleware"
 	"github.com/rideshare-platform/shared/logger"
-	"github.com/rideshare-platform/shared/middleware"
 )
 
 // HTTPServer provides HTTP endpoints for the vehicle service

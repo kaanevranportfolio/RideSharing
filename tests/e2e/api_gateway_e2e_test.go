@@ -128,7 +128,7 @@ func TestCORSHeaders(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to create OPTIONS request: %v", err)
 	}
-	req.Header.Set("Origin", "http://localhost:3000")
+	req.Header.Set("Origin", "http://frontend:3000")
 	req.Header.Set("Access-Control-Request-Method", "GET")
 
 	client := &http.Client{}

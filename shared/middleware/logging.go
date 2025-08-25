@@ -153,8 +153,8 @@ func (l *LoggingMiddleware) CORS() gin.HandlerFunc {
 
 		// Allow specific origins (configure as needed)
 		allowedOrigins := []string{
-			"http://localhost:3000",
-			"http://localhost:3001",
+			"http://frontend:3000",
+			"http://frontend:3001",
 			"https://rideshare-app.com",
 		}
 

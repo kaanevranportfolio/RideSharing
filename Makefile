@@ -1,3 +1,13 @@
+# Run integration tests with automated test environment setup and teardown
+integration-test-env: test-env-up
+	@$(MAKE) test-integration
+	@$(MAKE) test-env-down
+# Test environment setup and teardown
+test-env-up:
+	bash scripts/test_env_setup.sh
+
+test-env-down:
+	docker compose -f docker-compose-test.yml down
 .PHONY: build run test clean help deps start-db test-infra test-services stop-all proto
 
 # Default target
@@ -44,9 +54,13 @@ test-infra:
 .PHONY: test-all test-fast test-full test-ci test-dev test-report
 
 # 🚀 MASTER TEST COMMANDS
-test-all: ## Run comprehensive test suite with full reporting
-	@echo "🚀 Running comprehensive test suite..."
-	@./scripts/test-orchestrator.sh all
+test-all: ## Run all tests in best-practice order (unit, integration, e2e)
+	@echo "🚀 Running comprehensive test suite (unit → integration → e2e)..."
+	@$(MAKE) test-unit && \
+	$(MAKE) integration-test-env && \
+	$(MAKE) test-e2e && \
+	echo "✅ All tests completed (unit → integration → e2e)" || \
+	echo "❌ Some tests failed. Check the output above."
 
 test-fast: ## Run fast tests only (unit + integration)
 	@echo "⚡ Running fast test suite..."

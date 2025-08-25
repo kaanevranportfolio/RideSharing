@@ -23,7 +23,7 @@ type TestSuite struct {
 func SetupTestSuite(t *testing.T) *TestSuite {
 	// Setup test databases
 	postgresDB, err := database.NewPostgresDB(&database.PostgresConfig{
-		Host:     "localhost",
+		Host:     getEnv("REDIS_HOST", "redis"),
 		Port:     "5432",
 		User:     "postgres",
 		Password: "password",
@@ -33,13 +33,13 @@ func SetupTestSuite(t *testing.T) *TestSuite {
 	require.NoError(t, err)
 
 	mongoDB, err := database.NewMongoDB(&database.MongoConfig{
-		URI:      "mongodb://localhost:27017",
+		URI:      getEnv("MONGO_URI", "mongodb://mongodb:27017"),
 		Database: "rideshare_test",
 	})
 	require.NoError(t, err)
 
 	redisClient, err := database.NewRedisClient(&database.RedisConfig{
-		Address:  "localhost:6379",
+		Address:  getEnv("REDIS_ADDRESS", "redis:6379"),
 		Password: "",
 		DB:       1, // Use different DB for tests
 	})

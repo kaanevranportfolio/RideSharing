@@ -374,7 +374,7 @@ syntax = "proto3";
 
 package geo;
 
-option go_package = "github.com/rideshare-platform/shared/proto/geo";
+option go_package = "github.com/rideshare-platform/shared/geo";
 
 import "common/types.proto";
 import "common/errors.proto";

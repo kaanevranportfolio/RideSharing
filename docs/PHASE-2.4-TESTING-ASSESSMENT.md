@@ -82,7 +82,7 @@ PASS
 
 **Error Details**:
 ```
-# github.com/rideshare-platform/shared/proto/geo
+# github.com/rideshare-platform/shared/geo
 shared/proto/geo/geo_grpc.pb.go:19:16: undefined: grpc.SupportPackageIsVersion9
 shared/proto/geo/geo_grpc.pb.go:51:119: undefined: grpc.ServerStreamingClient
 shared/proto/geo/geo_grpc.pb.go:65:41: undefined: grpc.StaticMethod

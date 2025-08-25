@@ -1,6 +1,6 @@
 module github.com/rideshare-platform/services/trip-service
 
-go 1.22
+go 1.23.0
 
 replace github.com/rideshare-platform/shared => ../../shared
 

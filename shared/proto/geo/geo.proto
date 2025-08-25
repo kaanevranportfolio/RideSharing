@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package geo;
 
-option go_package = "github.com/rideshare-platform/shared/proto/geo";
+option go_package = "github.com/rideshare-platform/shared/proto/geo;geopb";
 
 import "google/protobuf/timestamp.proto";
 

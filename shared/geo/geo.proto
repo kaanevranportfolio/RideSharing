@@ -1,0 +1,4 @@
+syntax = "proto3";
+option go_package = "github.com/rideshare-platform/shared/geo";
+// ...existing code...
+// Moved from shared/proto/geo/geo.proto

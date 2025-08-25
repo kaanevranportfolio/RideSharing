@@ -4,7 +4,7 @@
 // 	protoc        v3.21.12
 // source: shared/proto/geo/geo.proto
 
-package geo
+package geopb
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -1406,7 +1406,7 @@ const file_shared_proto_geo_geo_proto_rawDesc = "" +
 	"\x0fGenerateGeohash\x12\x13.geo.GeohashRequest\x1a\x14.geo.GeohashResponse\x12N\n" +
 	"\rOptimizeRoute\x12\x1d.geo.RouteOptimizationRequest\x1a\x1e.geo.RouteOptimizationResponse\x12_\n" +
 	"\x1aSubscribeToDriverLocations\x12%.geo.SubscribeToDriverLocationRequest\x1a\x18.geo.DriverLocationEvent0\x01\x12^\n" +
-	"\x15StartLocationTracking\x12!.geo.StartLocationTrackingRequest\x1a\".geo.StartLocationTrackingResponseB0Z.github.com/rideshare-platform/shared/proto/geob\x06proto3"
+	"\x15StartLocationTracking\x12!.geo.StartLocationTrackingRequest\x1a\".geo.StartLocationTrackingResponseB6Z4github.com/rideshare-platform/shared/proto/geo;geopbb\x06proto3"
 
 var (
 	file_shared_proto_geo_geo_proto_rawDescOnce sync.Once

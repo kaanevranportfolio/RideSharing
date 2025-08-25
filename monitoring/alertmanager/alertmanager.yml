@@ -1,5 +1,5 @@
 global:
-  smtp_smarthost: 'localhost:587'
+  smtp_smarthost: 'mail:587'
   smtp_from: 'alerts@rideshare-platform.com'
 
 route:
@@ -12,7 +12,7 @@ route:
 receivers:
   - name: 'web.hook'
     webhook_configs:
-      - url: 'http://localhost:5001/webhook'
+  - url: 'http://webhook:5001/webhook'
         send_resolved: true
 
   - name: 'email-alerts'

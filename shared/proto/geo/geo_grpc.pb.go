@@ -4,7 +4,7 @@
 // - protoc             v3.21.12
 // source: shared/proto/geo/geo.proto
 
-package geo
+package geopb
 
 import (
 	context "context"

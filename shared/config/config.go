@@ -111,7 +111,7 @@ func LoadConfig() (*Config, error) {
 			IdleTimeout:  getEnvAsDuration("SERVER_IDLE_TIMEOUT", 120*time.Second),
 		},
 		Database: DatabaseConfig{
-			Host:            getEnv("DB_HOST", "localhost"),
+			Host:            getEnv("DB_HOST", "postgres"),
 			Port:            getEnvAsInt("DB_PORT", 5432),
 			Database:        getEnv("DB_NAME", "rideshare_platform"),
 			Username:        getEnv("DB_USER", "rideshare"),
@@ -123,7 +123,7 @@ func LoadConfig() (*Config, error) {
 			ConnMaxIdleTime: getEnvAsDuration("DB_CONN_MAX_IDLE_TIME", 15*time.Minute),
 		},
 		MongoDB: MongoConfig{
-			URI:                    getEnv("MONGO_URI", "mongodb://localhost:27017"),
+			URI:                    getEnv("MONGO_URI", "mongodb://mongodb:27017"),
 			Database:               getEnv("MONGO_DATABASE", "rideshare_geo"),
 			MaxPoolSize:            uint64(getEnvAsInt("MONGO_MAX_POOL_SIZE", 100)),
 			MinPoolSize:            uint64(getEnvAsInt("MONGO_MIN_POOL_SIZE", 10)),
@@ -133,7 +133,7 @@ func LoadConfig() (*Config, error) {
 			ServerSelectionTimeout: getEnvAsDuration("MONGO_SERVER_SELECTION_TIMEOUT", 5*time.Second),
 		},
 		Redis: RedisConfig{
-			Host:         getEnv("REDIS_HOST", "localhost"),
+			Host:         getEnv("REDIS_HOST", "redis"),
 			Port:         getEnvAsInt("REDIS_PORT", 6379),
 			Password:     getEnv("REDIS_PASSWORD", ""),
 			Database:     getEnvAsInt("REDIS_DATABASE", 0),
@@ -151,7 +151,7 @@ func LoadConfig() (*Config, error) {
 			Issuer:          getEnv("JWT_ISSUER", "rideshare-platform"),
 		},
 		Kafka: KafkaConfig{
-			Brokers: getEnvAsSlice("KAFKA_BROKERS", []string{"localhost:9092"}),
+			Brokers: getEnvAsSlice("KAFKA_BROKERS", []string{"kafka:9092"}),
 			GroupID: getEnv("KAFKA_GROUP_ID", "rideshare-platform"),
 		},
 		Metrics: MetricsConfig{

@@ -174,7 +174,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/api/v1/health"]
+  test: ["CMD", "curl", "-f", "http://matching-service:8084/api/v1/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -204,7 +204,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8085/api/v1/health"]
+  test: ["CMD", "curl", "-f", "http://trip-service:8085/api/v1/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -233,7 +233,7 @@ services:
       trip-service:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+  test: ["CMD", "curl", "-f", "http://api-gateway:8080/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -263,7 +263,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9087/health"]
+  test: ["CMD", "curl", "-f", "http://payment-service:9087/health"]
       interval: 10s
       timeout: 5s
       retries: 5

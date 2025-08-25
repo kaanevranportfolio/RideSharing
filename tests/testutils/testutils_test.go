@@ -21,7 +21,7 @@ func TestDefaultTestConfig(t *testing.T) {
 }
 
 func TestCreateTestUser(t *testing.T) {
-	userID := CreateTestUser(t, "http://localhost:8080")
+	userID := CreateTestUser(t, "http://api-gateway:8080")
 
 	if userID == "" {
 		t.Error("CreateTestUser should return a non-empty user ID")
@@ -29,7 +29,7 @@ func TestCreateTestUser(t *testing.T) {
 }
 
 func TestCreateTestTrip(t *testing.T) {
-	tripID := CreateTestTrip(t, "http://localhost:8080", "test-user-123")
+	tripID := CreateTestTrip(t, "http://api-gateway:8080", "test-user-123")
 
 	if tripID == "" {
 		t.Error("CreateTestTrip should return a non-empty trip ID")
