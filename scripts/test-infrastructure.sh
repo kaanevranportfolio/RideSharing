@@ -58,8 +58,12 @@ done
 # Initialize sample data
 echo -e "${YELLOW}Initializing sample data...${NC}"
 
+# Get MongoDB credentials from environment or Docker Compose
+MONGODB_USER=${MONGODB_USER:-rideshare_user}
+MONGODB_PASSWORD=${MONGODB_PASSWORD:-$(docker exec rideshare-mongodb env | grep MONGO_INITDB_ROOT_PASSWORD | cut -d= -f2)}
+
 # Add MongoDB sample data
-docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --eval "
+docker exec rideshare-mongodb mongosh --username "$MONGODB_USER" --password "$MONGODB_PASSWORD" --authenticationDatabase admin rideshare_geo --eval "
 db.driver_locations.drop();
 db.driver_locations.createIndex({location: '2dsphere'});
 db.driver_locations.insertMany([
@@ -114,7 +118,7 @@ POSTGRES_COUNT=$(docker exec rideshare-postgres psql -U rideshare_user -d ridesh
 echo "✓ PostgreSQL: $POSTGRES_COUNT users in database"
 
 # Test MongoDB
-MONGO_COUNT=$(docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --quiet --eval "db.driver_locations.countDocuments()" 2>/dev/null || echo "0")
+MONGO_COUNT=$(docker exec rideshare-mongodb mongosh --username "$MONGODB_USER" --password "$MONGODB_PASSWORD" --authenticationDatabase admin rideshare_geo --quiet --eval "db.driver_locations.countDocuments()" 2>/dev/null || echo "0")
 echo "✓ MongoDB: $MONGO_COUNT driver locations in database"
 
 # Test Redis
@@ -122,7 +126,7 @@ REDIS_RESULT=$(docker exec rideshare-redis redis-cli ping 2>/dev/null || echo "E
 echo "✓ Redis: $REDIS_RESULT"
 
 # Test geospatial query
-NEARBY_DRIVERS=$(docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --quiet --eval "
+NEARBY_DRIVERS=$(docker exec rideshare-mongodb mongosh --username "$MONGODB_USER" --password "$MONGODB_PASSWORD" --authenticationDatabase admin rideshare_geo --quiet --eval "
 db.driver_locations.find({
   location: {
     \$near: {

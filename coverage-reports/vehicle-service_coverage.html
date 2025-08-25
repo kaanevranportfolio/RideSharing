@@ -1,0 +1,2390 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>config: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/rideshare-platform/services/vehicle-service/internal/config/config.go (0.0%)</option>
+				
+				<option value="file1">github.com/rideshare-platform/services/vehicle-service/internal/handler/http_handler.go (0.0%)</option>
+				
+				<option value="file2">github.com/rideshare-platform/services/vehicle-service/internal/handler/http_server.go (0.0%)</option>
+				
+				<option value="file3">github.com/rideshare-platform/services/vehicle-service/internal/metrics/metrics.go (0.0%)</option>
+				
+				<option value="file4">github.com/rideshare-platform/services/vehicle-service/internal/repository/cache_repository.go (0.0%)</option>
+				
+				<option value="file5">github.com/rideshare-platform/services/vehicle-service/internal/repository/vehicle_repository.go (0.0%)</option>
+				
+				<option value="file6">github.com/rideshare-platform/services/vehicle-service/internal/service/vehicle_service.go (0.0%)</option>
+				
+				<option value="file7">github.com/rideshare-platform/services/vehicle-service/main.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">no coverage</span>
+				<span class="cov1">low coverage</span>
+				<span class="cov2">*</span>
+				<span class="cov3">*</span>
+				<span class="cov4">*</span>
+				<span class="cov5">*</span>
+				<span class="cov6">*</span>
+				<span class="cov7">*</span>
+				<span class="cov8">*</span>
+				<span class="cov9">*</span>
+				<span class="cov10">high coverage</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package config
+
+import (
+        "os"
+        "strconv"
+        "time"
+
+        "github.com/rideshare-platform/shared/config"
+)
+
+// Config holds the vehicle service configuration
+type Config struct {
+        // Service configuration
+        Environment string
+        LogLevel    string
+        HTTPPort    int
+        GRPCPort    int
+        JWTSecret   string
+
+        // Database configuration
+        Database config.DatabaseConfig
+
+        // Redis configuration
+        Redis *config.RedisConfig
+}
+
+// Load loads configuration from environment variables
+func Load() (*Config, error) <span class="cov0" title="0">{
+        cfg := &amp;Config{
+                Environment: getEnv("ENVIRONMENT", "development"),
+                LogLevel:    getEnv("LOG_LEVEL", "info"),
+                HTTPPort:    getEnvAsInt("HTTP_PORT", 8082),
+                GRPCPort:    getEnvAsInt("GRPC_PORT", 50052),
+                JWTSecret:   getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+        }
+
+        // Database configuration
+        cfg.Database = config.DatabaseConfig{
+                Host:            getEnv("DB_HOST", "localhost"),
+                Port:            getEnvAsInt("DB_PORT", 5432),
+                Username:        getEnv("DB_USERNAME", "rideshare_user"),
+                Password:        getEnv("DB_PASSWORD", "rideshare_password"),
+                Database:        getEnv("DB_NAME", "rideshare"),
+                SSLMode:         getEnv("DB_SSL_MODE", "disable"),
+                MaxOpenConns:    getEnvAsInt("DB_MAX_OPEN_CONNS", 25),
+                MaxIdleConns:    getEnvAsInt("DB_MAX_IDLE_CONNS", 5),
+                ConnMaxLifetime: time.Duration(getEnvAsInt("DB_CONN_MAX_LIFETIME", 300)) * time.Second,
+                ConnMaxIdleTime: time.Duration(getEnvAsInt("DB_CONN_MAX_IDLE_TIME", 60)) * time.Second,
+        }
+
+        // Redis configuration
+        cfg.Redis = &amp;config.RedisConfig{
+                Host:         getEnv("REDIS_HOST", "localhost"),
+                Port:         getEnvAsInt("REDIS_PORT", 6379),
+                Password:     getEnv("REDIS_PASSWORD", ""),
+                Database:     getEnvAsInt("REDIS_DATABASE", 0),
+                PoolSize:     getEnvAsInt("REDIS_POOL_SIZE", 100),
+                MinIdleConns: getEnvAsInt("REDIS_MIN_IDLE_CONNS", 10),
+                DialTimeout:  5 * time.Second,
+                ReadTimeout:  3 * time.Second,
+                WriteTimeout: 3 * time.Second,
+                IdleTimeout:  5 * time.Minute,
+        }
+
+        return cfg, nil
+}</span>
+
+// getEnv gets an environment variable with a default value
+func getEnv(key, defaultValue string) string <span class="cov0" title="0">{
+        if value := os.Getenv(key); value != "" </span><span class="cov0" title="0">{
+                return value
+        }</span>
+        <span class="cov0" title="0">return defaultValue</span>
+}
+
+// getEnvAsInt gets an environment variable as integer with a default value
+func getEnvAsInt(key string, defaultValue int) int <span class="cov0" title="0">{
+        if value := os.Getenv(key); value != "" </span><span class="cov0" title="0">{
+                if intValue, err := strconv.Atoi(value); err == nil </span><span class="cov0" title="0">{
+                        return intValue
+                }</span>
+        }
+        <span class="cov0" title="0">return defaultValue</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package handler
+
+import (
+        "net/http"
+        "strconv"
+
+        "github.com/gin-gonic/gin"
+        "github.com/rideshare-platform/services/vehicle-service/internal/service"
+)
+
+// VehicleHandler handles HTTP requests for vehicle operations
+type VehicleHandler struct {
+        vehicleService *service.VehicleService
+}
+
+// NewVehicleHandler creates a new vehicle handler
+func NewVehicleHandler(vehicleService *service.VehicleService) *VehicleHandler <span class="cov0" title="0">{
+        return &amp;VehicleHandler{
+                vehicleService: vehicleService,
+        }
+}</span>
+
+// RegisterRoutes registers vehicle routes
+func (h *VehicleHandler) RegisterRoutes(router *gin.Engine) <span class="cov0" title="0">{
+        vehicles := router.Group("/api/v1/vehicles")
+        </span><span class="cov0" title="0">{
+                vehicles.POST("/", h.CreateVehicle)
+                vehicles.GET("/:id", h.GetVehicle)
+                vehicles.PUT("/:id", h.UpdateVehicle)
+                vehicles.DELETE("/:id", h.DeleteVehicle)
+                vehicles.GET("/driver/:driver_id", h.GetVehiclesByDriver)
+                vehicles.GET("/", h.ListVehicles)
+        }</span>
+
+        // Health check
+        <span class="cov0" title="0">router.GET("/health", h.HealthCheck)</span>
+}
+
+// CreateVehicle creates a new vehicle
+func (h *VehicleHandler) CreateVehicle(c *gin.Context) <span class="cov0" title="0">{
+        var req service.CreateVehicleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error":   "Invalid request",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+        <span class="cov0" title="0">createdVehicle, err := h.vehicleService.CreateVehicle(c.Request.Context(), &amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error":   "Failed to create vehicle",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+        <span class="cov0" title="0">c.JSON(http.StatusCreated, createdVehicle)</span>
+}
+
+// GetVehicle retrieves a vehicle by ID
+func (h *VehicleHandler) GetVehicle(c *gin.Context) <span class="cov0" title="0">{
+        vehicleID := c.Param("id")
+        if vehicleID == "" </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error": "Vehicle ID is required",
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">vehicle, err := h.vehicleService.GetVehicle(c.Request.Context(), vehicleID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusNotFound, gin.H{
+                        "error":   "Vehicle not found",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, vehicle)</span>
+}
+
+// UpdateVehicle updates an existing vehicle
+func (h *VehicleHandler) UpdateVehicle(c *gin.Context) <span class="cov0" title="0">{
+        vehicleID := c.Param("id")
+        if vehicleID == "" </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error": "Vehicle ID is required",
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">var req service.UpdateVehicleRequest
+        if err := c.ShouldBindJSON(&amp;req); err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error":   "Invalid request",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+
+        // Set the ID from the URL param
+        <span class="cov0" title="0">req.ID = vehicleID
+
+        updatedVehicle, err := h.vehicleService.UpdateVehicle(c.Request.Context(), &amp;req)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error":   "Failed to update vehicle",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+        <span class="cov0" title="0">c.JSON(http.StatusOK, updatedVehicle)</span>
+}
+
+// DeleteVehicle deletes a vehicle by ID
+func (h *VehicleHandler) DeleteVehicle(c *gin.Context) <span class="cov0" title="0">{
+        vehicleID := c.Param("id")
+        if vehicleID == "" </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error": "Vehicle ID is required",
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">err := h.vehicleService.DeleteVehicle(c.Request.Context(), vehicleID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusNotFound, gin.H{
+                        "error":   "Failed to delete vehicle",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "message": "Vehicle deleted successfully",
+        })</span>
+}
+
+// GetVehiclesByDriver retrieves vehicles by driver ID
+func (h *VehicleHandler) GetVehiclesByDriver(c *gin.Context) <span class="cov0" title="0">{
+        driverID := c.Param("driver_id")
+        if driverID == "" </span><span class="cov0" title="0">{
+                c.JSON(http.StatusBadRequest, gin.H{
+                        "error": "Driver ID is required",
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">vehicles, err := h.vehicleService.GetVehiclesByDriver(c.Request.Context(), driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{
+                        "error":   "Failed to get vehicles",
+                        "details": err.Error(),
+                })
+                return
+        }</span>
+
+        <span class="cov0" title="0">c.JSON(http.StatusOK, gin.H{
+                "vehicles": vehicles,
+                "count":    len(vehicles),
+        })</span>
+}
+
+// ListVehicles returns a list of vehicles
+func (h *VehicleHandler) ListVehicles(c *gin.Context) <span class="cov0" title="0">{
+        // Parse query params for pagination and filtering
+        limit := 20
+        offset := 0
+        if l := c.Query("limit"); l != "" </span><span class="cov0" title="0">{
+                if v, err := strconv.Atoi(l); err == nil </span><span class="cov0" title="0">{
+                        limit = v
+                }</span>
+        }
+        <span class="cov0" title="0">if o := c.Query("offset"); o != "" </span><span class="cov0" title="0">{
+                if v, err := strconv.Atoi(o); err == nil </span><span class="cov0" title="0">{
+                        offset = v
+                }</span>
+        }
+        <span class="cov0" title="0">status := c.Query("status")
+        vehicleType := c.Query("vehicle_type")
+
+        req := &amp;service.ListVehiclesRequest{
+                Limit:       limit,
+                Offset:      offset,
+                Status:      status,
+                VehicleType: vehicleType,
+        }
+
+        resp, err := h.vehicleService.ListVehicles(c.Request.Context(), req)
+        if err != nil </span><span class="cov0" title="0">{
+                c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+                return
+        }</span>
+        <span class="cov0" title="0">c.JSON(http.StatusOK, resp)</span>
+}
+
+// HealthCheck returns the health status of the service
+func (h *VehicleHandler) HealthCheck(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusOK, gin.H{
+                "status":  "healthy",
+                "service": "vehicle-service",
+        })
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handler
+
+import (
+        "context"
+        "net/http"
+        "strconv"
+        "time"
+
+        "github.com/gin-gonic/gin"
+        "github.com/rideshare-platform/shared/logger"
+        "github.com/rideshare-platform/shared/middleware"
+)
+
+// HTTPServer provides HTTP endpoints for the vehicle service
+type HTTPServer struct {
+        port              int
+        server            *http.Server
+        authMiddleware    *middleware.AuthMiddleware
+        metricsMiddleware *middleware.MetricsMiddleware
+        logger            *logger.Logger
+}
+
+// NewHTTPServer creates a new HTTP server
+func NewHTTPServer(
+        port int,
+        authMiddleware *middleware.AuthMiddleware,
+        metricsMiddleware *middleware.MetricsMiddleware,
+        logger *logger.Logger,
+) *HTTPServer <span class="cov0" title="0">{
+        return &amp;HTTPServer{
+                port:              port,
+                authMiddleware:    authMiddleware,
+                metricsMiddleware: metricsMiddleware,
+                logger:            logger,
+        }
+}</span>
+
+// Start starts the HTTP server
+func (s *HTTPServer) Start() error <span class="cov0" title="0">{
+        // Set Gin mode based on environment
+        gin.SetMode(gin.ReleaseMode)
+
+        // Create Gin router
+        router := gin.New()
+
+        // Add middleware
+        loggingMiddleware := middleware.NewLoggingMiddleware(s.logger)
+        router.Use(loggingMiddleware.RequestLogger())
+        router.Use(loggingMiddleware.Recovery())
+        router.Use(loggingMiddleware.CORS())
+        router.Use(loggingMiddleware.SecurityHeaders())
+        router.Use(s.metricsMiddleware.PrometheusMetrics("vehicle-service"))
+
+        // Health check endpoint
+        router.GET("/health", s.healthCheck)
+        router.GET("/ready", s.readinessCheck)
+
+        // Metrics endpoint
+        router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+        // API routes
+        v1 := router.Group("/api/v1")
+        </span><span class="cov0" title="0">{
+                // Public endpoints (no auth required)
+                v1.GET("/vehicles/stats", s.getVehicleStats)
+
+                // Protected endpoints (auth required)
+                protected := v1.Group("")
+                protected.Use(s.authMiddleware.JWTAuth())
+                </span><span class="cov0" title="0">{
+                        protected.POST("/vehicles", s.createVehicle)
+                        protected.GET("/vehicles/:id", s.getVehicle)
+                        protected.PUT("/vehicles/:id", s.updateVehicle)
+                        protected.DELETE("/vehicles/:id", s.deleteVehicle)
+                        protected.PATCH("/vehicles/:id/status", s.updateVehicleStatus)
+                        protected.GET("/vehicles", s.listVehicles)
+                        protected.GET("/drivers/:driver_id/vehicles", s.getVehiclesByDriver)
+                        protected.GET("/drivers/:driver_id/vehicles/available", s.getAvailableVehicles)
+                }</span>
+        }
+
+        // Create HTTP server
+        <span class="cov0" title="0">s.server = &amp;http.Server{
+                Addr:         ":" + strconv.Itoa(s.port),
+                Handler:      router,
+                ReadTimeout:  15 * time.Second,
+                WriteTimeout: 15 * time.Second,
+                IdleTimeout:  60 * time.Second,
+        }
+
+        s.logger.WithFields(logger.Fields{
+                "port": s.port,
+        }).Info("Starting HTTP server")
+
+        return s.server.ListenAndServe()</span>
+}
+
+// Shutdown gracefully shuts down the HTTP server
+func (s *HTTPServer) Shutdown(ctx context.Context) error <span class="cov0" title="0">{
+        s.logger.Logger.Info("Shutting down HTTP server")
+        return s.server.Shutdown(ctx)
+}</span>
+
+// Health check endpoint
+func (s *HTTPServer) healthCheck(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusOK, gin.H{
+                "status":    "healthy",
+                "service":   "vehicle-service",
+                "timestamp": time.Now().UTC(),
+                "version":   "1.0.0",
+        })
+}</span>
+
+// Readiness check endpoint
+func (s *HTTPServer) readinessCheck(c *gin.Context) <span class="cov0" title="0">{
+        // In a real implementation, you would check database connectivity, etc.
+        c.JSON(http.StatusOK, gin.H{
+                "status":    "ready",
+                "service":   "vehicle-service",
+                "timestamp": time.Now().UTC(),
+        })
+}</span>
+
+// HTTP handler methods (these would integrate with the vehicle service)
+
+func (s *HTTPServer) createVehicle(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) getVehicle(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) updateVehicle(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) deleteVehicle(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) updateVehicleStatus(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) listVehicles(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) getVehiclesByDriver(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) getAvailableVehicles(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+func (s *HTTPServer) getVehicleStats(c *gin.Context) <span class="cov0" title="0">{
+        c.JSON(http.StatusNotImplemented, gin.H{
+                "error": "HTTP endpoints not implemented - use gRPC",
+        })
+}</span>
+
+// Placeholder for promhttp (would be imported from Prometheus)
+var promhttp = struct {
+        Handler func() http.Handler
+}{
+        Handler: func() http.Handler <span class="cov0" title="0">{
+                return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) </span><span class="cov0" title="0">{
+                        w.WriteHeader(http.StatusOK)
+                        w.Write([]byte("# Prometheus metrics would be here\n"))
+                }</span>)
+        },
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package metrics
+
+import (
+        "time"
+
+        "github.com/gin-gonic/gin"
+        "github.com/prometheus/client_golang/prometheus"
+        "github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+        // HTTP metrics
+        httpRequestsTotal = promauto.NewCounterVec(
+                prometheus.CounterOpts{
+                        Name: "vehicle_service_http_requests_total",
+                        Help: "Total number of HTTP requests processed",
+                },
+                []string{"method", "endpoint", "status"},
+        )
+
+        httpRequestDuration = promauto.NewHistogramVec(
+                prometheus.HistogramOpts{
+                        Name:    "vehicle_service_http_request_duration_seconds",
+                        Help:    "Duration of HTTP requests in seconds",
+                        Buckets: prometheus.DefBuckets,
+                },
+                []string{"method", "endpoint"},
+        )
+
+        // Business metrics
+        vehiclesRegisteredTotal = promauto.NewCounter(
+                prometheus.CounterOpts{
+                        Name: "vehicle_service_vehicles_registered_total",
+                        Help: "Total number of vehicles registered",
+                },
+        )
+
+        vehiclesActiveTotal = promauto.NewGauge(
+                prometheus.GaugeOpts{
+                        Name: "vehicle_service_vehicles_active_total",
+                        Help: "Total number of active vehicles",
+                },
+        )
+
+        databaseConnectionsActive = promauto.NewGauge(
+                prometheus.GaugeOpts{
+                        Name: "vehicle_service_db_connections_active",
+                        Help: "Number of active database connections",
+                },
+        )
+)
+
+// PrometheusMiddleware creates a Gin middleware for Prometheus metrics
+func PrometheusMiddleware() gin.HandlerFunc <span class="cov0" title="0">{
+        return func(c *gin.Context) </span><span class="cov0" title="0">{
+                start := time.Now()
+
+                // Process request
+                c.Next()
+
+                // Record metrics
+                duration := time.Since(start).Seconds()
+                status := string(rune(c.Writer.Status()))
+
+                httpRequestsTotal.WithLabelValues(
+                        c.Request.Method,
+                        c.FullPath(),
+                        status,
+                ).Inc()
+
+                httpRequestDuration.WithLabelValues(
+                        c.Request.Method,
+                        c.FullPath(),
+                ).Observe(duration)
+        }</span>
+}
+
+// RecordVehicleRegistered increments the vehicles registered counter
+func RecordVehicleRegistered() <span class="cov0" title="0">{
+        vehiclesRegisteredTotal.Inc()
+}</span>
+
+// SetActiveVehicles sets the current number of active vehicles
+func SetActiveVehicles(count float64) <span class="cov0" title="0">{
+        vehiclesActiveTotal.Set(count)
+}</span>
+
+// SetDatabaseConnections sets the current number of database connections
+func SetDatabaseConnections(count float64) <span class="cov0" title="0">{
+        databaseConnectionsActive.Set(count)
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package repository
+
+import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "time"
+
+        "github.com/rideshare-platform/shared/database"
+        "github.com/rideshare-platform/shared/logger"
+        "github.com/rideshare-platform/shared/models"
+)
+
+// CacheRepository handles caching operations for vehicles
+type CacheRepository struct {
+        cache  *database.RedisCache
+        logger *logger.Logger
+}
+
+// NewCacheRepository creates a new cache repository
+func NewCacheRepository(redisDB *database.RedisDB, log *logger.Logger) *CacheRepository <span class="cov0" title="0">{
+        cache := database.NewRedisCache(redisDB, "vehicle-service", log)
+        return &amp;CacheRepository{
+                cache:  cache,
+                logger: log,
+        }
+}</span>
+
+// CacheVehicle caches a vehicle object
+func (r *CacheRepository) CacheVehicle(ctx context.Context, vehicle *models.Vehicle, ttl time.Duration) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicle:%s", vehicle.ID)
+
+        data, err := json.Marshal(vehicle)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": vehicle.ID,
+                }).Error("Failed to marshal vehicle for caching")
+                return fmt.Errorf("failed to marshal vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := r.cache.Set(ctx, key, data, ttl); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": vehicle.ID,
+                        "key":        key,
+                }).Error("Failed to cache vehicle")
+                return fmt.Errorf("failed to cache vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": vehicle.ID,
+                "key":        key,
+                "ttl":        ttl,
+        }).Debug("Vehicle cached successfully")
+
+        return nil</span>
+}
+
+// GetCachedVehicle retrieves a cached vehicle
+func (r *CacheRepository) GetCachedVehicle(ctx context.Context, vehicleID string) (*models.Vehicle, error) <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicle:%s", vehicleID)
+
+        data, err := r.cache.GetBytes(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get cached vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if data == nil </span><span class="cov0" title="0">{
+                return nil, nil // Cache miss
+        }</span>
+
+        <span class="cov0" title="0">var vehicle models.Vehicle
+        if err := json.Unmarshal(data, &amp;vehicle); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": vehicleID,
+                        "key":        key,
+                }).Error("Failed to unmarshal cached vehicle")
+                return nil, fmt.Errorf("failed to unmarshal cached vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": vehicleID,
+                "key":        key,
+        }).Debug("Vehicle retrieved from cache")
+
+        return &amp;vehicle, nil</span>
+}
+
+// InvalidateVehicle removes a vehicle from cache
+func (r *CacheRepository) InvalidateVehicle(ctx context.Context, vehicleID string) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicle:%s", vehicleID)
+
+        if err := r.cache.Del(ctx, key); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": vehicleID,
+                        "key":        key,
+                }).Error("Failed to invalidate vehicle cache")
+                return fmt.Errorf("failed to invalidate vehicle cache: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": vehicleID,
+                "key":        key,
+        }).Debug("Vehicle cache invalidated")
+
+        return nil</span>
+}
+
+// CacheDriverVehicles caches vehicles for a driver
+func (r *CacheRepository) CacheDriverVehicles(ctx context.Context, driverID string, vehicles []*models.Vehicle, ttl time.Duration) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("driver_vehicles:%s", driverID)
+
+        data, err := json.Marshal(vehicles)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                }).Error("Failed to marshal driver vehicles for caching")
+                return fmt.Errorf("failed to marshal driver vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := r.cache.Set(ctx, key, data, ttl); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to cache driver vehicles")
+                return fmt.Errorf("failed to cache driver vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id":     driverID,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+                "ttl":           ttl,
+        }).Debug("Driver vehicles cached successfully")
+
+        return nil</span>
+}
+
+// GetCachedDriverVehicles retrieves cached vehicles for a driver
+func (r *CacheRepository) GetCachedDriverVehicles(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        key := fmt.Sprintf("driver_vehicles:%s", driverID)
+
+        data, err := r.cache.GetBytes(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get cached driver vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if data == nil </span><span class="cov0" title="0">{
+                return nil, nil // Cache miss
+        }</span>
+
+        <span class="cov0" title="0">var vehicles []*models.Vehicle
+        if err := json.Unmarshal(data, &amp;vehicles); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to unmarshal cached driver vehicles")
+                return nil, fmt.Errorf("failed to unmarshal cached driver vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id":     driverID,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+        }).Debug("Driver vehicles retrieved from cache")
+
+        return vehicles, nil</span>
+}
+
+// InvalidateDriverVehicles removes driver vehicles from cache
+func (r *CacheRepository) InvalidateDriverVehicles(ctx context.Context, driverID string) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("driver_vehicles:%s", driverID)
+
+        if err := r.cache.Del(ctx, key); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to invalidate driver vehicles cache")
+                return fmt.Errorf("failed to invalidate driver vehicles cache: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id": driverID,
+                "key":       key,
+        }).Debug("Driver vehicles cache invalidated")
+
+        return nil</span>
+}
+
+// CacheAvailableVehicles caches available vehicles for a driver
+func (r *CacheRepository) CacheAvailableVehicles(ctx context.Context, driverID string, vehicles []*models.Vehicle, ttl time.Duration) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("available_vehicles:%s", driverID)
+
+        data, err := json.Marshal(vehicles)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                }).Error("Failed to marshal available vehicles for caching")
+                return fmt.Errorf("failed to marshal available vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := r.cache.Set(ctx, key, data, ttl); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to cache available vehicles")
+                return fmt.Errorf("failed to cache available vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id":     driverID,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+                "ttl":           ttl,
+        }).Debug("Available vehicles cached successfully")
+
+        return nil</span>
+}
+
+// GetCachedAvailableVehicles retrieves cached available vehicles for a driver
+func (r *CacheRepository) GetCachedAvailableVehicles(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        key := fmt.Sprintf("available_vehicles:%s", driverID)
+
+        data, err := r.cache.GetBytes(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get cached available vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if data == nil </span><span class="cov0" title="0">{
+                return nil, nil // Cache miss
+        }</span>
+
+        <span class="cov0" title="0">var vehicles []*models.Vehicle
+        if err := json.Unmarshal(data, &amp;vehicles); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to unmarshal cached available vehicles")
+                return nil, fmt.Errorf("failed to unmarshal cached available vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id":     driverID,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+        }).Debug("Available vehicles retrieved from cache")
+
+        return vehicles, nil</span>
+}
+
+// InvalidateAvailableVehicles removes available vehicles from cache
+func (r *CacheRepository) InvalidateAvailableVehicles(ctx context.Context, driverID string) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("available_vehicles:%s", driverID)
+
+        if err := r.cache.Del(ctx, key); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                        "key":       key,
+                }).Error("Failed to invalidate available vehicles cache")
+                return fmt.Errorf("failed to invalidate available vehicles cache: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "driver_id": driverID,
+                "key":       key,
+        }).Debug("Available vehicles cache invalidated")
+
+        return nil</span>
+}
+
+// CacheVehiclesByType caches vehicles by type
+func (r *CacheRepository) CacheVehiclesByType(ctx context.Context, vehicleType string, vehicles []*models.Vehicle, ttl time.Duration) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicles_by_type:%s", vehicleType)
+
+        data, err := json.Marshal(vehicles)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_type": vehicleType,
+                }).Error("Failed to marshal vehicles by type for caching")
+                return fmt.Errorf("failed to marshal vehicles by type: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := r.cache.Set(ctx, key, data, ttl); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_type": vehicleType,
+                        "key":          key,
+                }).Error("Failed to cache vehicles by type")
+                return fmt.Errorf("failed to cache vehicles by type: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_type":  vehicleType,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+                "ttl":           ttl,
+        }).Debug("Vehicles by type cached successfully")
+
+        return nil</span>
+}
+
+// GetCachedVehiclesByType retrieves cached vehicles by type
+func (r *CacheRepository) GetCachedVehiclesByType(ctx context.Context, vehicleType string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicles_by_type:%s", vehicleType)
+
+        data, err := r.cache.GetBytes(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get cached vehicles by type: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if data == nil </span><span class="cov0" title="0">{
+                return nil, nil // Cache miss
+        }</span>
+
+        <span class="cov0" title="0">var vehicles []*models.Vehicle
+        if err := json.Unmarshal(data, &amp;vehicles); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_type": vehicleType,
+                        "key":          key,
+                }).Error("Failed to unmarshal cached vehicles by type")
+                return nil, fmt.Errorf("failed to unmarshal cached vehicles by type: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_type":  vehicleType,
+                "key":           key,
+                "vehicle_count": len(vehicles),
+        }).Debug("Vehicles by type retrieved from cache")
+
+        return vehicles, nil</span>
+}
+
+// InvalidateVehiclesByType removes vehicles by type from cache
+func (r *CacheRepository) InvalidateVehiclesByType(ctx context.Context, vehicleType string) error <span class="cov0" title="0">{
+        key := fmt.Sprintf("vehicles_by_type:%s", vehicleType)
+
+        if err := r.cache.Del(ctx, key); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_type": vehicleType,
+                        "key":          key,
+                }).Error("Failed to invalidate vehicles by type cache")
+                return fmt.Errorf("failed to invalidate vehicles by type cache: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_type": vehicleType,
+                "key":          key,
+        }).Debug("Vehicles by type cache invalidated")
+
+        return nil</span>
+}
+
+// CacheVehicleStats caches vehicle statistics
+func (r *CacheRepository) CacheVehicleStats(ctx context.Context, stats map[string]interface{}, ttl time.Duration) error <span class="cov0" title="0">{
+        key := "vehicle_stats"
+
+        data, err := json.Marshal(stats)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).Error("Failed to marshal vehicle stats for caching")
+                return fmt.Errorf("failed to marshal vehicle stats: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if err := r.cache.Set(ctx, key, data, ttl); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "key": key,
+                }).Error("Failed to cache vehicle stats")
+                return fmt.Errorf("failed to cache vehicle stats: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "key": key,
+                "ttl": ttl,
+        }).Debug("Vehicle stats cached successfully")
+
+        return nil</span>
+}
+
+// GetCachedVehicleStats retrieves cached vehicle statistics
+func (r *CacheRepository) GetCachedVehicleStats(ctx context.Context) (map[string]interface{}, error) <span class="cov0" title="0">{
+        key := "vehicle_stats"
+
+        data, err := r.cache.GetBytes(ctx, key)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get cached vehicle stats: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if data == nil </span><span class="cov0" title="0">{
+                return nil, nil // Cache miss
+        }</span>
+
+        <span class="cov0" title="0">var stats map[string]interface{}
+        if err := json.Unmarshal(data, &amp;stats); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "key": key,
+                }).Error("Failed to unmarshal cached vehicle stats")
+                return nil, fmt.Errorf("failed to unmarshal cached vehicle stats: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "key": key,
+        }).Debug("Vehicle stats retrieved from cache")
+
+        return stats, nil</span>
+}
+
+// InvalidateVehicleStats removes vehicle statistics from cache
+func (r *CacheRepository) InvalidateVehicleStats(ctx context.Context) error <span class="cov0" title="0">{
+        key := "vehicle_stats"
+
+        if err := r.cache.Del(ctx, key); err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "key": key,
+                }).Error("Failed to invalidate vehicle stats cache")
+                return fmt.Errorf("failed to invalidate vehicle stats cache: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "key": key,
+        }).Debug("Vehicle stats cache invalidated")
+
+        return nil</span>
+}
+
+// InvalidateAllVehicleCaches removes all vehicle-related caches
+func (r *CacheRepository) InvalidateAllVehicleCaches(ctx context.Context) error <span class="cov0" title="0">{
+        // This is a simplified implementation - in production, you might want to use Redis SCAN
+        // to find all keys with vehicle-related prefixes and delete them
+
+        r.logger.WithContext(ctx).Info("Invalidating all vehicle caches")
+
+        // For now, we'll just invalidate the main stats cache
+        // Individual vehicle and driver caches will expire naturally
+        return r.InvalidateVehicleStats(ctx)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package repository
+
+import (
+        "context"
+        "database/sql"
+        "fmt"
+        "time"
+
+        "github.com/rideshare-platform/shared/database"
+        "github.com/rideshare-platform/shared/logger"
+        "github.com/rideshare-platform/shared/models"
+)
+
+// VehicleRepository handles vehicle data persistence
+type VehicleRepository struct {
+        db     *database.PostgresDB
+        logger *logger.Logger
+}
+
+// NewVehicleRepository creates a new vehicle repository
+func NewVehicleRepository(db *database.PostgresDB, log *logger.Logger) *VehicleRepository <span class="cov0" title="0">{
+        return &amp;VehicleRepository{
+                db:     db,
+                logger: log,
+        }
+}</span>
+
+// Create creates a new vehicle
+func (r *VehicleRepository) Create(ctx context.Context, vehicle *models.Vehicle) error <span class="cov0" title="0">{
+        query := `
+                INSERT INTO vehicles (id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        `
+
+        _, err := r.db.ExecContext(ctx, query,
+                vehicle.ID, vehicle.DriverID, vehicle.Make, vehicle.Model, vehicle.Year,
+                vehicle.Color, vehicle.LicensePlate, vehicle.VehicleType, vehicle.Status,
+                vehicle.Capacity, vehicle.InsurancePolicyNumber,
+                vehicle.InsuranceExpiry, vehicle.RegistrationExpiry,
+                vehicle.CreatedAt, vehicle.UpdatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id":    vehicle.ID,
+                        "driver_id":     vehicle.DriverID,
+                        "license_plate": vehicle.LicensePlate,
+                }).Error("Failed to create vehicle")
+                return fmt.Errorf("failed to create vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id":    vehicle.ID,
+                "driver_id":     vehicle.DriverID,
+                "license_plate": vehicle.LicensePlate,
+                "make":          vehicle.Make,
+                "model":         vehicle.Model,
+        }).Info("Vehicle created successfully")
+
+        return nil</span>
+}
+
+// GetByID retrieves a vehicle by ID
+func (r *VehicleRepository) GetByID(ctx context.Context, id string) (*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE id = $1
+        `
+
+        vehicle := &amp;models.Vehicle{}
+
+        err := r.db.QueryRowContext(ctx, query, id).Scan(
+                &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if err == sql.ErrNoRows </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("vehicle not found: %s", id)
+                }</span>
+                <span class="cov0" title="0">r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": id,
+                }).Error("Failed to get vehicle by ID")
+                return nil, fmt.Errorf("failed to get vehicle: %w", err)</span>
+        }
+
+        <span class="cov0" title="0">return vehicle, nil</span>
+}
+
+// GetByDriverID retrieves vehicles by driver ID
+func (r *VehicleRepository) GetByDriverID(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE driver_id = $1
+                ORDER BY created_at DESC
+        `
+
+        rows, err := r.db.QueryContext(ctx, query, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                }).Error("Failed to get vehicles by driver ID")
+                return nil, fmt.Errorf("failed to get vehicles by driver ID: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var vehicles []*models.Vehicle
+        for rows.Next() </span><span class="cov0" title="0">{
+                vehicle := &amp;models.Vehicle{}
+
+                err := rows.Scan(
+                        &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                        &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                        &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                        &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                        &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        r.logger.WithContext(ctx).WithError(err).Error("Failed to scan vehicle row")
+                        return nil, fmt.Errorf("failed to scan vehicle: %w", err)
+                }</span>
+
+                <span class="cov0" title="0">vehicles = append(vehicles, vehicle)</span>
+        }
+
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error iterating vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// GetByLicensePlate retrieves a vehicle by license plate
+func (r *VehicleRepository) GetByLicensePlate(ctx context.Context, licensePlate string) (*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE license_plate = $1
+        `
+
+        vehicle := &amp;models.Vehicle{}
+
+        err := r.db.QueryRowContext(ctx, query, licensePlate).Scan(
+                &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                if err == sql.ErrNoRows </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("vehicle not found: %s", licensePlate)
+                }</span>
+                <span class="cov0" title="0">r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "license_plate": licensePlate,
+                }).Error("Failed to get vehicle by license plate")
+                return nil, fmt.Errorf("failed to get vehicle: %w", err)</span>
+        }
+
+        <span class="cov0" title="0">return vehicle, nil</span>
+}
+
+// Update updates a vehicle
+func (r *VehicleRepository) Update(ctx context.Context, vehicle *models.Vehicle) error <span class="cov0" title="0">{
+        query := `
+                UPDATE vehicles
+                SET driver_id = $2, make = $3, model = $4, year = $5, color = $6,
+                        license_plate = $7, vehicle_type = $8, status = $9, capacity = $10,
+                        insurance_policy_number = $11, insurance_expiry = $12,
+                        registration_expiry = $13, updated_at = $14
+                WHERE id = $1
+        `
+
+        result, err := r.db.ExecContext(ctx, query,
+                vehicle.ID, vehicle.DriverID, vehicle.Make, vehicle.Model, vehicle.Year,
+                vehicle.Color, vehicle.LicensePlate, vehicle.VehicleType, vehicle.Status,
+                vehicle.Capacity, vehicle.InsurancePolicyNumber,
+                vehicle.InsuranceExpiry, vehicle.RegistrationExpiry, vehicle.UpdatedAt,
+        )
+
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": vehicle.ID,
+                }).Error("Failed to update vehicle")
+                return fmt.Errorf("failed to update vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle not found: %s", vehicle.ID)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": vehicle.ID,
+        }).Info("Vehicle updated successfully")
+
+        return nil</span>
+}
+
+// UpdateStatus updates vehicle status
+func (r *VehicleRepository) UpdateStatus(ctx context.Context, id string, status models.VehicleStatus) error <span class="cov0" title="0">{
+        query := `
+                UPDATE vehicles
+                SET status = $2, updated_at = $3
+                WHERE id = $1
+        `
+
+        result, err := r.db.ExecContext(ctx, query, id, status, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": id,
+                        "status":     status,
+                }).Error("Failed to update vehicle status")
+                return fmt.Errorf("failed to update vehicle status: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle not found: %s", id)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": id,
+                "status":     status,
+        }).Info("Vehicle status updated successfully")
+
+        return nil</span>
+}
+
+// Delete soft deletes a vehicle
+func (r *VehicleRepository) Delete(ctx context.Context, id string) error <span class="cov0" title="0">{
+        query := `
+                UPDATE vehicles
+                SET status = 'inactive', updated_at = $2
+                WHERE id = $1
+        `
+
+        result, err := r.db.ExecContext(ctx, query, id, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": id,
+                }).Error("Failed to delete vehicle")
+                return fmt.Errorf("failed to delete vehicle: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle not found: %s", id)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": id,
+        }).Info("Vehicle deleted successfully")
+
+        return nil</span>
+}
+
+// List retrieves vehicles with pagination and filtering
+func (r *VehicleRepository) List(ctx context.Context, limit, offset int, status string, vehicleType string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        var query string
+        var args []interface{}
+        argIndex := 1
+
+        baseQuery := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE 1=1
+        `
+
+        conditions := ""
+        if status != "" </span><span class="cov0" title="0">{
+                conditions += fmt.Sprintf(" AND status = $%d", argIndex)
+                args = append(args, status)
+                argIndex++
+        }</span>
+
+        <span class="cov0" title="0">if vehicleType != "" </span><span class="cov0" title="0">{
+                conditions += fmt.Sprintf(" AND vehicle_type = $%d", argIndex)
+                args = append(args, vehicleType)
+                argIndex++
+        }</span>
+
+        <span class="cov0" title="0">query = baseQuery + conditions + fmt.Sprintf(" ORDER BY created_at DESC LIMIT $%d OFFSET $%d", argIndex, argIndex+1)
+        args = append(args, limit, offset)
+
+        rows, err := r.db.QueryContext(ctx, query, args...)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).Error("Failed to list vehicles")
+                return nil, fmt.Errorf("failed to list vehicles: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var vehicles []*models.Vehicle
+        for rows.Next() </span><span class="cov0" title="0">{
+                vehicle := &amp;models.Vehicle{}
+
+                err := rows.Scan(
+                        &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                        &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                        &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                        &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                        &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        r.logger.WithContext(ctx).WithError(err).Error("Failed to scan vehicle row")
+                        return nil, fmt.Errorf("failed to scan vehicle: %w", err)
+                }</span>
+
+                <span class="cov0" title="0">vehicles = append(vehicles, vehicle)</span>
+        }
+
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error iterating vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// Count counts total vehicles with filtering
+func (r *VehicleRepository) Count(ctx context.Context, status string, vehicleType string) (int64, error) <span class="cov0" title="0">{
+        var query string
+        var args []interface{}
+        argIndex := 1
+
+        baseQuery := "SELECT COUNT(*) FROM vehicles WHERE 1=1"
+        conditions := ""
+
+        if status != "" </span><span class="cov0" title="0">{
+                conditions += fmt.Sprintf(" AND status = $%d", argIndex)
+                args = append(args, status)
+                argIndex++
+        }</span>
+
+        <span class="cov0" title="0">if vehicleType != "" </span><span class="cov0" title="0">{
+                conditions += fmt.Sprintf(" AND vehicle_type = $%d", argIndex)
+                args = append(args, vehicleType)
+                argIndex++
+        }</span>
+
+        <span class="cov0" title="0">query = baseQuery + conditions
+
+        var count int64
+        err := r.db.QueryRowContext(ctx, query, args...).Scan(&amp;count)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).Error("Failed to count vehicles")
+                return 0, fmt.Errorf("failed to count vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return count, nil</span>
+}
+
+// GetAvailableVehicles retrieves available vehicles for a driver
+func (r *VehicleRepository) GetAvailableVehicles(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE driver_id = $1 AND status = 'active'
+                ORDER BY created_at DESC
+        `
+
+        rows, err := r.db.QueryContext(ctx, query, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id": driverID,
+                }).Error("Failed to get available vehicles")
+                return nil, fmt.Errorf("failed to get available vehicles: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var vehicles []*models.Vehicle
+        for rows.Next() </span><span class="cov0" title="0">{
+                vehicle := &amp;models.Vehicle{}
+
+                err := rows.Scan(
+                        &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                        &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                        &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                        &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                        &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        r.logger.WithContext(ctx).WithError(err).Error("Failed to scan available vehicle row")
+                        return nil, fmt.Errorf("failed to scan available vehicle: %w", err)
+                }</span>
+
+                <span class="cov0" title="0">vehicles = append(vehicles, vehicle)</span>
+        }
+
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error iterating available vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// GetVehiclesWithExpiredInsurance retrieves vehicles with expired insurance
+func (r *VehicleRepository) GetVehiclesWithExpiredInsurance(ctx context.Context) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE insurance_expiry IS NOT NULL 
+                        AND insurance_expiry &lt;= $1
+                        AND status != 'inactive'
+                ORDER BY insurance_expiry ASC
+        `
+
+        rows, err := r.db.QueryContext(ctx, query, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).Error("Failed to get vehicles with expired insurance")
+                return nil, fmt.Errorf("failed to get vehicles with expired insurance: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var vehicles []*models.Vehicle
+        for rows.Next() </span><span class="cov0" title="0">{
+                vehicle := &amp;models.Vehicle{}
+
+                err := rows.Scan(
+                        &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                        &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                        &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                        &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                        &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        r.logger.WithContext(ctx).WithError(err).Error("Failed to scan expired insurance vehicle row")
+                        return nil, fmt.Errorf("failed to scan expired insurance vehicle: %w", err)
+                }</span>
+
+                <span class="cov0" title="0">vehicles = append(vehicles, vehicle)</span>
+        }
+
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error iterating expired insurance vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// GetVehiclesWithExpiredRegistration retrieves vehicles with expired registration
+func (r *VehicleRepository) GetVehiclesWithExpiredRegistration(ctx context.Context) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        query := `
+                SELECT id, driver_id, make, model, year, color, license_plate,
+                        vehicle_type, status, capacity, insurance_policy_number,
+                        insurance_expiry, registration_expiry, created_at, updated_at
+                FROM vehicles
+                WHERE registration_expiry IS NOT NULL 
+                        AND registration_expiry &lt;= $1
+                        AND status != 'inactive'
+                ORDER BY registration_expiry ASC
+        `
+
+        rows, err := r.db.QueryContext(ctx, query, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).Error("Failed to get vehicles with expired registration")
+                return nil, fmt.Errorf("failed to get vehicles with expired registration: %w", err)
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        var vehicles []*models.Vehicle
+        for rows.Next() </span><span class="cov0" title="0">{
+                vehicle := &amp;models.Vehicle{}
+
+                err := rows.Scan(
+                        &amp;vehicle.ID, &amp;vehicle.DriverID, &amp;vehicle.Make, &amp;vehicle.Model, &amp;vehicle.Year,
+                        &amp;vehicle.Color, &amp;vehicle.LicensePlate, &amp;vehicle.VehicleType, &amp;vehicle.Status,
+                        &amp;vehicle.Capacity, &amp;vehicle.InsurancePolicyNumber,
+                        &amp;vehicle.InsuranceExpiry, &amp;vehicle.RegistrationExpiry,
+                        &amp;vehicle.CreatedAt, &amp;vehicle.UpdatedAt,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        r.logger.WithContext(ctx).WithError(err).Error("Failed to scan expired registration vehicle row")
+                        return nil, fmt.Errorf("failed to scan expired registration vehicle: %w", err)
+                }</span>
+
+                <span class="cov0" title="0">vehicles = append(vehicles, vehicle)</span>
+        }
+
+        <span class="cov0" title="0">if err := rows.Err(); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("error iterating expired registration vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// LicensePlateExists checks if a license plate already exists
+func (r *VehicleRepository) LicensePlateExists(ctx context.Context, licensePlate string) (bool, error) <span class="cov0" title="0">{
+        query := "SELECT EXISTS(SELECT 1 FROM vehicles WHERE license_plate = $1)"
+
+        var exists bool
+        err := r.db.QueryRowContext(ctx, query, licensePlate).Scan(&amp;exists)
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "license_plate": licensePlate,
+                }).Error("Failed to check license plate existence")
+                return false, fmt.Errorf("failed to check license plate existence: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return exists, nil</span>
+}
+
+// UpdateInsuranceInfo updates vehicle insurance information
+func (r *VehicleRepository) UpdateInsuranceInfo(ctx context.Context, id, policyNumber string, expiry time.Time) error <span class="cov0" title="0">{
+        query := `
+                UPDATE vehicles
+                SET insurance_policy_number = $2, insurance_expiry = $3, updated_at = $4
+                WHERE id = $1
+        `
+
+        result, err := r.db.ExecContext(ctx, query, id, policyNumber, expiry, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": id,
+                }).Error("Failed to update vehicle insurance info")
+                return fmt.Errorf("failed to update insurance info: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle not found: %s", id)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id":    id,
+                "policy_number": policyNumber,
+                "expiry":        expiry,
+        }).Info("Vehicle insurance info updated successfully")
+
+        return nil</span>
+}
+
+// UpdateRegistrationExpiry updates vehicle registration expiry
+func (r *VehicleRepository) UpdateRegistrationExpiry(ctx context.Context, id string, expiry time.Time) error <span class="cov0" title="0">{
+        query := `
+                UPDATE vehicles
+                SET registration_expiry = $2, updated_at = $3
+                WHERE id = $1
+        `
+
+        result, err := r.db.ExecContext(ctx, query, id, expiry, time.Now())
+        if err != nil </span><span class="cov0" title="0">{
+                r.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "vehicle_id": id,
+                }).Error("Failed to update vehicle registration expiry")
+                return fmt.Errorf("failed to update registration expiry: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">rowsAffected, err := result.RowsAffected()
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get rows affected: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if rowsAffected == 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle not found: %s", id)
+        }</span>
+
+        <span class="cov0" title="0">r.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": id,
+                "expiry":     expiry,
+        }).Info("Vehicle registration expiry updated successfully")
+
+        return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package service
+
+import (
+        "context"
+        "fmt"
+        "time"
+
+        "github.com/rideshare-platform/services/vehicle-service/internal/repository"
+        "github.com/rideshare-platform/shared/events"
+        "github.com/rideshare-platform/shared/logger"
+        "github.com/rideshare-platform/shared/models"
+)
+
+// VehicleService handles vehicle business logic
+type VehicleService struct {
+        vehicleRepo    *repository.VehicleRepository
+        cacheRepo      *repository.CacheRepository
+        eventPublisher *events.EventPublisher
+        logger         *logger.Logger
+}
+
+// NewVehicleService creates a new vehicle service
+func NewVehicleService(
+        vehicleRepo *repository.VehicleRepository,
+        cacheRepo *repository.CacheRepository,
+        eventPublisher *events.EventPublisher,
+        logger *logger.Logger,
+) *VehicleService <span class="cov0" title="0">{
+        return &amp;VehicleService{
+                vehicleRepo:    vehicleRepo,
+                cacheRepo:      cacheRepo,
+                eventPublisher: eventPublisher,
+                logger:         logger,
+        }
+}</span>
+
+// CreateVehicle creates a new vehicle
+func (s *VehicleService) CreateVehicle(ctx context.Context, req *CreateVehicleRequest) (*models.Vehicle, error) <span class="cov0" title="0">{
+        // Validate request
+        if err := s.validateCreateVehicleRequest(req); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid request: %w", err)
+        }</span>
+
+        // Check if license plate already exists
+        <span class="cov0" title="0">exists, err := s.vehicleRepo.LicensePlateExists(ctx, req.LicensePlate)
+        if err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Error("Failed to check license plate existence")
+                return nil, fmt.Errorf("failed to check license plate: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">if exists </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("license plate already exists: %s", req.LicensePlate)
+        }</span>
+
+        // Create vehicle
+        <span class="cov0" title="0">vehicle := models.NewVehicle(
+                req.DriverID,
+                req.Make,
+                req.Model,
+                req.Year,
+                req.Color,
+                req.LicensePlate,
+                models.VehicleType(req.VehicleType),
+                req.Capacity,
+        )
+
+        // Set insurance info if provided
+        if req.InsurancePolicyNumber != "" &amp;&amp; req.InsuranceExpiry != nil </span><span class="cov0" title="0">{
+                vehicle.SetInsuranceInfo(req.InsurancePolicyNumber, *req.InsuranceExpiry)
+        }</span>
+
+        // Set registration expiry if provided
+        <span class="cov0" title="0">if req.RegistrationExpiry != nil </span><span class="cov0" title="0">{
+                vehicle.SetRegistrationExpiry(*req.RegistrationExpiry)
+        }</span>
+
+        // Save to database
+        <span class="cov0" title="0">if err := s.vehicleRepo.Create(ctx, vehicle); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                        "driver_id":     req.DriverID,
+                        "license_plate": req.LicensePlate,
+                }).Error("Failed to create vehicle")
+                return nil, fmt.Errorf("failed to create vehicle: %w", err)
+        }</span>
+
+        // Cache the vehicle
+        <span class="cov0" title="0">if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+        }</span>
+
+        // Invalidate driver vehicles cache
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateDriverVehicles(ctx, req.DriverID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+        }</span>
+
+        // Publish event
+        <span class="cov0" title="0">event := events.NewEvent(
+                events.VehicleRegisteredEvent,
+                vehicle.ID,
+                1,
+                map[string]interface{}{
+                        "vehicle_id":    vehicle.ID,
+                        "driver_id":     vehicle.DriverID,
+                        "license_plate": vehicle.LicensePlate,
+                        "make":          vehicle.Make,
+                        "model":         vehicle.Model,
+                        "vehicle_type":  vehicle.VehicleType,
+                },
+                "vehicle-service",
+        )
+
+        if err := s.eventPublisher.PublishEvent(ctx, event); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle registered event")
+        }</span>
+
+        <span class="cov0" title="0">s.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id":    vehicle.ID,
+                "driver_id":     vehicle.DriverID,
+                "license_plate": vehicle.LicensePlate,
+        }).Info("Vehicle created successfully")
+
+        return vehicle, nil</span>
+}
+
+// GetVehicle retrieves a vehicle by ID
+func (s *VehicleService) GetVehicle(ctx context.Context, id string) (*models.Vehicle, error) <span class="cov0" title="0">{
+        if id == "" </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("vehicle ID is required")
+        }</span>
+
+        // Try cache first
+        <span class="cov0" title="0">vehicle, err := s.cacheRepo.GetCachedVehicle(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to get vehicle from cache")
+        }</span>
+
+        <span class="cov0" title="0">if vehicle != nil </span><span class="cov0" title="0">{
+                return vehicle, nil
+        }</span>
+
+        // Get from database
+        <span class="cov0" title="0">vehicle, err = s.vehicleRepo.GetByID(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get vehicle: %w", err)
+        }</span>
+
+        // Cache the result
+        <span class="cov0" title="0">if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+        }</span>
+
+        <span class="cov0" title="0">return vehicle, nil</span>
+}
+
+// GetVehiclesByDriver retrieves vehicles for a driver
+func (s *VehicleService) GetVehiclesByDriver(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        if driverID == "" </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("driver ID is required")
+        }</span>
+
+        // Try cache first
+        <span class="cov0" title="0">vehicles, err := s.cacheRepo.GetCachedDriverVehicles(ctx, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to get driver vehicles from cache")
+        }</span>
+
+        <span class="cov0" title="0">if vehicles != nil </span><span class="cov0" title="0">{
+                return vehicles, nil
+        }</span>
+
+        // Get from database
+        <span class="cov0" title="0">vehicles, err = s.vehicleRepo.GetByDriverID(ctx, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get vehicles by driver: %w", err)
+        }</span>
+
+        // Cache the result
+        <span class="cov0" title="0">if err := s.cacheRepo.CacheDriverVehicles(ctx, driverID, vehicles, 30*time.Minute); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache driver vehicles")
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// GetAvailableVehicles retrieves available vehicles for a driver
+func (s *VehicleService) GetAvailableVehicles(ctx context.Context, driverID string) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        if driverID == "" </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("driver ID is required")
+        }</span>
+
+        // Try cache first
+        <span class="cov0" title="0">vehicles, err := s.cacheRepo.GetCachedAvailableVehicles(ctx, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to get available vehicles from cache")
+        }</span>
+
+        <span class="cov0" title="0">if vehicles != nil </span><span class="cov0" title="0">{
+                return vehicles, nil
+        }</span>
+
+        // Get from database
+        <span class="cov0" title="0">vehicles, err = s.vehicleRepo.GetAvailableVehicles(ctx, driverID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get available vehicles: %w", err)
+        }</span>
+
+        // Cache the result
+        <span class="cov0" title="0">if err := s.cacheRepo.CacheAvailableVehicles(ctx, driverID, vehicles, 15*time.Minute); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache available vehicles")
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// UpdateVehicle updates a vehicle
+func (s *VehicleService) UpdateVehicle(ctx context.Context, req *UpdateVehicleRequest) (*models.Vehicle, error) <span class="cov0" title="0">{
+        // Validate request
+        if err := s.validateUpdateVehicleRequest(req); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid request: %w", err)
+        }</span>
+
+        // Get existing vehicle
+        <span class="cov0" title="0">vehicle, err := s.GetVehicle(ctx, req.ID)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get vehicle: %w", err)
+        }</span>
+
+        // Check if license plate is being changed and if it already exists
+        <span class="cov0" title="0">if req.LicensePlate != "" &amp;&amp; req.LicensePlate != vehicle.LicensePlate </span><span class="cov0" title="0">{
+                exists, err := s.vehicleRepo.LicensePlateExists(ctx, req.LicensePlate)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("failed to check license plate: %w", err)
+                }</span>
+                <span class="cov0" title="0">if exists </span><span class="cov0" title="0">{
+                        return nil, fmt.Errorf("license plate already exists: %s", req.LicensePlate)
+                }</span>
+        }
+
+        // Update fields
+        <span class="cov0" title="0">if req.Make != "" </span><span class="cov0" title="0">{
+                vehicle.Make = req.Make
+        }</span>
+        <span class="cov0" title="0">if req.Model != "" </span><span class="cov0" title="0">{
+                vehicle.Model = req.Model
+        }</span>
+        <span class="cov0" title="0">if req.Year &gt; 0 </span><span class="cov0" title="0">{
+                vehicle.Year = req.Year
+        }</span>
+        <span class="cov0" title="0">if req.Color != "" </span><span class="cov0" title="0">{
+                vehicle.Color = req.Color
+        }</span>
+        <span class="cov0" title="0">if req.LicensePlate != "" </span><span class="cov0" title="0">{
+                vehicle.LicensePlate = req.LicensePlate
+        }</span>
+        <span class="cov0" title="0">if req.VehicleType != "" </span><span class="cov0" title="0">{
+                vehicle.VehicleType = models.VehicleType(req.VehicleType)
+        }</span>
+        <span class="cov0" title="0">if req.Capacity &gt; 0 </span><span class="cov0" title="0">{
+                vehicle.Capacity = req.Capacity
+        }</span>
+
+        // Update insurance info if provided
+        <span class="cov0" title="0">if req.InsurancePolicyNumber != "" &amp;&amp; req.InsuranceExpiry != nil </span><span class="cov0" title="0">{
+                vehicle.SetInsuranceInfo(req.InsurancePolicyNumber, *req.InsuranceExpiry)
+        }</span>
+
+        // Update registration expiry if provided
+        <span class="cov0" title="0">if req.RegistrationExpiry != nil </span><span class="cov0" title="0">{
+                vehicle.SetRegistrationExpiry(*req.RegistrationExpiry)
+        }</span>
+
+        <span class="cov0" title="0">vehicle.UpdatedAt = time.Now()
+
+        // Save to database
+        if err := s.vehicleRepo.Update(ctx, vehicle); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to update vehicle: %w", err)
+        }</span>
+
+        // Invalidate caches
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateVehicle(ctx, vehicle.ID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+        }</span>
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+        }</span>
+
+        // Publish event
+        <span class="cov0" title="0">event := events.NewEvent(
+                events.VehicleUpdatedEvent,
+                vehicle.ID,
+                1,
+                map[string]interface{}{
+                        "vehicle_id":    vehicle.ID,
+                        "driver_id":     vehicle.DriverID,
+                        "license_plate": vehicle.LicensePlate,
+                },
+                "vehicle-service",
+        )
+
+        if err := s.eventPublisher.PublishEvent(ctx, event); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle updated event")
+        }</span>
+
+        <span class="cov0" title="0">s.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": vehicle.ID,
+                "driver_id":  vehicle.DriverID,
+        }).Info("Vehicle updated successfully")
+
+        return vehicle, nil</span>
+}
+
+// UpdateVehicleStatus updates vehicle status
+func (s *VehicleService) UpdateVehicleStatus(ctx context.Context, id string, status models.VehicleStatus) error <span class="cov0" title="0">{
+        if id == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle ID is required")
+        }</span>
+
+        // Get vehicle to get driver ID for cache invalidation
+        <span class="cov0" title="0">vehicle, err := s.GetVehicle(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get vehicle: %w", err)
+        }</span>
+
+        // Update status in database
+        <span class="cov0" title="0">if err := s.vehicleRepo.UpdateStatus(ctx, id, status); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to update vehicle status: %w", err)
+        }</span>
+
+        // Invalidate caches
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+        }</span>
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+        }</span>
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateAvailableVehicles(ctx, vehicle.DriverID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate available vehicles cache")
+        }</span>
+
+        <span class="cov0" title="0">s.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": id,
+                "status":     status,
+        }).Info("Vehicle status updated successfully")
+
+        return nil</span>
+}
+
+// DeleteVehicle soft deletes a vehicle
+func (s *VehicleService) DeleteVehicle(ctx context.Context, id string) error <span class="cov0" title="0">{
+        if id == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle ID is required")
+        }</span>
+
+        // Get vehicle to get driver ID for cache invalidation
+        <span class="cov0" title="0">vehicle, err := s.GetVehicle(ctx, id)
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to get vehicle: %w", err)
+        }</span>
+
+        // Delete from database
+        <span class="cov0" title="0">if err := s.vehicleRepo.Delete(ctx, id); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("failed to delete vehicle: %w", err)
+        }</span>
+
+        // Invalidate caches
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+        }</span>
+        <span class="cov0" title="0">if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+        }</span>
+
+        // Publish event
+        <span class="cov0" title="0">event := events.NewEvent(
+                events.VehicleDeactivatedEvent,
+                vehicle.ID,
+                1,
+                map[string]interface{}{
+                        "vehicle_id":    vehicle.ID,
+                        "driver_id":     vehicle.DriverID,
+                        "license_plate": vehicle.LicensePlate,
+                },
+                "vehicle-service",
+        )
+
+        if err := s.eventPublisher.PublishEvent(ctx, event); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle deactivated event")
+        }</span>
+
+        <span class="cov0" title="0">s.logger.WithContext(ctx).WithFields(logger.Fields{
+                "vehicle_id": id,
+                "driver_id":  vehicle.DriverID,
+        }).Info("Vehicle deleted successfully")
+
+        return nil</span>
+}
+
+// ListVehicles retrieves vehicles with pagination and filtering
+func (s *VehicleService) ListVehicles(ctx context.Context, req *ListVehiclesRequest) (*ListVehiclesResponse, error) <span class="cov0" title="0">{
+        // Validate request
+        if err := s.validateListVehiclesRequest(req); err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("invalid request: %w", err)
+        }</span>
+
+        // Get vehicles from database
+        <span class="cov0" title="0">vehicles, err := s.vehicleRepo.List(ctx, req.Limit, req.Offset, req.Status, req.VehicleType)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to list vehicles: %w", err)
+        }</span>
+
+        // Get total count
+        <span class="cov0" title="0">total, err := s.vehicleRepo.Count(ctx, req.Status, req.VehicleType)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to count vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return &amp;ListVehiclesResponse{
+                Vehicles: vehicles,
+                Total:    total,
+                Limit:    req.Limit,
+                Offset:   req.Offset,
+        }, nil</span>
+}
+
+// GetVehicleStats retrieves vehicle statistics
+func (s *VehicleService) GetVehicleStats(ctx context.Context) (*VehicleStatsResponse, error) <span class="cov0" title="0">{
+        // Try cache first
+        cachedStats, err := s.cacheRepo.GetCachedVehicleStats(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to get vehicle stats from cache")
+        }</span>
+
+        <span class="cov0" title="0">if cachedStats != nil </span><span class="cov0" title="0">{
+                return &amp;VehicleStatsResponse{
+                        TotalVehicles:    int64(cachedStats["total_vehicles"].(float64)),
+                        ActiveVehicles:   int64(cachedStats["active_vehicles"].(float64)),
+                        InactiveVehicles: int64(cachedStats["inactive_vehicles"].(float64)),
+                        VehiclesByType:   cachedStats["vehicles_by_type"].(map[string]interface{}),
+                }, nil
+        }</span>
+
+        // Calculate stats from database
+        <span class="cov0" title="0">totalVehicles, err := s.vehicleRepo.Count(ctx, "", "")
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to count total vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">activeVehicles, err := s.vehicleRepo.Count(ctx, "active", "")
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to count active vehicles: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">inactiveVehicles, err := s.vehicleRepo.Count(ctx, "inactive", "")
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to count inactive vehicles: %w", err)
+        }</span>
+
+        // Get vehicles by type
+        <span class="cov0" title="0">vehiclesByType := make(map[string]interface{})
+        for _, vehicleType := range models.GetVehicleTypes() </span><span class="cov0" title="0">{
+                count, err := s.vehicleRepo.Count(ctx, "", string(vehicleType))
+                if err != nil </span><span class="cov0" title="0">{
+                        s.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
+                                "vehicle_type": vehicleType,
+                        }).Warn("Failed to count vehicles by type")
+                        continue</span>
+                }
+                <span class="cov0" title="0">vehiclesByType[string(vehicleType)] = count</span>
+        }
+
+        <span class="cov0" title="0">stats := &amp;VehicleStatsResponse{
+                TotalVehicles:    totalVehicles,
+                ActiveVehicles:   activeVehicles,
+                InactiveVehicles: inactiveVehicles,
+                VehiclesByType:   vehiclesByType,
+        }
+
+        // Cache the stats
+        statsMap := map[string]interface{}{
+                "total_vehicles":    totalVehicles,
+                "active_vehicles":   activeVehicles,
+                "inactive_vehicles": inactiveVehicles,
+                "vehicles_by_type":  vehiclesByType,
+        }
+
+        if err := s.cacheRepo.CacheVehicleStats(ctx, statsMap, 5*time.Minute); err != nil </span><span class="cov0" title="0">{
+                s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle stats")
+        }</span>
+
+        <span class="cov0" title="0">return stats, nil</span>
+}
+
+// GetVehiclesWithExpiredInsurance retrieves vehicles with expired insurance
+func (s *VehicleService) GetVehiclesWithExpiredInsurance(ctx context.Context) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        vehicles, err := s.vehicleRepo.GetVehiclesWithExpiredInsurance(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get vehicles with expired insurance: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// GetVehiclesWithExpiredRegistration retrieves vehicles with expired registration
+func (s *VehicleService) GetVehiclesWithExpiredRegistration(ctx context.Context) ([]*models.Vehicle, error) <span class="cov0" title="0">{
+        vehicles, err := s.vehicleRepo.GetVehiclesWithExpiredRegistration(ctx)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to get vehicles with expired registration: %w", err)
+        }</span>
+
+        <span class="cov0" title="0">return vehicles, nil</span>
+}
+
+// Validation methods
+
+func (s *VehicleService) validateCreateVehicleRequest(req *CreateVehicleRequest) error <span class="cov0" title="0">{
+        if req.DriverID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("driver ID is required")
+        }</span>
+        <span class="cov0" title="0">if req.Make == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("make is required")
+        }</span>
+        <span class="cov0" title="0">if req.Model == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("model is required")
+        }</span>
+        <span class="cov0" title="0">if req.Year &lt;= 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("year must be positive")
+        }</span>
+        <span class="cov0" title="0">if req.LicensePlate == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("license plate is required")
+        }</span>
+        <span class="cov0" title="0">if req.VehicleType == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle type is required")
+        }</span>
+        <span class="cov0" title="0">if !models.IsValidVehicleType(req.VehicleType) </span><span class="cov0" title="0">{
+                return fmt.Errorf("invalid vehicle type: %s", req.VehicleType)
+        }</span>
+        <span class="cov0" title="0">if req.Capacity &lt;= 0 </span><span class="cov0" title="0">{
+                return fmt.Errorf("capacity must be positive")
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (s *VehicleService) validateUpdateVehicleRequest(req *UpdateVehicleRequest) error <span class="cov0" title="0">{
+        if req.ID == "" </span><span class="cov0" title="0">{
+                return fmt.Errorf("vehicle ID is required")
+        }</span>
+        <span class="cov0" title="0">if req.VehicleType != "" &amp;&amp; !models.IsValidVehicleType(req.VehicleType) </span><span class="cov0" title="0">{
+                return fmt.Errorf("invalid vehicle type: %s", req.VehicleType)
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+func (s *VehicleService) validateListVehiclesRequest(req *ListVehiclesRequest) error <span class="cov0" title="0">{
+        if req.Limit &lt;= 0 </span><span class="cov0" title="0">{
+                req.Limit = 20
+        }</span>
+        <span class="cov0" title="0">if req.Limit &gt; 100 </span><span class="cov0" title="0">{
+                req.Limit = 100
+        }</span>
+        <span class="cov0" title="0">if req.Offset &lt; 0 </span><span class="cov0" title="0">{
+                req.Offset = 0
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
+
+// Request/Response types
+
+type CreateVehicleRequest struct {
+        DriverID              string     `json:"driver_id"`
+        Make                  string     `json:"make"`
+        Model                 string     `json:"model"`
+        Year                  int        `json:"year"`
+        Color                 string     `json:"color"`
+        LicensePlate          string     `json:"license_plate"`
+        VehicleType           string     `json:"vehicle_type"`
+        Capacity              int        `json:"capacity"`
+        InsurancePolicyNumber string     `json:"insurance_policy_number,omitempty"`
+        InsuranceExpiry       *time.Time `json:"insurance_expiry,omitempty"`
+        RegistrationExpiry    *time.Time `json:"registration_expiry,omitempty"`
+}
+
+type UpdateVehicleRequest struct {
+        ID                    string     `json:"id"`
+        Make                  string     `json:"make,omitempty"`
+        Model                 string     `json:"model,omitempty"`
+        Year                  int        `json:"year,omitempty"`
+        Color                 string     `json:"color,omitempty"`
+        LicensePlate          string     `json:"license_plate,omitempty"`
+        VehicleType           string     `json:"vehicle_type,omitempty"`
+        Capacity              int        `json:"capacity,omitempty"`
+        InsurancePolicyNumber string     `json:"insurance_policy_number,omitempty"`
+        InsuranceExpiry       *time.Time `json:"insurance_expiry,omitempty"`
+        RegistrationExpiry    *time.Time `json:"registration_expiry,omitempty"`
+}
+
+type ListVehiclesRequest struct {
+        Limit       int    `json:"limit"`
+        Offset      int    `json:"offset"`
+        Status      string `json:"status,omitempty"`
+        VehicleType string `json:"vehicle_type,omitempty"`
+}
+
+type ListVehiclesResponse struct {
+        Vehicles []*models.Vehicle `json:"vehicles"`
+        Total    int64             `json:"total"`
+        Limit    int               `json:"limit"`
+        Offset   int               `json:"offset"`
+}
+
+type VehicleStatsResponse struct {
+        TotalVehicles    int64                  `json:"total_vehicles"`
+        ActiveVehicles   int64                  `json:"active_vehicles"`
+        InactiveVehicles int64                  `json:"inactive_vehicles"`
+        VehiclesByType   map[string]interface{} `json:"vehicles_by_type"`
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package main
+
+import (
+        "log"
+        "net/http"
+
+        "github.com/gin-gonic/gin"
+)
+
+func main() <span class="cov0" title="0">{
+        // Create Gin router
+        r := gin.Default()
+
+        // Basic health check endpoint
+        r.GET("/health", func(c *gin.Context) </span><span class="cov0" title="0">{
+                c.JSON(http.StatusOK, gin.H{
+                        "status":  "healthy",
+                        "service": "vehicle-service",
+                })
+        }</span>)
+
+        // Basic vehicles endpoint
+        <span class="cov0" title="0">r.GET("/vehicles", func(c *gin.Context) </span><span class="cov0" title="0">{
+                c.JSON(http.StatusOK, gin.H{
+                        "vehicles": []gin.H{},
+                        "message":  "Vehicle service is running",
+                })
+        }</span>)
+
+        // Start server
+        <span class="cov0" title="0">port := ":8080"
+        log.Printf("Vehicle service starting on port %s", port)
+        if err := r.Run(port); err != nil </span><span class="cov0" title="0">{
+                log.Fatalf("Failed to start server: %v", err)
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

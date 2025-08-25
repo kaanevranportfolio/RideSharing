@@ -6,16 +6,16 @@ services:
     image: postgres:15-alpine
     container_name: rideshare-postgres
     environment:
-      POSTGRES_DB: rideshare
-      POSTGRES_USER: rideshare_user
-      POSTGRES_PASSWORD: rideshare_password
+      POSTGRES_DB: ${POSTGRES_DB:-rideshare}
+      POSTGRES_USER: ${POSTGRES_USER:-rideshare_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init-postgres.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rideshare_user -d rideshare"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rideshare_user} -d ${POSTGRES_DB:-rideshare}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,9 +25,9 @@ services:
     image: mongo:7.0
     container_name: rideshare-mongodb
     environment:
-      MONGO_INITDB_ROOT_USERNAME: rideshare_user
-      MONGO_INITDB_ROOT_PASSWORD: rideshare_password
-      MONGO_INITDB_DATABASE: rideshare_geo
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER:-rideshare_user}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:?MONGODB_PASSWORD must be set}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-rideshare_geo}
     ports:
       - "27017:27017"
     volumes:
@@ -66,9 +66,9 @@ services:
       - HTTP_PORT=8051
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=rideshare
-      - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_NAME=${POSTGRES_DB:-rideshare}
+      - DB_USERNAME=${POSTGRES_USER:-rideshare_user}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
@@ -98,9 +98,9 @@ services:
       - HTTP_PORT=8052
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=rideshare
-      - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_NAME=${POSTGRES_DB:-rideshare}
+      - DB_USERNAME=${POSTGRES_USER:-rideshare_user}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
@@ -130,9 +130,9 @@ services:
       - HTTP_PORT=8053
       - DB_HOST=mongodb
       - DB_PORT=27017
-      - DB_NAME=rideshare_geo
-      - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_NAME=${MONGODB_DB:-rideshare_geo}
+      - DB_USERNAME=${MONGODB_USER:-rideshare_user}
+      - DB_PASSWORD=${MONGODB_PASSWORD:?MONGODB_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
@@ -161,9 +161,9 @@ services:
       - HTTP_PORT=8084
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=rideshare
-      - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_NAME=${POSTGRES_DB:-rideshare}
+      - DB_USERNAME=${POSTGRES_USER:-rideshare_user}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:
@@ -191,9 +191,9 @@ services:
       - HTTP_PORT=8085
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_NAME=rideshare
-      - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_NAME=${POSTGRES_DB:-rideshare}
+      - DB_USERNAME=${POSTGRES_USER:-rideshare_user}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

@@ -1,0 +1,30 @@
+apiVersion: v2
+name: rideshare-platform
+description: A Helm chart for Rideshare Platform microservices
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+keywords:
+  - rideshare
+  - microservices
+  - golang
+  - kubernetes
+
+maintainers:
+  - name: Rideshare Team
+    email: team@rideshare-platform.com
+
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: mongodb
+    version: "13.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: mongodb.enabled
+  - name: redis
+    version: "18.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled

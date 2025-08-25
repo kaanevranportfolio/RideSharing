@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        v3.21.12
-// source: proto/pricing/pricing.proto
+// source: shared/proto/pricing/pricing.proto
 
 package pricing
 
@@ -34,7 +34,7 @@ type Location struct {
 
 func (x *Location) Reset() {
 	*x = Location{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[0]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +46,7 @@ func (x *Location) String() string {
 func (*Location) ProtoMessage() {}
 
 func (x *Location) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[0]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +59,7 @@ func (x *Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Location.ProtoReflect.Descriptor instead.
 func (*Location) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{0}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Location) GetLatitude() float64 {
@@ -103,7 +103,7 @@ type PriceEstimate struct {
 
 func (x *PriceEstimate) Reset() {
 	*x = PriceEstimate{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[1]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *PriceEstimate) String() string {
 func (*PriceEstimate) ProtoMessage() {}
 
 func (x *PriceEstimate) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[1]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *PriceEstimate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PriceEstimate.ProtoReflect.Descriptor instead.
 func (*PriceEstimate) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{1}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *PriceEstimate) GetId() string {
@@ -228,7 +228,7 @@ type PricingBreakdown struct {
 
 func (x *PricingBreakdown) Reset() {
 	*x = PricingBreakdown{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[2]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -240,7 +240,7 @@ func (x *PricingBreakdown) String() string {
 func (*PricingBreakdown) ProtoMessage() {}
 
 func (x *PricingBreakdown) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[2]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -253,7 +253,7 @@ func (x *PricingBreakdown) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PricingBreakdown.ProtoReflect.Descriptor instead.
 func (*PricingBreakdown) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{2}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PricingBreakdown) GetBaseRate() float64 {
@@ -348,7 +348,7 @@ type AppliedDiscount struct {
 
 func (x *AppliedDiscount) Reset() {
 	*x = AppliedDiscount{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[3]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -360,7 +360,7 @@ func (x *AppliedDiscount) String() string {
 func (*AppliedDiscount) ProtoMessage() {}
 
 func (x *AppliedDiscount) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[3]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -373,7 +373,7 @@ func (x *AppliedDiscount) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppliedDiscount.ProtoReflect.Descriptor instead.
 func (*AppliedDiscount) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{3}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AppliedDiscount) GetId() string {
@@ -433,7 +433,7 @@ type SurgeInfo struct {
 
 func (x *SurgeInfo) Reset() {
 	*x = SurgeInfo{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[4]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -445,7 +445,7 @@ func (x *SurgeInfo) String() string {
 func (*SurgeInfo) ProtoMessage() {}
 
 func (x *SurgeInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[4]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -458,7 +458,7 @@ func (x *SurgeInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SurgeInfo.ProtoReflect.Descriptor instead.
 func (*SurgeInfo) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{4}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *SurgeInfo) GetIsActive() bool {
@@ -518,7 +518,7 @@ type PricingFactors struct {
 
 func (x *PricingFactors) Reset() {
 	*x = PricingFactors{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[5]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -530,7 +530,7 @@ func (x *PricingFactors) String() string {
 func (*PricingFactors) ProtoMessage() {}
 
 func (x *PricingFactors) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[5]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -543,7 +543,7 @@ func (x *PricingFactors) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PricingFactors.ProtoReflect.Descriptor instead.
 func (*PricingFactors) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{5}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *PricingFactors) GetDemandMultiplier() float64 {
@@ -603,7 +603,7 @@ type VehicleType struct {
 
 func (x *VehicleType) Reset() {
 	*x = VehicleType{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[6]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -615,7 +615,7 @@ func (x *VehicleType) String() string {
 func (*VehicleType) ProtoMessage() {}
 
 func (x *VehicleType) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[6]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -628,7 +628,7 @@ func (x *VehicleType) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VehicleType.ProtoReflect.Descriptor instead.
 func (*VehicleType) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{6}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *VehicleType) GetId() string {
@@ -689,7 +689,7 @@ type PricingRates struct {
 
 func (x *PricingRates) Reset() {
 	*x = PricingRates{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[7]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -701,7 +701,7 @@ func (x *PricingRates) String() string {
 func (*PricingRates) ProtoMessage() {}
 
 func (x *PricingRates) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[7]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -714,7 +714,7 @@ func (x *PricingRates) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PricingRates.ProtoReflect.Descriptor instead.
 func (*PricingRates) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{7}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PricingRates) GetBaseFare() float64 {
@@ -781,7 +781,7 @@ type GetPriceEstimateRequest struct {
 
 func (x *GetPriceEstimateRequest) Reset() {
 	*x = GetPriceEstimateRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[8]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -793,7 +793,7 @@ func (x *GetPriceEstimateRequest) String() string {
 func (*GetPriceEstimateRequest) ProtoMessage() {}
 
 func (x *GetPriceEstimateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[8]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -806,7 +806,7 @@ func (x *GetPriceEstimateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPriceEstimateRequest.ProtoReflect.Descriptor instead.
 func (*GetPriceEstimateRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{8}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetPriceEstimateRequest) GetPickupLocation() *Location {
@@ -863,7 +863,7 @@ type GetPriceEstimateResponse struct {
 
 func (x *GetPriceEstimateResponse) Reset() {
 	*x = GetPriceEstimateResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[9]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -875,7 +875,7 @@ func (x *GetPriceEstimateResponse) String() string {
 func (*GetPriceEstimateResponse) ProtoMessage() {}
 
 func (x *GetPriceEstimateResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[9]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -888,7 +888,7 @@ func (x *GetPriceEstimateResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPriceEstimateResponse.ProtoReflect.Descriptor instead.
 func (*GetPriceEstimateResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{9}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetPriceEstimateResponse) GetEstimate() *PriceEstimate {
@@ -932,7 +932,7 @@ type GetMultipleEstimatesRequest struct {
 
 func (x *GetMultipleEstimatesRequest) Reset() {
 	*x = GetMultipleEstimatesRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[10]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -944,7 +944,7 @@ func (x *GetMultipleEstimatesRequest) String() string {
 func (*GetMultipleEstimatesRequest) ProtoMessage() {}
 
 func (x *GetMultipleEstimatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[10]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -957,7 +957,7 @@ func (x *GetMultipleEstimatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMultipleEstimatesRequest.ProtoReflect.Descriptor instead.
 func (*GetMultipleEstimatesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{10}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetMultipleEstimatesRequest) GetPickupLocation() *Location {
@@ -1006,7 +1006,7 @@ type GetMultipleEstimatesResponse struct {
 
 func (x *GetMultipleEstimatesResponse) Reset() {
 	*x = GetMultipleEstimatesResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[11]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1018,7 +1018,7 @@ func (x *GetMultipleEstimatesResponse) String() string {
 func (*GetMultipleEstimatesResponse) ProtoMessage() {}
 
 func (x *GetMultipleEstimatesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[11]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1031,7 +1031,7 @@ func (x *GetMultipleEstimatesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMultipleEstimatesResponse.ProtoReflect.Descriptor instead.
 func (*GetMultipleEstimatesResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{11}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetMultipleEstimatesResponse) GetEstimates() []*PriceEstimate {
@@ -1072,7 +1072,7 @@ type CalculateFinalFareRequest struct {
 
 func (x *CalculateFinalFareRequest) Reset() {
 	*x = CalculateFinalFareRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[12]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1084,7 +1084,7 @@ func (x *CalculateFinalFareRequest) String() string {
 func (*CalculateFinalFareRequest) ProtoMessage() {}
 
 func (x *CalculateFinalFareRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[12]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1097,7 +1097,7 @@ func (x *CalculateFinalFareRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateFinalFareRequest.ProtoReflect.Descriptor instead.
 func (*CalculateFinalFareRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{12}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *CalculateFinalFareRequest) GetTripId() string {
@@ -1176,7 +1176,7 @@ type CalculateFinalFareResponse struct {
 
 func (x *CalculateFinalFareResponse) Reset() {
 	*x = CalculateFinalFareResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[13]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1188,7 +1188,7 @@ func (x *CalculateFinalFareResponse) String() string {
 func (*CalculateFinalFareResponse) ProtoMessage() {}
 
 func (x *CalculateFinalFareResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[13]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1201,7 +1201,7 @@ func (x *CalculateFinalFareResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateFinalFareResponse.ProtoReflect.Descriptor instead.
 func (*CalculateFinalFareResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{13}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *CalculateFinalFareResponse) GetFinalFare() *PriceEstimate {
@@ -1251,7 +1251,7 @@ type FareAdjustment struct {
 
 func (x *FareAdjustment) Reset() {
 	*x = FareAdjustment{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[14]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1263,7 +1263,7 @@ func (x *FareAdjustment) String() string {
 func (*FareAdjustment) ProtoMessage() {}
 
 func (x *FareAdjustment) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[14]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1276,7 +1276,7 @@ func (x *FareAdjustment) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FareAdjustment.ProtoReflect.Descriptor instead.
 func (*FareAdjustment) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{14}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *FareAdjustment) GetType() string {
@@ -1317,7 +1317,7 @@ type GetSurgePricingRequest struct {
 
 func (x *GetSurgePricingRequest) Reset() {
 	*x = GetSurgePricingRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[15]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1329,7 +1329,7 @@ func (x *GetSurgePricingRequest) String() string {
 func (*GetSurgePricingRequest) ProtoMessage() {}
 
 func (x *GetSurgePricingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[15]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1342,7 +1342,7 @@ func (x *GetSurgePricingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSurgePricingRequest.ProtoReflect.Descriptor instead.
 func (*GetSurgePricingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{15}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetSurgePricingRequest) GetLocation() *Location {
@@ -1370,7 +1370,7 @@ type GetSurgePricingResponse struct {
 
 func (x *GetSurgePricingResponse) Reset() {
 	*x = GetSurgePricingResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[16]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1382,7 +1382,7 @@ func (x *GetSurgePricingResponse) String() string {
 func (*GetSurgePricingResponse) ProtoMessage() {}
 
 func (x *GetSurgePricingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[16]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1395,7 +1395,7 @@ func (x *GetSurgePricingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSurgePricingResponse.ProtoReflect.Descriptor instead.
 func (*GetSurgePricingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{16}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetSurgePricingResponse) GetSurgeInfo() *SurgeInfo {
@@ -1428,7 +1428,7 @@ type GetVehicleTypesRequest struct {
 
 func (x *GetVehicleTypesRequest) Reset() {
 	*x = GetVehicleTypesRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[17]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1440,7 +1440,7 @@ func (x *GetVehicleTypesRequest) String() string {
 func (*GetVehicleTypesRequest) ProtoMessage() {}
 
 func (x *GetVehicleTypesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[17]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1453,7 +1453,7 @@ func (x *GetVehicleTypesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVehicleTypesRequest.ProtoReflect.Descriptor instead.
 func (*GetVehicleTypesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{17}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetVehicleTypesRequest) GetLocation() *Location {
@@ -1473,7 +1473,7 @@ type GetVehicleTypesResponse struct {
 
 func (x *GetVehicleTypesResponse) Reset() {
 	*x = GetVehicleTypesResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[18]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1485,7 +1485,7 @@ func (x *GetVehicleTypesResponse) String() string {
 func (*GetVehicleTypesResponse) ProtoMessage() {}
 
 func (x *GetVehicleTypesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[18]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1498,7 +1498,7 @@ func (x *GetVehicleTypesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetVehicleTypesResponse.ProtoReflect.Descriptor instead.
 func (*GetVehicleTypesResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{18}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetVehicleTypesResponse) GetVehicleTypes() []*VehicleType {
@@ -1527,7 +1527,7 @@ type UpdateSurgePricingRequest struct {
 
 func (x *UpdateSurgePricingRequest) Reset() {
 	*x = UpdateSurgePricingRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[19]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1539,7 +1539,7 @@ func (x *UpdateSurgePricingRequest) String() string {
 func (*UpdateSurgePricingRequest) ProtoMessage() {}
 
 func (x *UpdateSurgePricingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[19]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1552,7 +1552,7 @@ func (x *UpdateSurgePricingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSurgePricingRequest.ProtoReflect.Descriptor instead.
 func (*UpdateSurgePricingRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{19}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateSurgePricingRequest) GetZoneId() string {
@@ -1594,7 +1594,7 @@ type UpdateSurgePricingResponse struct {
 
 func (x *UpdateSurgePricingResponse) Reset() {
 	*x = UpdateSurgePricingResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[20]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1606,7 +1606,7 @@ func (x *UpdateSurgePricingResponse) String() string {
 func (*UpdateSurgePricingResponse) ProtoMessage() {}
 
 func (x *UpdateSurgePricingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[20]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1619,7 +1619,7 @@ func (x *UpdateSurgePricingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateSurgePricingResponse.ProtoReflect.Descriptor instead.
 func (*UpdateSurgePricingResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{20}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *UpdateSurgePricingResponse) GetSuccess() bool {
@@ -1654,7 +1654,7 @@ type GetPricingStatsRequest struct {
 
 func (x *GetPricingStatsRequest) Reset() {
 	*x = GetPricingStatsRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[21]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1666,7 +1666,7 @@ func (x *GetPricingStatsRequest) String() string {
 func (*GetPricingStatsRequest) ProtoMessage() {}
 
 func (x *GetPricingStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[21]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1679,7 +1679,7 @@ func (x *GetPricingStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPricingStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetPricingStatsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{21}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetPricingStatsRequest) GetFromTime() *timestamppb.Timestamp {
@@ -1718,7 +1718,7 @@ type PricingStats struct {
 
 func (x *PricingStats) Reset() {
 	*x = PricingStats{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[22]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1730,7 +1730,7 @@ func (x *PricingStats) String() string {
 func (*PricingStats) ProtoMessage() {}
 
 func (x *PricingStats) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[22]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1743,7 +1743,7 @@ func (x *PricingStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PricingStats.ProtoReflect.Descriptor instead.
 func (*PricingStats) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{22}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *PricingStats) GetAverageFare() float64 {
@@ -1805,7 +1805,7 @@ type GetPricingStatsResponse struct {
 
 func (x *GetPricingStatsResponse) Reset() {
 	*x = GetPricingStatsResponse{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[23]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1817,7 +1817,7 @@ func (x *GetPricingStatsResponse) String() string {
 func (*GetPricingStatsResponse) ProtoMessage() {}
 
 func (x *GetPricingStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[23]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1830,7 +1830,7 @@ func (x *GetPricingStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPricingStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetPricingStatsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{23}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *GetPricingStatsResponse) GetStats() *PricingStats {
@@ -1862,7 +1862,7 @@ type PricingUpdateEvent struct {
 
 func (x *PricingUpdateEvent) Reset() {
 	*x = PricingUpdateEvent{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[24]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1874,7 +1874,7 @@ func (x *PricingUpdateEvent) String() string {
 func (*PricingUpdateEvent) ProtoMessage() {}
 
 func (x *PricingUpdateEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[24]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1887,7 +1887,7 @@ func (x *PricingUpdateEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PricingUpdateEvent.ProtoReflect.Descriptor instead.
 func (*PricingUpdateEvent) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{24}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *PricingUpdateEvent) GetZoneId() string {
@@ -1942,7 +1942,7 @@ type SubscribeToPricingUpdatesRequest struct {
 
 func (x *SubscribeToPricingUpdatesRequest) Reset() {
 	*x = SubscribeToPricingUpdatesRequest{}
-	mi := &file_proto_pricing_pricing_proto_msgTypes[25]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1954,7 +1954,7 @@ func (x *SubscribeToPricingUpdatesRequest) String() string {
 func (*SubscribeToPricingUpdatesRequest) ProtoMessage() {}
 
 func (x *SubscribeToPricingUpdatesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_pricing_pricing_proto_msgTypes[25]
+	mi := &file_shared_proto_pricing_pricing_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1967,7 +1967,7 @@ func (x *SubscribeToPricingUpdatesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeToPricingUpdatesRequest.ProtoReflect.Descriptor instead.
 func (*SubscribeToPricingUpdatesRequest) Descriptor() ([]byte, []int) {
-	return file_proto_pricing_pricing_proto_rawDescGZIP(), []int{25}
+	return file_shared_proto_pricing_pricing_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *SubscribeToPricingUpdatesRequest) GetZoneIds() []string {
@@ -1984,11 +1984,11 @@ func (x *SubscribeToPricingUpdatesRequest) GetVehicleTypes() []string {
 	return nil
 }
 
-var File_proto_pricing_pricing_proto protoreflect.FileDescriptor
+var File_shared_proto_pricing_pricing_proto protoreflect.FileDescriptor
 
-const file_proto_pricing_pricing_proto_rawDesc = "" +
+const file_shared_proto_pricing_pricing_proto_rawDesc = "" +
 	"\n" +
-	"\x1bproto/pricing/pricing.proto\x12\apricing\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
+	"\"shared/proto/pricing/pricing.proto\x12\apricing\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
 	"\bLocation\x12\x1a\n" +
 	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
 	"\tlongitude\x18\x02 \x01(\x01R\tlongitude\x12\x18\n" +
@@ -2184,19 +2184,19 @@ const file_proto_pricing_pricing_proto_rawDesc = "" +
 	"\x19SubscribeToPricingUpdates\x12).pricing.SubscribeToPricingUpdatesRequest\x1a\x1b.pricing.PricingUpdateEvent0\x01B4Z2github.com/rideshare-platform/shared/proto/pricingb\x06proto3"
 
 var (
-	file_proto_pricing_pricing_proto_rawDescOnce sync.Once
-	file_proto_pricing_pricing_proto_rawDescData []byte
+	file_shared_proto_pricing_pricing_proto_rawDescOnce sync.Once
+	file_shared_proto_pricing_pricing_proto_rawDescData []byte
 )
 
-func file_proto_pricing_pricing_proto_rawDescGZIP() []byte {
-	file_proto_pricing_pricing_proto_rawDescOnce.Do(func() {
-		file_proto_pricing_pricing_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_pricing_pricing_proto_rawDesc), len(file_proto_pricing_pricing_proto_rawDesc)))
+func file_shared_proto_pricing_pricing_proto_rawDescGZIP() []byte {
+	file_shared_proto_pricing_pricing_proto_rawDescOnce.Do(func() {
+		file_shared_proto_pricing_pricing_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_shared_proto_pricing_pricing_proto_rawDesc), len(file_shared_proto_pricing_pricing_proto_rawDesc)))
 	})
-	return file_proto_pricing_pricing_proto_rawDescData
+	return file_shared_proto_pricing_pricing_proto_rawDescData
 }
 
-var file_proto_pricing_pricing_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
-var file_proto_pricing_pricing_proto_goTypes = []any{
+var file_shared_proto_pricing_pricing_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_shared_proto_pricing_pricing_proto_goTypes = []any{
 	(*Location)(nil),                         // 0: pricing.Location
 	(*PriceEstimate)(nil),                    // 1: pricing.PriceEstimate
 	(*PricingBreakdown)(nil),                 // 2: pricing.PricingBreakdown
@@ -2230,7 +2230,7 @@ var file_proto_pricing_pricing_proto_goTypes = []any{
 	nil,                                      // 30: pricing.PricingStats.DiscountUsageEntry
 	(*timestamppb.Timestamp)(nil),            // 31: google.protobuf.Timestamp
 }
-var file_proto_pricing_pricing_proto_depIdxs = []int32{
+var file_shared_proto_pricing_pricing_proto_depIdxs = []int32{
 	2,  // 0: pricing.PriceEstimate.breakdown:type_name -> pricing.PricingBreakdown
 	31, // 1: pricing.PriceEstimate.valid_until:type_name -> google.protobuf.Timestamp
 	3,  // 2: pricing.PricingBreakdown.discounts:type_name -> pricing.AppliedDiscount
@@ -2290,26 +2290,26 @@ var file_proto_pricing_pricing_proto_depIdxs = []int32{
 	0,  // [0:36] is the sub-list for field type_name
 }
 
-func init() { file_proto_pricing_pricing_proto_init() }
-func file_proto_pricing_pricing_proto_init() {
-	if File_proto_pricing_pricing_proto != nil {
+func init() { file_shared_proto_pricing_pricing_proto_init() }
+func file_shared_proto_pricing_pricing_proto_init() {
+	if File_shared_proto_pricing_pricing_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_pricing_pricing_proto_rawDesc), len(file_proto_pricing_pricing_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_pricing_pricing_proto_rawDesc), len(file_shared_proto_pricing_pricing_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_pricing_pricing_proto_goTypes,
-		DependencyIndexes: file_proto_pricing_pricing_proto_depIdxs,
-		MessageInfos:      file_proto_pricing_pricing_proto_msgTypes,
+		GoTypes:           file_shared_proto_pricing_pricing_proto_goTypes,
+		DependencyIndexes: file_shared_proto_pricing_pricing_proto_depIdxs,
+		MessageInfos:      file_shared_proto_pricing_pricing_proto_msgTypes,
 	}.Build()
-	File_proto_pricing_pricing_proto = out.File
-	file_proto_pricing_pricing_proto_goTypes = nil
-	file_proto_pricing_pricing_proto_depIdxs = nil
+	File_shared_proto_pricing_pricing_proto = out.File
+	file_shared_proto_pricing_pricing_proto_goTypes = nil
+	file_shared_proto_pricing_pricing_proto_depIdxs = nil
 }

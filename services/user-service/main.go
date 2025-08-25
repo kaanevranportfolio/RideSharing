@@ -13,8 +13,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rideshare-platform/services/user-service/internal/config"
 	"github.com/rideshare-platform/services/user-service/internal/handler"
+	"github.com/rideshare-platform/services/user-service/internal/metrics"
 	"github.com/rideshare-platform/services/user-service/internal/repository"
 	"github.com/rideshare-platform/services/user-service/internal/service"
 )
@@ -57,6 +59,7 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	router.Use(metrics.PrometheusMiddleware())
 
 	// Register routes
 	userHandler.RegisterRoutes(router)
@@ -64,6 +67,9 @@ func main() {
 	router.GET("/ready", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ready"})
 	})
+
+	// Prometheus metrics endpoint
+	router.GET("/api/v1/metrics", gin.WrapH(promhttp.Handler()))
 
 	server := &http.Server{
 		Addr:    ":" + cfg.HTTPPort,

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        v3.21.12
-// source: geo.proto
+// source: shared/proto/geo/geo.proto
 
 package geo
 
@@ -36,7 +36,7 @@ type Location struct {
 
 func (x *Location) Reset() {
 	*x = Location{}
-	mi := &file_geo_proto_msgTypes[0]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -48,7 +48,7 @@ func (x *Location) String() string {
 func (*Location) ProtoMessage() {}
 
 func (x *Location) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[0]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -61,7 +61,7 @@ func (x *Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Location.ProtoReflect.Descriptor instead.
 func (*Location) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{0}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Location) GetLatitude() float64 {
@@ -111,7 +111,7 @@ type DistanceRequest struct {
 
 func (x *DistanceRequest) Reset() {
 	*x = DistanceRequest{}
-	mi := &file_geo_proto_msgTypes[1]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -123,7 +123,7 @@ func (x *DistanceRequest) String() string {
 func (*DistanceRequest) ProtoMessage() {}
 
 func (x *DistanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[1]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -136,7 +136,7 @@ func (x *DistanceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DistanceRequest.ProtoReflect.Descriptor instead.
 func (*DistanceRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{1}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *DistanceRequest) GetOrigin() *Location {
@@ -173,7 +173,7 @@ type DistanceResponse struct {
 
 func (x *DistanceResponse) Reset() {
 	*x = DistanceResponse{}
-	mi := &file_geo_proto_msgTypes[2]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -185,7 +185,7 @@ func (x *DistanceResponse) String() string {
 func (*DistanceResponse) ProtoMessage() {}
 
 func (x *DistanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[2]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -198,7 +198,7 @@ func (x *DistanceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DistanceResponse.ProtoReflect.Descriptor instead.
 func (*DistanceResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{2}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DistanceResponse) GetDistanceMeters() float64 {
@@ -243,7 +243,7 @@ type ETARequest struct {
 
 func (x *ETARequest) Reset() {
 	*x = ETARequest{}
-	mi := &file_geo_proto_msgTypes[3]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -255,7 +255,7 @@ func (x *ETARequest) String() string {
 func (*ETARequest) ProtoMessage() {}
 
 func (x *ETARequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[3]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -268,7 +268,7 @@ func (x *ETARequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETARequest.ProtoReflect.Descriptor instead.
 func (*ETARequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{3}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ETARequest) GetOrigin() *Location {
@@ -320,7 +320,7 @@ type ETAResponse struct {
 
 func (x *ETAResponse) Reset() {
 	*x = ETAResponse{}
-	mi := &file_geo_proto_msgTypes[4]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -332,7 +332,7 @@ func (x *ETAResponse) String() string {
 func (*ETAResponse) ProtoMessage() {}
 
 func (x *ETAResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[4]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -345,7 +345,7 @@ func (x *ETAResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ETAResponse.ProtoReflect.Descriptor instead.
 func (*ETAResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{4}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ETAResponse) GetDurationSeconds() int32 {
@@ -397,7 +397,7 @@ type NearbyDriversRequest struct {
 
 func (x *NearbyDriversRequest) Reset() {
 	*x = NearbyDriversRequest{}
-	mi := &file_geo_proto_msgTypes[5]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -409,7 +409,7 @@ func (x *NearbyDriversRequest) String() string {
 func (*NearbyDriversRequest) ProtoMessage() {}
 
 func (x *NearbyDriversRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[5]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -422,7 +422,7 @@ func (x *NearbyDriversRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NearbyDriversRequest.ProtoReflect.Descriptor instead.
 func (*NearbyDriversRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{5}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *NearbyDriversRequest) GetCenter() *Location {
@@ -476,7 +476,7 @@ type DriverLocation struct {
 
 func (x *DriverLocation) Reset() {
 	*x = DriverLocation{}
-	mi := &file_geo_proto_msgTypes[6]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +488,7 @@ func (x *DriverLocation) String() string {
 func (*DriverLocation) ProtoMessage() {}
 
 func (x *DriverLocation) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[6]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +501,7 @@ func (x *DriverLocation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DriverLocation.ProtoReflect.Descriptor instead.
 func (*DriverLocation) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{6}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DriverLocation) GetDriverId() string {
@@ -565,7 +565,7 @@ type NearbyDriversResponse struct {
 
 func (x *NearbyDriversResponse) Reset() {
 	*x = NearbyDriversResponse{}
-	mi := &file_geo_proto_msgTypes[7]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +577,7 @@ func (x *NearbyDriversResponse) String() string {
 func (*NearbyDriversResponse) ProtoMessage() {}
 
 func (x *NearbyDriversResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[7]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +590,7 @@ func (x *NearbyDriversResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NearbyDriversResponse.ProtoReflect.Descriptor instead.
 func (*NearbyDriversResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{7}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *NearbyDriversResponse) GetDrivers() []*DriverLocation {
@@ -627,7 +627,7 @@ type UpdateDriverLocationRequest struct {
 
 func (x *UpdateDriverLocationRequest) Reset() {
 	*x = UpdateDriverLocationRequest{}
-	mi := &file_geo_proto_msgTypes[8]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -639,7 +639,7 @@ func (x *UpdateDriverLocationRequest) String() string {
 func (*UpdateDriverLocationRequest) ProtoMessage() {}
 
 func (x *UpdateDriverLocationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[8]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -652,7 +652,7 @@ func (x *UpdateDriverLocationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDriverLocationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDriverLocationRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{8}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *UpdateDriverLocationRequest) GetDriverId() string {
@@ -695,7 +695,7 @@ type UpdateDriverLocationResponse struct {
 
 func (x *UpdateDriverLocationResponse) Reset() {
 	*x = UpdateDriverLocationResponse{}
-	mi := &file_geo_proto_msgTypes[9]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -707,7 +707,7 @@ func (x *UpdateDriverLocationResponse) String() string {
 func (*UpdateDriverLocationResponse) ProtoMessage() {}
 
 func (x *UpdateDriverLocationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[9]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -720,7 +720,7 @@ func (x *UpdateDriverLocationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDriverLocationResponse.ProtoReflect.Descriptor instead.
 func (*UpdateDriverLocationResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{9}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *UpdateDriverLocationResponse) GetSuccess() bool {
@@ -755,7 +755,7 @@ type GeohashRequest struct {
 
 func (x *GeohashRequest) Reset() {
 	*x = GeohashRequest{}
-	mi := &file_geo_proto_msgTypes[10]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -767,7 +767,7 @@ func (x *GeohashRequest) String() string {
 func (*GeohashRequest) ProtoMessage() {}
 
 func (x *GeohashRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[10]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -780,7 +780,7 @@ func (x *GeohashRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeohashRequest.ProtoReflect.Descriptor instead.
 func (*GeohashRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{10}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GeohashRequest) GetLocation() *Location {
@@ -810,7 +810,7 @@ type GeohashResponse struct {
 
 func (x *GeohashResponse) Reset() {
 	*x = GeohashResponse{}
-	mi := &file_geo_proto_msgTypes[11]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -822,7 +822,7 @@ func (x *GeohashResponse) String() string {
 func (*GeohashResponse) ProtoMessage() {}
 
 func (x *GeohashResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[11]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -835,7 +835,7 @@ func (x *GeohashResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GeohashResponse.ProtoReflect.Descriptor instead.
 func (*GeohashResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{11}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GeohashResponse) GetGeohash() string {
@@ -880,7 +880,7 @@ type RouteOptimizationRequest struct {
 
 func (x *RouteOptimizationRequest) Reset() {
 	*x = RouteOptimizationRequest{}
-	mi := &file_geo_proto_msgTypes[12]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -892,7 +892,7 @@ func (x *RouteOptimizationRequest) String() string {
 func (*RouteOptimizationRequest) ProtoMessage() {}
 
 func (x *RouteOptimizationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[12]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -905,7 +905,7 @@ func (x *RouteOptimizationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteOptimizationRequest.ProtoReflect.Descriptor instead.
 func (*RouteOptimizationRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{12}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *RouteOptimizationRequest) GetStart() *Location {
@@ -956,7 +956,7 @@ type RouteOptimizationResponse struct {
 
 func (x *RouteOptimizationResponse) Reset() {
 	*x = RouteOptimizationResponse{}
-	mi := &file_geo_proto_msgTypes[13]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -968,7 +968,7 @@ func (x *RouteOptimizationResponse) String() string {
 func (*RouteOptimizationResponse) ProtoMessage() {}
 
 func (x *RouteOptimizationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[13]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -981,7 +981,7 @@ func (x *RouteOptimizationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RouteOptimizationResponse.ProtoReflect.Descriptor instead.
 func (*RouteOptimizationResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{13}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RouteOptimizationResponse) GetOptimizedRoute() []*Location {
@@ -1024,7 +1024,7 @@ type SubscribeToDriverLocationRequest struct {
 
 func (x *SubscribeToDriverLocationRequest) Reset() {
 	*x = SubscribeToDriverLocationRequest{}
-	mi := &file_geo_proto_msgTypes[14]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1036,7 +1036,7 @@ func (x *SubscribeToDriverLocationRequest) String() string {
 func (*SubscribeToDriverLocationRequest) ProtoMessage() {}
 
 func (x *SubscribeToDriverLocationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[14]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1049,7 +1049,7 @@ func (x *SubscribeToDriverLocationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubscribeToDriverLocationRequest.ProtoReflect.Descriptor instead.
 func (*SubscribeToDriverLocationRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{14}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *SubscribeToDriverLocationRequest) GetAreaId() string {
@@ -1090,7 +1090,7 @@ type DriverLocationEvent struct {
 
 func (x *DriverLocationEvent) Reset() {
 	*x = DriverLocationEvent{}
-	mi := &file_geo_proto_msgTypes[15]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1102,7 +1102,7 @@ func (x *DriverLocationEvent) String() string {
 func (*DriverLocationEvent) ProtoMessage() {}
 
 func (x *DriverLocationEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[15]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1115,7 +1115,7 @@ func (x *DriverLocationEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DriverLocationEvent.ProtoReflect.Descriptor instead.
 func (*DriverLocationEvent) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{15}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *DriverLocationEvent) GetDriverId() string {
@@ -1185,7 +1185,7 @@ type StartLocationTrackingRequest struct {
 
 func (x *StartLocationTrackingRequest) Reset() {
 	*x = StartLocationTrackingRequest{}
-	mi := &file_geo_proto_msgTypes[16]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1197,7 +1197,7 @@ func (x *StartLocationTrackingRequest) String() string {
 func (*StartLocationTrackingRequest) ProtoMessage() {}
 
 func (x *StartLocationTrackingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[16]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1210,7 +1210,7 @@ func (x *StartLocationTrackingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartLocationTrackingRequest.ProtoReflect.Descriptor instead.
 func (*StartLocationTrackingRequest) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{16}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *StartLocationTrackingRequest) GetDriverId() string {
@@ -1239,7 +1239,7 @@ type StartLocationTrackingResponse struct {
 
 func (x *StartLocationTrackingResponse) Reset() {
 	*x = StartLocationTrackingResponse{}
-	mi := &file_geo_proto_msgTypes[17]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1251,7 +1251,7 @@ func (x *StartLocationTrackingResponse) String() string {
 func (*StartLocationTrackingResponse) ProtoMessage() {}
 
 func (x *StartLocationTrackingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_geo_proto_msgTypes[17]
+	mi := &file_shared_proto_geo_geo_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1264,7 +1264,7 @@ func (x *StartLocationTrackingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StartLocationTrackingResponse.ProtoReflect.Descriptor instead.
 func (*StartLocationTrackingResponse) Descriptor() ([]byte, []int) {
-	return file_geo_proto_rawDescGZIP(), []int{17}
+	return file_shared_proto_geo_geo_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *StartLocationTrackingResponse) GetSuccess() bool {
@@ -1288,11 +1288,11 @@ func (x *StartLocationTrackingResponse) GetMessage() string {
 	return ""
 }
 
-var File_geo_proto protoreflect.FileDescriptor
+var File_shared_proto_geo_geo_proto protoreflect.FileDescriptor
 
-const file_geo_proto_rawDesc = "" +
+const file_shared_proto_geo_geo_proto_rawDesc = "" +
 	"\n" +
-	"\tgeo.proto\x12\x03geo\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x01\n" +
+	"\x1ashared/proto/geo/geo.proto\x12\x03geo\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb4\x01\n" +
 	"\bLocation\x12\x1a\n" +
 	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
 	"\tlongitude\x18\x02 \x01(\x01R\tlongitude\x12\x1a\n" +
@@ -1409,19 +1409,19 @@ const file_geo_proto_rawDesc = "" +
 	"\x15StartLocationTracking\x12!.geo.StartLocationTrackingRequest\x1a\".geo.StartLocationTrackingResponseB0Z.github.com/rideshare-platform/shared/proto/geob\x06proto3"
 
 var (
-	file_geo_proto_rawDescOnce sync.Once
-	file_geo_proto_rawDescData []byte
+	file_shared_proto_geo_geo_proto_rawDescOnce sync.Once
+	file_shared_proto_geo_geo_proto_rawDescData []byte
 )
 
-func file_geo_proto_rawDescGZIP() []byte {
-	file_geo_proto_rawDescOnce.Do(func() {
-		file_geo_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_geo_proto_rawDesc), len(file_geo_proto_rawDesc)))
+func file_shared_proto_geo_geo_proto_rawDescGZIP() []byte {
+	file_shared_proto_geo_geo_proto_rawDescOnce.Do(func() {
+		file_shared_proto_geo_geo_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_shared_proto_geo_geo_proto_rawDesc), len(file_shared_proto_geo_geo_proto_rawDesc)))
 	})
-	return file_geo_proto_rawDescData
+	return file_shared_proto_geo_geo_proto_rawDescData
 }
 
-var file_geo_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
-var file_geo_proto_goTypes = []any{
+var file_shared_proto_geo_geo_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_shared_proto_geo_geo_proto_goTypes = []any{
 	(*Location)(nil),                         // 0: geo.Location
 	(*DistanceRequest)(nil),                  // 1: geo.DistanceRequest
 	(*DistanceResponse)(nil),                 // 2: geo.DistanceResponse
@@ -1443,7 +1443,7 @@ var file_geo_proto_goTypes = []any{
 	nil,                                      // 18: geo.DriverLocationEvent.MetadataEntry
 	(*timestamppb.Timestamp)(nil),            // 19: google.protobuf.Timestamp
 }
-var file_geo_proto_depIdxs = []int32{
+var file_shared_proto_geo_geo_proto_depIdxs = []int32{
 	19, // 0: geo.Location.timestamp:type_name -> google.protobuf.Timestamp
 	0,  // 1: geo.DistanceRequest.origin:type_name -> geo.Location
 	0,  // 2: geo.DistanceRequest.destination:type_name -> geo.Location
@@ -1489,26 +1489,26 @@ var file_geo_proto_depIdxs = []int32{
 	0,  // [0:22] is the sub-list for field type_name
 }
 
-func init() { file_geo_proto_init() }
-func file_geo_proto_init() {
-	if File_geo_proto != nil {
+func init() { file_shared_proto_geo_geo_proto_init() }
+func file_shared_proto_geo_geo_proto_init() {
+	if File_shared_proto_geo_geo_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_geo_proto_rawDesc), len(file_geo_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_geo_geo_proto_rawDesc), len(file_shared_proto_geo_geo_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_geo_proto_goTypes,
-		DependencyIndexes: file_geo_proto_depIdxs,
-		MessageInfos:      file_geo_proto_msgTypes,
+		GoTypes:           file_shared_proto_geo_geo_proto_goTypes,
+		DependencyIndexes: file_shared_proto_geo_geo_proto_depIdxs,
+		MessageInfos:      file_shared_proto_geo_geo_proto_msgTypes,
 	}.Build()
-	File_geo_proto = out.File
-	file_geo_proto_goTypes = nil
-	file_geo_proto_depIdxs = nil
+	File_shared_proto_geo_geo_proto = out.File
+	file_shared_proto_geo_geo_proto_goTypes = nil
+	file_shared_proto_geo_geo_proto_depIdxs = nil
 }

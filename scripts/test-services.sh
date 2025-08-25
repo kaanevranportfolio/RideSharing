@@ -247,7 +247,7 @@ fi
 
 # Test MongoDB
 echo -n "MongoDB driver locations... "
-LOCATION_COUNT=$(docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --quiet --eval "db.driver_locations.countDocuments()" 2>/dev/null || echo "0")
+LOCATION_COUNT=$(docker exec rideshare-mongodb mongosh --username "${MONGODB_USER:-rideshare_user}" --password "${MONGODB_PASSWORD:-$(docker exec rideshare-mongodb env | grep MONGO_INITDB_ROOT_PASSWORD | cut -d= -f2)}" --authenticationDatabase admin rideshare_geo --quiet --eval "db.driver_locations.countDocuments()" 2>/dev/null || echo "0")
 if [ "$LOCATION_COUNT" != "0" ]; then
     echo -e "${GREEN}✓ $LOCATION_COUNT locations${NC}"
 else
@@ -265,7 +265,7 @@ fi
 
 # Test geospatial functionality
 echo -n "Geospatial search... "
-NEARBY_COUNT=$(docker exec rideshare-mongodb mongosh --username rideshare_user --password rideshare_password --authenticationDatabase admin rideshare_geo --quiet --eval "
+NEARBY_COUNT=$(docker exec rideshare-mongodb mongosh --username "${MONGODB_USER:-rideshare_user}" --password "${MONGODB_PASSWORD:-$(docker exec rideshare-mongodb env | grep MONGO_INITDB_ROOT_PASSWORD | cut -d= -f2)}" --authenticationDatabase admin rideshare_geo --quiet --eval "
 db.driver_locations.find({
   location: {
     \$near: {
@@ -295,7 +295,7 @@ CREATE_RESPONSE=$(curl -s -X POST "$USER_SERVICE/api/v1/users/" \
         "first_name": "Integration",
         "last_name": "Test",
         "user_type": "rider",
-        "password": "testpass"
+        "password": "temp_test_password_123"
     }' || echo "error")
 
 if echo "$CREATE_RESPONSE" | grep -q "integration@test.com"; then

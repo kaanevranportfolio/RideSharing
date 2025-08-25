@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: proto/pricing/pricing.proto
+// source: shared/proto/pricing/pricing.proto
 
 package pricing
 
@@ -393,5 +393,5 @@ var PricingService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/pricing/pricing.proto",
+	Metadata: "shared/proto/pricing/pricing.proto",
 }

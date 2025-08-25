@@ -5,3 +5,11 @@ metadata:
   labels:
     name: rideshare-platform
     environment: production
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rideshare-monitoring
+  labels:
+    name: rideshare-monitoring
+    environment: production

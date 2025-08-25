@@ -1,0 +1,132 @@
+# Default values for rideshare-platform
+replicaCount: 3
+
+image:
+  registry: ghcr.io
+  repository: rideshare-platform
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  ports:
+    userService: 9084
+    vehicleService: 9083
+    geoService: 9081
+    tripService: 9086
+    matchingService: 9085
+    pricingService: 9087
+    paymentService: 9088
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: api.rideshare-platform.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: rideshare-platform-tls
+      hosts:
+        - api.rideshare-platform.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Database configurations
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "CHANGE_ME_POSTGRES_PASSWORD"
+    database: "rideshare"
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+mongodb:
+  enabled: true
+  auth:
+    enabled: false
+  persistence:
+    enabled: true
+    size: 10Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  grafana:
+    enabled: true
+  jaeger:
+    enabled: true
+
+# Environment variables
+env:
+  logLevel: "info"
+  environment: "production"
+
+# Secrets
+secrets:
+  jwtSecret: "CHANGE_ME_JWT_SECRET"
+  
+# Configuration
+config:
+  cacheTTL: 300
+  jwtExpirationHours: 24

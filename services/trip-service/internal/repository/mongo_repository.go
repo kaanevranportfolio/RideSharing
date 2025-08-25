@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/rideshare-platform/shared/logger"
+	"github.com/rideshare-platform/shared/models"
 )
 
 // MongoTripRepository implements TripRepository using MongoDB
@@ -44,7 +45,7 @@ func NewMongoEventRepository(db *mongo.Database, logger logger.Logger) *MongoEve
 
 // TripRepository Implementation
 
-func (r *MongoTripRepository) CreateTrip(ctx context.Context, trip *Trip) error {
+func (r *MongoTripRepository) CreateTrip(ctx context.Context, trip *models.Trip) error {
 	r.logger.WithFields(logger.Fields{
 		"trip_id":  trip.ID,
 		"rider_id": trip.RiderID,
@@ -59,12 +60,12 @@ func (r *MongoTripRepository) CreateTrip(ctx context.Context, trip *Trip) error 
 	return nil
 }
 
-func (r *MongoTripRepository) GetTrip(ctx context.Context, tripID string) (*Trip, error) {
+func (r *MongoTripRepository) GetTrip(ctx context.Context, tripID string) (*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"trip_id": tripID,
 	}).Debug("Getting trip from database")
 
-	var trip Trip
+	var trip models.Trip
 	err := r.trips.FindOne(ctx, bson.M{"_id": tripID}).Decode(&trip)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -77,7 +78,7 @@ func (r *MongoTripRepository) GetTrip(ctx context.Context, tripID string) (*Trip
 	return &trip, nil
 }
 
-func (r *MongoTripRepository) UpdateTrip(ctx context.Context, trip *Trip) error {
+func (r *MongoTripRepository) UpdateTrip(ctx context.Context, trip *models.Trip) error {
 	r.logger.WithFields(logger.Fields{
 		"trip_id": trip.ID,
 		"status":  trip.Status,
@@ -101,7 +102,7 @@ func (r *MongoTripRepository) UpdateTrip(ctx context.Context, trip *Trip) error 
 	return nil
 }
 
-func (r *MongoTripRepository) GetTripsByRider(ctx context.Context, riderID string, limit int, offset int) ([]*Trip, error) {
+func (r *MongoTripRepository) GetTripsByRider(ctx context.Context, riderID string, limit int, offset int) ([]*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"rider_id": riderID,
 		"limit":    limit,
@@ -121,9 +122,9 @@ func (r *MongoTripRepository) GetTripsByRider(ctx context.Context, riderID strin
 	}
 	defer cursor.Close(ctx)
 
-	var trips []*Trip
+	var trips []*models.Trip
 	for cursor.Next(ctx) {
-		var trip Trip
+		var trip models.Trip
 		if err := cursor.Decode(&trip); err != nil {
 			r.logger.WithError(err).Error("Failed to decode trip")
 			continue
@@ -134,7 +135,7 @@ func (r *MongoTripRepository) GetTripsByRider(ctx context.Context, riderID strin
 	return trips, nil
 }
 
-func (r *MongoTripRepository) GetTripsByDriver(ctx context.Context, driverID string, limit int, offset int) ([]*Trip, error) {
+func (r *MongoTripRepository) GetTripsByDriver(ctx context.Context, driverID string, limit int, offset int) ([]*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"driver_id": driverID,
 		"limit":     limit,
@@ -154,9 +155,9 @@ func (r *MongoTripRepository) GetTripsByDriver(ctx context.Context, driverID str
 	}
 	defer cursor.Close(ctx)
 
-	var trips []*Trip
+	var trips []*models.Trip
 	for cursor.Next(ctx) {
-		var trip Trip
+		var trip models.Trip
 		if err := cursor.Decode(&trip); err != nil {
 			r.logger.WithError(err).Error("Failed to decode trip")
 			continue
@@ -167,7 +168,7 @@ func (r *MongoTripRepository) GetTripsByDriver(ctx context.Context, driverID str
 	return trips, nil
 }
 
-func (r *MongoTripRepository) GetTripsByStatus(ctx context.Context, status string, limit int, offset int) ([]*Trip, error) {
+func (r *MongoTripRepository) GetTripsByStatus(ctx context.Context, status string, limit int, offset int) ([]*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"status": status,
 		"limit":  limit,
@@ -187,9 +188,9 @@ func (r *MongoTripRepository) GetTripsByStatus(ctx context.Context, status strin
 	}
 	defer cursor.Close(ctx)
 
-	var trips []*Trip
+	var trips []*models.Trip
 	for cursor.Next(ctx) {
-		var trip Trip
+		var trip models.Trip
 		if err := cursor.Decode(&trip); err != nil {
 			r.logger.WithError(err).Error("Failed to decode trip")
 			continue
@@ -200,7 +201,7 @@ func (r *MongoTripRepository) GetTripsByStatus(ctx context.Context, status strin
 	return trips, nil
 }
 
-func (r *MongoTripRepository) GetActiveTripByRider(ctx context.Context, riderID string) (*Trip, error) {
+func (r *MongoTripRepository) GetActiveTripByRider(ctx context.Context, riderID string) (*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"rider_id": riderID,
 	}).Debug("Getting active trip by rider")
@@ -211,7 +212,7 @@ func (r *MongoTripRepository) GetActiveTripByRider(ctx context.Context, riderID 
 		"status":   bson.M{"$in": activeStatuses},
 	}
 
-	var trip Trip
+	var trip models.Trip
 	err := r.trips.FindOne(ctx, filter).Decode(&trip)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -224,7 +225,7 @@ func (r *MongoTripRepository) GetActiveTripByRider(ctx context.Context, riderID 
 	return &trip, nil
 }
 
-func (r *MongoTripRepository) GetActiveTripByDriver(ctx context.Context, driverID string) (*Trip, error) {
+func (r *MongoTripRepository) GetActiveTripByDriver(ctx context.Context, driverID string) (*models.Trip, error) {
 	r.logger.WithFields(logger.Fields{
 		"driver_id": driverID,
 	}).Debug("Getting active trip by driver")
@@ -235,7 +236,7 @@ func (r *MongoTripRepository) GetActiveTripByDriver(ctx context.Context, driverI
 		"status":    bson.M{"$in": activeStatuses},
 	}
 
-	var trip Trip
+	var trip models.Trip
 	err := r.trips.FindOne(ctx, filter).Decode(&trip)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -250,7 +251,7 @@ func (r *MongoTripRepository) GetActiveTripByDriver(ctx context.Context, driverI
 
 // EventRepository Implementation
 
-func (r *MongoEventRepository) SaveEvent(ctx context.Context, event *TripEvent) error {
+func (r *MongoEventRepository) SaveEvent(ctx context.Context, event *models.TripEvent) error {
 	r.logger.WithFields(logger.Fields{
 		"event_id":   event.ID,
 		"trip_id":    event.TripID,
@@ -266,7 +267,7 @@ func (r *MongoEventRepository) SaveEvent(ctx context.Context, event *TripEvent) 
 	return nil
 }
 
-func (r *MongoEventRepository) GetTripEvents(ctx context.Context, tripID string) ([]*TripEvent, error) {
+func (r *MongoEventRepository) GetTripEvents(ctx context.Context, tripID string) ([]*models.TripEvent, error) {
 	r.logger.WithFields(logger.Fields{
 		"trip_id": tripID,
 	}).Debug("Getting trip events")
@@ -281,9 +282,9 @@ func (r *MongoEventRepository) GetTripEvents(ctx context.Context, tripID string)
 	}
 	defer cursor.Close(ctx)
 
-	var events []*TripEvent
+	var events []*models.TripEvent
 	for cursor.Next(ctx) {
-		var event TripEvent
+		var event models.TripEvent
 		if err := cursor.Decode(&event); err != nil {
 			r.logger.WithError(err).Error("Failed to decode trip event")
 			continue
@@ -294,7 +295,7 @@ func (r *MongoEventRepository) GetTripEvents(ctx context.Context, tripID string)
 	return events, nil
 }
 
-func (r *MongoEventRepository) GetEventsByType(ctx context.Context, eventType string, limit int, offset int) ([]*TripEvent, error) {
+func (r *MongoEventRepository) GetEventsByType(ctx context.Context, eventType string, limit int, offset int) ([]*models.TripEvent, error) {
 	r.logger.WithFields(logger.Fields{
 		"event_type": eventType,
 		"limit":      limit,
@@ -314,9 +315,9 @@ func (r *MongoEventRepository) GetEventsByType(ctx context.Context, eventType st
 	}
 	defer cursor.Close(ctx)
 
-	var events []*TripEvent
+	var events []*models.TripEvent
 	for cursor.Next(ctx) {
-		var event TripEvent
+		var event models.TripEvent
 		if err := cursor.Decode(&event); err != nil {
 			r.logger.WithError(err).Error("Failed to decode event")
 			continue
@@ -327,7 +328,7 @@ func (r *MongoEventRepository) GetEventsByType(ctx context.Context, eventType st
 	return events, nil
 }
 
-func (r *MongoEventRepository) GetEventsByUser(ctx context.Context, userID string, limit int, offset int) ([]*TripEvent, error) {
+func (r *MongoEventRepository) GetEventsByUser(ctx context.Context, userID string, limit int, offset int) ([]*models.TripEvent, error) {
 	r.logger.WithFields(logger.Fields{
 		"user_id": userID,
 		"limit":   limit,
@@ -347,9 +348,9 @@ func (r *MongoEventRepository) GetEventsByUser(ctx context.Context, userID strin
 	}
 	defer cursor.Close(ctx)
 
-	var events []*TripEvent
+	var events []*models.TripEvent
 	for cursor.Next(ctx) {
-		var event TripEvent
+		var event models.TripEvent
 		if err := cursor.Decode(&event); err != nil {
 			r.logger.WithError(err).Error("Failed to decode event")
 			continue
@@ -360,7 +361,7 @@ func (r *MongoEventRepository) GetEventsByUser(ctx context.Context, userID strin
 	return events, nil
 }
 
-func (r *MongoEventRepository) GetEventsAfter(ctx context.Context, timestamp time.Time, limit int) ([]*TripEvent, error) {
+func (r *MongoEventRepository) GetEventsAfter(ctx context.Context, timestamp time.Time, limit int) ([]*models.TripEvent, error) {
 	r.logger.WithFields(logger.Fields{
 		"after_timestamp": timestamp,
 		"limit":           limit,
@@ -378,9 +379,9 @@ func (r *MongoEventRepository) GetEventsAfter(ctx context.Context, timestamp tim
 	}
 	defer cursor.Close(ctx)
 
-	var events []*TripEvent
+	var events []*models.TripEvent
 	for cursor.Next(ctx) {
-		var event TripEvent
+		var event models.TripEvent
 		if err := cursor.Decode(&event); err != nil {
 			r.logger.WithError(err).Error("Failed to decode event")
 			continue

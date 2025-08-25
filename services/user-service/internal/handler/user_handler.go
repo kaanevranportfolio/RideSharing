@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rideshare-platform/services/user-service/internal/metrics"
 	"github.com/rideshare-platform/services/user-service/internal/service"
 	"github.com/rideshare-platform/shared/models"
 )
@@ -87,6 +88,9 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		})
 		return
 	}
+
+	// Record metrics
+	metrics.RecordUserCreated()
 
 	c.JSON(http.StatusCreated, createdUser)
 }

@@ -1,0 +1,1 @@
+go: module ../shared requires go >= 1.23.0 (running go 1.22.2)

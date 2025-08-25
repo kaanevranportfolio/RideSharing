@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: proto/trip/trip.proto
+// source: shared/proto/trip/trip.proto
 
 package trip
 
@@ -317,5 +317,5 @@ var TripService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "proto/trip/trip.proto",
+	Metadata: "shared/proto/trip/trip.proto",
 }

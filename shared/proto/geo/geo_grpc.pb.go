@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: geo.proto
+// source: shared/proto/geo/geo.proto
 
 package geo
 
@@ -407,5 +407,5 @@ var GeospatialService_ServiceDesc = grpc.ServiceDesc{
 			ServerStreams: true,
 		},
 	},
-	Metadata: "geo.proto",
+	Metadata: "shared/proto/geo/geo.proto",
 }

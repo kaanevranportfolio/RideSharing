@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        v3.21.12
-// source: proto/matching/matching.proto
+// source: shared/proto/matching/matching.proto
 
 package matching
 
@@ -34,7 +34,7 @@ type Location struct {
 
 func (x *Location) Reset() {
 	*x = Location{}
-	mi := &file_proto_matching_matching_proto_msgTypes[0]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +46,7 @@ func (x *Location) String() string {
 func (*Location) ProtoMessage() {}
 
 func (x *Location) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[0]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +59,7 @@ func (x *Location) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Location.ProtoReflect.Descriptor instead.
 func (*Location) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{0}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Location) GetLatitude() float64 {
@@ -103,7 +103,7 @@ type Driver struct {
 
 func (x *Driver) Reset() {
 	*x = Driver{}
-	mi := &file_proto_matching_matching_proto_msgTypes[1]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -115,7 +115,7 @@ func (x *Driver) String() string {
 func (*Driver) ProtoMessage() {}
 
 func (x *Driver) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[1]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -128,7 +128,7 @@ func (x *Driver) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Driver.ProtoReflect.Descriptor instead.
 func (*Driver) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{1}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Driver) GetId() string {
@@ -223,7 +223,7 @@ type MatchingScore struct {
 
 func (x *MatchingScore) Reset() {
 	*x = MatchingScore{}
-	mi := &file_proto_matching_matching_proto_msgTypes[2]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -235,7 +235,7 @@ func (x *MatchingScore) String() string {
 func (*MatchingScore) ProtoMessage() {}
 
 func (x *MatchingScore) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[2]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -248,7 +248,7 @@ func (x *MatchingScore) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchingScore.ProtoReflect.Descriptor instead.
 func (*MatchingScore) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{2}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MatchingScore) GetTotalScore() float64 {
@@ -310,7 +310,7 @@ type RideRequest struct {
 
 func (x *RideRequest) Reset() {
 	*x = RideRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[3]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -322,7 +322,7 @@ func (x *RideRequest) String() string {
 func (*RideRequest) ProtoMessage() {}
 
 func (x *RideRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[3]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -335,7 +335,7 @@ func (x *RideRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RideRequest.ProtoReflect.Descriptor instead.
 func (*RideRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{3}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RideRequest) GetId() string {
@@ -409,7 +409,7 @@ type MatchResult struct {
 
 func (x *MatchResult) Reset() {
 	*x = MatchResult{}
-	mi := &file_proto_matching_matching_proto_msgTypes[4]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -421,7 +421,7 @@ func (x *MatchResult) String() string {
 func (*MatchResult) ProtoMessage() {}
 
 func (x *MatchResult) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[4]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -434,7 +434,7 @@ func (x *MatchResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchResult.ProtoReflect.Descriptor instead.
 func (*MatchResult) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{4}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MatchResult) GetRequestId() string {
@@ -494,7 +494,7 @@ type MatchingMetadata struct {
 
 func (x *MatchingMetadata) Reset() {
 	*x = MatchingMetadata{}
-	mi := &file_proto_matching_matching_proto_msgTypes[5]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -506,7 +506,7 @@ func (x *MatchingMetadata) String() string {
 func (*MatchingMetadata) ProtoMessage() {}
 
 func (x *MatchingMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[5]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +519,7 @@ func (x *MatchingMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchingMetadata.ProtoReflect.Descriptor instead.
 func (*MatchingMetadata) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{5}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MatchingMetadata) GetTotalDriversConsidered() int32 {
@@ -578,7 +578,7 @@ type DriverLocationUpdate struct {
 
 func (x *DriverLocationUpdate) Reset() {
 	*x = DriverLocationUpdate{}
-	mi := &file_proto_matching_matching_proto_msgTypes[6]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -590,7 +590,7 @@ func (x *DriverLocationUpdate) String() string {
 func (*DriverLocationUpdate) ProtoMessage() {}
 
 func (x *DriverLocationUpdate) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[6]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +603,7 @@ func (x *DriverLocationUpdate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DriverLocationUpdate.ProtoReflect.Descriptor instead.
 func (*DriverLocationUpdate) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{6}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DriverLocationUpdate) GetDriverId() string {
@@ -655,7 +655,7 @@ type FindNearbyDriversRequest struct {
 
 func (x *FindNearbyDriversRequest) Reset() {
 	*x = FindNearbyDriversRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[7]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -667,7 +667,7 @@ func (x *FindNearbyDriversRequest) String() string {
 func (*FindNearbyDriversRequest) ProtoMessage() {}
 
 func (x *FindNearbyDriversRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[7]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -680,7 +680,7 @@ func (x *FindNearbyDriversRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindNearbyDriversRequest.ProtoReflect.Descriptor instead.
 func (*FindNearbyDriversRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{7}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *FindNearbyDriversRequest) GetPickupLocation() *Location {
@@ -729,7 +729,7 @@ type FindNearbyDriversResponse struct {
 
 func (x *FindNearbyDriversResponse) Reset() {
 	*x = FindNearbyDriversResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[8]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -741,7 +741,7 @@ func (x *FindNearbyDriversResponse) String() string {
 func (*FindNearbyDriversResponse) ProtoMessage() {}
 
 func (x *FindNearbyDriversResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[8]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -754,7 +754,7 @@ func (x *FindNearbyDriversResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FindNearbyDriversResponse.ProtoReflect.Descriptor instead.
 func (*FindNearbyDriversResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{8}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *FindNearbyDriversResponse) GetDrivers() []*Driver {
@@ -788,7 +788,7 @@ type MatchDriverRequest struct {
 
 func (x *MatchDriverRequest) Reset() {
 	*x = MatchDriverRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[9]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -800,7 +800,7 @@ func (x *MatchDriverRequest) String() string {
 func (*MatchDriverRequest) ProtoMessage() {}
 
 func (x *MatchDriverRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[9]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -813,7 +813,7 @@ func (x *MatchDriverRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchDriverRequest.ProtoReflect.Descriptor instead.
 func (*MatchDriverRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{9}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *MatchDriverRequest) GetRideRequest() *RideRequest {
@@ -843,7 +843,7 @@ type MatchingPreferences struct {
 
 func (x *MatchingPreferences) Reset() {
 	*x = MatchingPreferences{}
-	mi := &file_proto_matching_matching_proto_msgTypes[10]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -855,7 +855,7 @@ func (x *MatchingPreferences) String() string {
 func (*MatchingPreferences) ProtoMessage() {}
 
 func (x *MatchingPreferences) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[10]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -868,7 +868,7 @@ func (x *MatchingPreferences) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchingPreferences.ProtoReflect.Descriptor instead.
 func (*MatchingPreferences) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{10}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MatchingPreferences) GetMaxPickupDistanceKm() float64 {
@@ -918,7 +918,7 @@ type MatchDriverResponse struct {
 
 func (x *MatchDriverResponse) Reset() {
 	*x = MatchDriverResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[11]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -930,7 +930,7 @@ func (x *MatchDriverResponse) String() string {
 func (*MatchDriverResponse) ProtoMessage() {}
 
 func (x *MatchDriverResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[11]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -943,7 +943,7 @@ func (x *MatchDriverResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchDriverResponse.ProtoReflect.Descriptor instead.
 func (*MatchDriverResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{11}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *MatchDriverResponse) GetResult() *MatchResult {
@@ -986,7 +986,7 @@ type UpdateDriverLocationRequest struct {
 
 func (x *UpdateDriverLocationRequest) Reset() {
 	*x = UpdateDriverLocationRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[12]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -998,7 +998,7 @@ func (x *UpdateDriverLocationRequest) String() string {
 func (*UpdateDriverLocationRequest) ProtoMessage() {}
 
 func (x *UpdateDriverLocationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[12]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1011,7 +1011,7 @@ func (x *UpdateDriverLocationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDriverLocationRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDriverLocationRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{12}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *UpdateDriverLocationRequest) GetDriverId() string {
@@ -1052,7 +1052,7 @@ type UpdateDriverLocationResponse struct {
 
 func (x *UpdateDriverLocationResponse) Reset() {
 	*x = UpdateDriverLocationResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[13]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1064,7 +1064,7 @@ func (x *UpdateDriverLocationResponse) String() string {
 func (*UpdateDriverLocationResponse) ProtoMessage() {}
 
 func (x *UpdateDriverLocationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[13]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1077,7 +1077,7 @@ func (x *UpdateDriverLocationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDriverLocationResponse.ProtoReflect.Descriptor instead.
 func (*UpdateDriverLocationResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{13}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *UpdateDriverLocationResponse) GetSuccess() bool {
@@ -1103,7 +1103,7 @@ type GetDriverRequest struct {
 
 func (x *GetDriverRequest) Reset() {
 	*x = GetDriverRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[14]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1115,7 +1115,7 @@ func (x *GetDriverRequest) String() string {
 func (*GetDriverRequest) ProtoMessage() {}
 
 func (x *GetDriverRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[14]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1128,7 +1128,7 @@ func (x *GetDriverRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDriverRequest.ProtoReflect.Descriptor instead.
 func (*GetDriverRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{14}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetDriverRequest) GetDriverId() string {
@@ -1148,7 +1148,7 @@ type GetDriverResponse struct {
 
 func (x *GetDriverResponse) Reset() {
 	*x = GetDriverResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[15]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1160,7 +1160,7 @@ func (x *GetDriverResponse) String() string {
 func (*GetDriverResponse) ProtoMessage() {}
 
 func (x *GetDriverResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[15]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1173,7 +1173,7 @@ func (x *GetDriverResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDriverResponse.ProtoReflect.Descriptor instead.
 func (*GetDriverResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{15}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetDriverResponse) GetDriver() *Driver {
@@ -1202,7 +1202,7 @@ type GetActiveDriversRequest struct {
 
 func (x *GetActiveDriversRequest) Reset() {
 	*x = GetActiveDriversRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[16]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1214,7 +1214,7 @@ func (x *GetActiveDriversRequest) String() string {
 func (*GetActiveDriversRequest) ProtoMessage() {}
 
 func (x *GetActiveDriversRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[16]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1227,7 +1227,7 @@ func (x *GetActiveDriversRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveDriversRequest.ProtoReflect.Descriptor instead.
 func (*GetActiveDriversRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{16}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetActiveDriversRequest) GetCenter() *Location {
@@ -1269,7 +1269,7 @@ type GetActiveDriversResponse struct {
 
 func (x *GetActiveDriversResponse) Reset() {
 	*x = GetActiveDriversResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[17]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1281,7 +1281,7 @@ func (x *GetActiveDriversResponse) String() string {
 func (*GetActiveDriversResponse) ProtoMessage() {}
 
 func (x *GetActiveDriversResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[17]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1294,7 +1294,7 @@ func (x *GetActiveDriversResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetActiveDriversResponse.ProtoReflect.Descriptor instead.
 func (*GetActiveDriversResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{17}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetActiveDriversResponse) GetDrivers() []*Driver {
@@ -1328,7 +1328,7 @@ type BatchUpdateDriversRequest struct {
 
 func (x *BatchUpdateDriversRequest) Reset() {
 	*x = BatchUpdateDriversRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[18]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1340,7 @@ func (x *BatchUpdateDriversRequest) String() string {
 func (*BatchUpdateDriversRequest) ProtoMessage() {}
 
 func (x *BatchUpdateDriversRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[18]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1353,7 @@ func (x *BatchUpdateDriversRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUpdateDriversRequest.ProtoReflect.Descriptor instead.
 func (*BatchUpdateDriversRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{18}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *BatchUpdateDriversRequest) GetUpdates() []*DriverLocationUpdate {
@@ -1374,7 +1374,7 @@ type BatchUpdateDriversResponse struct {
 
 func (x *BatchUpdateDriversResponse) Reset() {
 	*x = BatchUpdateDriversResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[19]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1386,7 +1386,7 @@ func (x *BatchUpdateDriversResponse) String() string {
 func (*BatchUpdateDriversResponse) ProtoMessage() {}
 
 func (x *BatchUpdateDriversResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[19]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1399,7 +1399,7 @@ func (x *BatchUpdateDriversResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use BatchUpdateDriversResponse.ProtoReflect.Descriptor instead.
 func (*BatchUpdateDriversResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{19}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *BatchUpdateDriversResponse) GetSuccessfulUpdates() int32 {
@@ -1434,7 +1434,7 @@ type GetMatchingStatsRequest struct {
 
 func (x *GetMatchingStatsRequest) Reset() {
 	*x = GetMatchingStatsRequest{}
-	mi := &file_proto_matching_matching_proto_msgTypes[20]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1446,7 +1446,7 @@ func (x *GetMatchingStatsRequest) String() string {
 func (*GetMatchingStatsRequest) ProtoMessage() {}
 
 func (x *GetMatchingStatsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[20]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1459,7 +1459,7 @@ func (x *GetMatchingStatsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchingStatsRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchingStatsRequest) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{20}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetMatchingStatsRequest) GetFromTime() *timestamppb.Timestamp {
@@ -1491,7 +1491,7 @@ type MatchingStats struct {
 
 func (x *MatchingStats) Reset() {
 	*x = MatchingStats{}
-	mi := &file_proto_matching_matching_proto_msgTypes[21]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1503,7 +1503,7 @@ func (x *MatchingStats) String() string {
 func (*MatchingStats) ProtoMessage() {}
 
 func (x *MatchingStats) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[21]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1516,7 +1516,7 @@ func (x *MatchingStats) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchingStats.ProtoReflect.Descriptor instead.
 func (*MatchingStats) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{21}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *MatchingStats) GetTotalRequests() int32 {
@@ -1578,7 +1578,7 @@ type GetMatchingStatsResponse struct {
 
 func (x *GetMatchingStatsResponse) Reset() {
 	*x = GetMatchingStatsResponse{}
-	mi := &file_proto_matching_matching_proto_msgTypes[22]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1590,7 +1590,7 @@ func (x *GetMatchingStatsResponse) String() string {
 func (*GetMatchingStatsResponse) ProtoMessage() {}
 
 func (x *GetMatchingStatsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_matching_matching_proto_msgTypes[22]
+	mi := &file_shared_proto_matching_matching_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1603,7 +1603,7 @@ func (x *GetMatchingStatsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchingStatsResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchingStatsResponse) Descriptor() ([]byte, []int) {
-	return file_proto_matching_matching_proto_rawDescGZIP(), []int{22}
+	return file_shared_proto_matching_matching_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetMatchingStatsResponse) GetStats() *MatchingStats {
@@ -1620,11 +1620,11 @@ func (x *GetMatchingStatsResponse) GetSuccess() bool {
 	return false
 }
 
-var File_proto_matching_matching_proto protoreflect.FileDescriptor
+var File_shared_proto_matching_matching_proto protoreflect.FileDescriptor
 
-const file_proto_matching_matching_proto_rawDesc = "" +
+const file_shared_proto_matching_matching_proto_rawDesc = "" +
 	"\n" +
-	"\x1dproto/matching/matching.proto\x12\bmatching\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
+	"$shared/proto/matching/matching.proto\x12\bmatching\x1a\x1fgoogle/protobuf/timestamp.proto\"^\n" +
 	"\bLocation\x12\x1a\n" +
 	"\blatitude\x18\x01 \x01(\x01R\blatitude\x12\x1c\n" +
 	"\tlongitude\x18\x02 \x01(\x01R\tlongitude\x12\x18\n" +
@@ -1780,19 +1780,19 @@ const file_proto_matching_matching_proto_rawDesc = "" +
 	"\x13StreamDriverUpdates\x12\x1e.matching.DriverLocationUpdate\x1a&.matching.UpdateDriverLocationResponse(\x010\x01B5Z3github.com/rideshare-platform/shared/proto/matchingb\x06proto3"
 
 var (
-	file_proto_matching_matching_proto_rawDescOnce sync.Once
-	file_proto_matching_matching_proto_rawDescData []byte
+	file_shared_proto_matching_matching_proto_rawDescOnce sync.Once
+	file_shared_proto_matching_matching_proto_rawDescData []byte
 )
 
-func file_proto_matching_matching_proto_rawDescGZIP() []byte {
-	file_proto_matching_matching_proto_rawDescOnce.Do(func() {
-		file_proto_matching_matching_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_matching_matching_proto_rawDesc), len(file_proto_matching_matching_proto_rawDesc)))
+func file_shared_proto_matching_matching_proto_rawDescGZIP() []byte {
+	file_shared_proto_matching_matching_proto_rawDescOnce.Do(func() {
+		file_shared_proto_matching_matching_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_shared_proto_matching_matching_proto_rawDesc), len(file_shared_proto_matching_matching_proto_rawDesc)))
 	})
-	return file_proto_matching_matching_proto_rawDescData
+	return file_shared_proto_matching_matching_proto_rawDescData
 }
 
-var file_proto_matching_matching_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
-var file_proto_matching_matching_proto_goTypes = []any{
+var file_shared_proto_matching_matching_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
+var file_shared_proto_matching_matching_proto_goTypes = []any{
 	(*Location)(nil),                     // 0: matching.Location
 	(*Driver)(nil),                       // 1: matching.Driver
 	(*MatchingScore)(nil),                // 2: matching.MatchingScore
@@ -1823,7 +1823,7 @@ var file_proto_matching_matching_proto_goTypes = []any{
 	nil,                                  // 27: matching.MatchingStats.VehicleTypeDistributionEntry
 	(*timestamppb.Timestamp)(nil),        // 28: google.protobuf.Timestamp
 }
-var file_proto_matching_matching_proto_depIdxs = []int32{
+var file_shared_proto_matching_matching_proto_depIdxs = []int32{
 	0,  // 0: matching.Driver.current_location:type_name -> matching.Location
 	2,  // 1: matching.Driver.score:type_name -> matching.MatchingScore
 	0,  // 2: matching.RideRequest.pickup_location:type_name -> matching.Location
@@ -1877,26 +1877,26 @@ var file_proto_matching_matching_proto_depIdxs = []int32{
 	0,  // [0:30] is the sub-list for field type_name
 }
 
-func init() { file_proto_matching_matching_proto_init() }
-func file_proto_matching_matching_proto_init() {
-	if File_proto_matching_matching_proto != nil {
+func init() { file_shared_proto_matching_matching_proto_init() }
+func file_shared_proto_matching_matching_proto_init() {
+	if File_shared_proto_matching_matching_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_matching_matching_proto_rawDesc), len(file_proto_matching_matching_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shared_proto_matching_matching_proto_rawDesc), len(file_shared_proto_matching_matching_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_proto_matching_matching_proto_goTypes,
-		DependencyIndexes: file_proto_matching_matching_proto_depIdxs,
-		MessageInfos:      file_proto_matching_matching_proto_msgTypes,
+		GoTypes:           file_shared_proto_matching_matching_proto_goTypes,
+		DependencyIndexes: file_shared_proto_matching_matching_proto_depIdxs,
+		MessageInfos:      file_shared_proto_matching_matching_proto_msgTypes,
 	}.Build()
-	File_proto_matching_matching_proto = out.File
-	file_proto_matching_matching_proto_goTypes = nil
-	file_proto_matching_matching_proto_depIdxs = nil
+	File_shared_proto_matching_matching_proto = out.File
+	file_shared_proto_matching_matching_proto_goTypes = nil
+	file_shared_proto_matching_matching_proto_depIdxs = nil
 }

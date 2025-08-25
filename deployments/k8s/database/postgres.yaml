@@ -5,7 +5,7 @@ metadata:
   namespace: rideshare-platform
   labels:
     app: postgres
-    tier: database
+    component: database
 spec:
   replicas: 1
   selector:
@@ -15,10 +15,11 @@ spec:
     metadata:
       labels:
         app: postgres
+        component: database
     spec:
       containers:
       - name: postgres
-        image: postgres:15
+        image: postgres:15-alpine
         ports:
         - containerPort: 5432
         env:
@@ -29,8 +30,8 @@ spec:
               key: POSTGRES_DB
         - name: POSTGRES_USER
           valueFrom:
-            secretKeyRef:
-              name: rideshare-secrets
+            configMapKeyRef:
+              name: rideshare-config
               key: POSTGRES_USER
         - name: POSTGRES_PASSWORD
           valueFrom:
@@ -48,15 +49,7 @@ spec:
             cpu: "250m"
           limits:
             memory: "1Gi"
-            cpu: "1"
-        livenessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - postgres
-          initialDelaySeconds: 30
-          periodSeconds: 10
+            cpu: "500m"
         readinessProbe:
           exec:
             command:
@@ -64,30 +57,38 @@ spec:
             - -U
             - postgres
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - postgres
+          initialDelaySeconds: 30
+          periodSeconds: 30
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
           claimName: postgres-pvc
       - name: postgres-init
         configMap:
-          name: postgres-init-scripts
-
+          name: postgres-init-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: postgres-service
+  name: postgres
   namespace: rideshare-platform
+  labels:
+    app: postgres
+    component: database
 spec:
   selector:
     app: postgres
   ports:
-  - protocol: TCP
-    port: 5432
+  - port: 5432
     targetPort: 5432
   type: ClusterIP
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

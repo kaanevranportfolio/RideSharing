@@ -46,6 +46,13 @@ logs/*.log
 .env.local
 .env.production
 .env.development
+.env.staging
+# Keep test env template but exclude actual values
+.env.test.local
+values-production.yaml
+values-staging.yaml
+secrets.yaml
+*-secrets.yaml
 
 # Database
 *.db

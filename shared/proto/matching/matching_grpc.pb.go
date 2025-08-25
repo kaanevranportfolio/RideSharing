@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v3.21.12
-// source: proto/matching/matching.proto
+// source: shared/proto/matching/matching.proto
 
 package matching
 
@@ -384,5 +384,5 @@ var MatchingService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "proto/matching/matching.proto",
+	Metadata: "shared/proto/matching/matching.proto",
 }

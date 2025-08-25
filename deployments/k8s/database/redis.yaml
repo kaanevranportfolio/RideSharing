@@ -5,7 +5,7 @@ metadata:
   namespace: rideshare-platform
   labels:
     app: redis
-    tier: cache
+    component: cache
 spec:
   replicas: 1
   selector:
@@ -15,20 +15,17 @@ spec:
     metadata:
       labels:
         app: redis
+        component: cache
     spec:
       containers:
       - name: redis
-        image: redis:7-alpine
+        image: redis:7.2-alpine
         ports:
         - containerPort: 6379
         command:
         - redis-server
         - --appendonly
         - "yes"
-        - --maxmemory
-        - "256mb"
-        - --maxmemory-policy
-        - "allkeys-lru"
         volumeMounts:
         - name: redis-storage
           mountPath: /data
@@ -37,40 +34,42 @@ spec:
             memory: "128Mi"
             cpu: "100m"
           limits:
-            memory: "256Mi"
-            cpu: "500m"
-        livenessProbe:
-          tcpSocket:
-            port: 6379
-          initialDelaySeconds: 30
-          periodSeconds: 10
+            memory: "512Mi"
+            cpu: "200m"
         readinessProbe:
           exec:
             command:
             - redis-cli
             - ping
           initialDelaySeconds: 5
-          periodSeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 30
       volumes:
       - name: redis-storage
         persistentVolumeClaim:
           claimName: redis-pvc
-
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-service
+  name: redis
   namespace: rideshare-platform
+  labels:
+    app: redis
+    component: cache
 spec:
   selector:
     app: redis
   ports:
-  - protocol: TCP
-    port: 6379
+  - port: 6379
     targetPort: 6379
   type: ClusterIP
-
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -82,4 +81,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 5Gi
