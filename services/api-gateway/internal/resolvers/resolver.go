@@ -35,7 +35,7 @@ func (r *Resolver) User(ctx context.Context, args struct{ ID graphql.ID }) (*Use
 	defer cancel()
 
 	resp, err := r.grpcClient.UserClient.GetUser(grpcCtx, &userpb.GetUserRequest{
-		UserId: id,
+		Id: id,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -51,12 +51,12 @@ func (r *Resolver) CreateUser(ctx context.Context, args struct {
 	defer cancel()
 
 	resp, err := r.grpcClient.UserClient.CreateUser(grpcCtx, &userpb.CreateUserRequest{
-		Email:       args.Input.Email,
-		Password:    args.Input.Password,
-		FirstName:   args.Input.FirstName,
-		LastName:    args.Input.LastName,
-		PhoneNumber: args.Input.PhoneNumber,
-		Role:        userpb.UserRole(userpb.UserRole_value[args.Input.Role]),
+		Email:     args.Input.Email,
+		Password:  args.Input.Password,
+		FirstName: args.Input.FirstName,
+		LastName:  args.Input.LastName,
+		Phone:     args.Input.PhoneNumber,
+		Role:      userpb.UserRole(userpb.UserRole_value[args.Input.Role]),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
@@ -89,10 +89,10 @@ func (r *Resolver) CreateTrip(ctx context.Context, args struct {
 	defer cancel()
 
 	resp, err := r.grpcClient.TripClient.CreateTrip(grpcCtx, &trippb.CreateTripRequest{
-		RiderId:         args.Input.RiderID,
-		PickupLocation:  convertToGRPCLocation(args.Input.PickupLocation),
-		DropoffLocation: convertToGRPCLocation(args.Input.DropoffLocation),
-		VehicleType:     args.Input.VehicleType,
+		RiderId:        args.Input.RiderID,
+		PickupLocation: convertToTripLocation(args.Input.PickupLocation),
+		Destination:    convertToTripLocation(args.Input.DropoffLocation),
+		VehicleType:    args.Input.VehicleType,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create trip: %w", err)
@@ -109,10 +109,10 @@ func (r *Resolver) GetPriceEstimate(ctx context.Context, args struct {
 	defer cancel()
 
 	resp, err := r.grpcClient.PricingClient.GetPriceEstimate(grpcCtx, &pricingpb.GetPriceEstimateRequest{
-		PickupLocation:  convertToGRPCLocation(args.Input.PickupLocation),
-		DropoffLocation: convertToGRPCLocation(args.Input.DropoffLocation),
-		VehicleType:     args.Input.VehicleType,
-		RiderId:         args.Input.RiderID,
+		PickupLocation: convertToPricingLocation(args.Input.PickupLocation),
+		Destination:    convertToPricingLocation(args.Input.DropoffLocation),
+		VehicleType:    args.Input.VehicleType,
+		RiderId:        args.Input.RiderID,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get price estimate: %w", err)
@@ -129,10 +129,10 @@ func (r *Resolver) FindNearbyDrivers(ctx context.Context, args struct {
 	defer cancel()
 
 	resp, err := r.grpcClient.MatchingClient.FindNearbyDrivers(grpcCtx, &matchingpb.FindNearbyDriversRequest{
-		Location:    convertToGRPCLocation(args.Input.Location),
-		Radius:      args.Input.Radius,
-		VehicleType: args.Input.VehicleType,
-		MaxDrivers:  args.Input.MaxDrivers,
+		PickupLocation: convertToMatchingLocation(args.Input.Location),
+		VehicleType:    args.Input.VehicleType,
+		RadiusKm:       args.Input.Radius,
+		MaxDrivers:     args.Input.MaxDrivers,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to find nearby drivers: %w", err)
@@ -152,14 +152,19 @@ func (r *Resolver) MatchDriver(ctx context.Context, args struct {
 	grpcCtx, cancel := r.grpcClient.WithTimeout(ctx, "matching")
 	defer cancel()
 
+	// Create a RideRequest with the trip ID
+	rideRequest := &matchingpb.RideRequest{
+		Id: args.TripID,
+	}
+
 	resp, err := r.grpcClient.MatchingClient.MatchDriver(grpcCtx, &matchingpb.MatchDriverRequest{
-		TripId: args.TripID,
+		RideRequest: rideRequest,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to match driver: %w", err)
 	}
 
-	return &MatchResultResolver{result: resp.MatchResult}, nil
+	return &MatchResultResolver{result: resp.Result}, nil
 }
 
 // Payment resolvers
@@ -189,14 +194,20 @@ func (r *Resolver) AddPaymentMethod(ctx context.Context, args struct {
 	grpcCtx, cancel := r.grpcClient.WithTimeout(ctx, "payment")
 	defer cancel()
 
+	// Create details map for payment method
+	details := map[string]string{
+		"card_number":     args.Input.CardNumber,
+		"expiry_month":    fmt.Sprintf("%d", args.Input.ExpiryMonth),
+		"expiry_year":     fmt.Sprintf("%d", args.Input.ExpiryYear),
+		"cardholder_name": args.Input.CardholderName,
+		"billing_address": args.Input.BillingAddress,
+	}
+
 	resp, err := r.grpcClient.PaymentClient.AddPaymentMethod(grpcCtx, &paymentpb.AddPaymentMethodRequest{
-		UserId:         args.Input.UserID,
-		Type:           paymentpb.PaymentMethodType(paymentpb.PaymentMethodType_value[args.Input.Type]),
-		CardNumber:     args.Input.CardNumber,
-		ExpiryMonth:    args.Input.ExpiryMonth,
-		ExpiryYear:     args.Input.ExpiryYear,
-		CardholderName: args.Input.CardholderName,
-		BillingAddress: args.Input.BillingAddress,
+		UserId:    args.Input.UserID,
+		Type:      paymentpb.PaymentMethod(paymentpb.PaymentMethod_value[args.Input.Type]),
+		Details:   details,
+		IsDefault: args.Input.IsDefault,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to add payment method: %w", err)
@@ -240,6 +251,30 @@ func (r *Resolver) TripAnalytics(ctx context.Context, args struct {
 // Utility functions
 func convertToGRPCLocation(loc LocationInput) *geopb.Location {
 	return &geopb.Location{
+		Latitude:  loc.Latitude,
+		Longitude: loc.Longitude,
+		Address:   loc.Address,
+	}
+}
+
+func convertToTripLocation(loc LocationInput) *trippb.Location {
+	return &trippb.Location{
+		Latitude:  loc.Latitude,
+		Longitude: loc.Longitude,
+		Address:   loc.Address,
+	}
+}
+
+func convertToPricingLocation(loc LocationInput) *pricingpb.Location {
+	return &pricingpb.Location{
+		Latitude:  loc.Latitude,
+		Longitude: loc.Longitude,
+		Address:   loc.Address,
+	}
+}
+
+func convertToMatchingLocation(loc LocationInput) *matchingpb.Location {
+	return &matchingpb.Location{
 		Latitude:  loc.Latitude,
 		Longitude: loc.Longitude,
 		Address:   loc.Address,

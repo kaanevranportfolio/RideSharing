@@ -208,26 +208,29 @@ func (r *LocationResolver) Address() string {
 
 // DriverResolver resolves Driver fields
 type DriverResolver struct {
-	driver *matchingpb.DriverInfo
+	driver *matchingpb.Driver
 }
 
 func (r *DriverResolver) ID() graphql.ID {
-	return graphql.ID(r.driver.DriverId)
+	return graphql.ID(r.driver.Id)
 }
 
 func (r *DriverResolver) Location() *LocationResolver {
-	if r.driver.Location == nil {
+	if r.driver.CurrentLocation == nil {
 		return nil
 	}
 	return &LocationResolver{
-		latitude:  r.driver.Location.Latitude,
-		longitude: r.driver.Location.Longitude,
-		address:   r.driver.Location.Address,
+		latitude:  r.driver.CurrentLocation.Latitude,
+		longitude: r.driver.CurrentLocation.Longitude,
+		address:   r.driver.CurrentLocation.Address,
 	}
 }
 
 func (r *DriverResolver) Status() string {
-	return r.driver.Status.String()
+	if r.driver.IsAvailable {
+		return "AVAILABLE"
+	}
+	return "UNAVAILABLE"
 }
 
 func (r *DriverResolver) VehicleType() string {
@@ -239,11 +242,11 @@ func (r *DriverResolver) Rating() float64 {
 }
 
 func (r *DriverResolver) Distance() float64 {
-	return r.driver.Distance
+	return r.driver.DistanceKm
 }
 
 func (r *DriverResolver) EstimatedArrival() int32 {
-	return r.driver.EstimatedArrival
+	return r.driver.EtaMinutes
 }
 
 // PriceEstimateResolver resolves PriceEstimate fields
@@ -428,7 +431,7 @@ func (r *TripAnalyticsResolver) TotalRevenue() float64 {
 
 // Subscription resolvers
 type TripUpdateResolver struct {
-	update *trippb.TripUpdate
+	update *trippb.TripUpdateEvent
 }
 
 func (r *TripUpdateResolver) TripID() string {
@@ -477,7 +480,7 @@ func (r *DriverLocationResolver) Timestamp() graphql.Time {
 }
 
 type PricingUpdateResolver struct {
-	update *pricingpb.PricingUpdate
+	update *pricingpb.PricingUpdateEvent
 }
 
 func (r *PricingUpdateResolver) Location() *LocationResolver {

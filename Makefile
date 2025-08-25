@@ -3,11 +3,19 @@ integration-test-env: test-env-up
 	@$(MAKE) test-integration
 	@$(MAKE) test-env-down
 # Test environment setup and teardown
-test-env-up:
-	bash scripts/test_env_setup.sh
+test-env-up: ## Start test environment (databases, services)
+	@echo "🔧 Starting test environment..."
+	@bash scripts/test_env_setup.sh || { echo "❌ Failed to start test environment"; exit 1; }
+	@echo "✅ Test environment ready"
 
-test-env-down:
-	docker compose -f docker-compose-test.yml down
+test-env-down: ## Stop test environment and cleanup
+	@echo "🧹 Stopping test environment..."
+	@docker compose -f docker-compose-test.yml down -v --remove-orphans || true
+	@echo "✅ Test environment stopped"
+
+test-env-status: ## Check test environment status
+	@echo "📊 Test environment status:"
+	@docker compose -f docker-compose-test.yml ps
 .PHONY: build run test clean help deps start-db test-infra test-services stop-all proto
 
 # Default target
@@ -54,18 +62,24 @@ test-infra:
 .PHONY: test-all test-fast test-full test-ci test-dev test-report
 
 # 🚀 MASTER TEST COMMANDS
-test-all: ## Run all tests in best-practice order (unit, integration, e2e)
+test-all: ## Run all tests in best-practice order with proper environment management
 	@echo "🚀 Running comprehensive test suite (unit → integration → e2e)..."
-	@$(MAKE) test-unit && \
-	$(MAKE) integration-test-env && \
+	@trap 'echo "🧹 Cleaning up test environment..."; $(MAKE) test-env-down' EXIT; \
+	$(MAKE) test-unit && \
+	$(MAKE) test-env-up && \
+	$(MAKE) test-integration && \
 	$(MAKE) test-e2e && \
-	echo "✅ All tests completed (unit → integration → e2e)" || \
-	echo "❌ Some tests failed. Check the output above."
+	echo "✅ All tests completed successfully" || \
+	{ echo "❌ Some tests failed"; exit 1; }
 
-test-fast: ## Run fast tests only (unit + integration)
+test-fast: ## Run fast tests only (unit + integration) with proper environment management
 	@echo "⚡ Running fast test suite..."
-	@./scripts/test-orchestrator.sh unit
-	@./scripts/test-orchestrator.sh integration
+	@trap 'echo "🧹 Cleaning up test environment..."; $(MAKE) test-env-down' EXIT; \
+	$(MAKE) test-unit && \
+	$(MAKE) test-env-up && \
+	$(MAKE) test-integration && \
+	echo "✅ Fast tests completed successfully" || \
+	{ echo "❌ Some tests failed"; exit 1; }
 
 test-full: ## Run complete test suite including load and security tests
 	@echo "🔬 Running full test suite..."
@@ -313,8 +327,9 @@ status:
 # Test targets - consolidated and following Go best practices
 .PHONY: test unit-test integration-test e2e-test load-test test-all test-coverage test-race test-bench
 
-# Run all tests (unit + integration + e2e)
-test-all: unit-test integration-test e2e-test
+# Legacy test targets - deprecated, use test-all instead
+# Run all tests (unit + integration + e2e) - DEPRECATED
+# test-all: unit-test integration-test e2e-test
 
 # Unit tests for individual packages (fast, no external dependencies)
 unit-test:
@@ -433,10 +448,11 @@ test-e2e:
 	@echo "Running end-to-end tests..."
 	@go test -v ./tests/e2e/...
 
-test-all:
-	@echo "Running all tests..."
-	@$(MAKE) test
-	@$(MAKE) test-e2e
+# Legacy test-all target - DEPRECATED
+# test-all:
+#	@echo "Running all tests..."
+#	@$(MAKE) test
+#	@$(MAKE) test-e2e
 
 # Phase 5: CI/CD and Security
 security-scan:
