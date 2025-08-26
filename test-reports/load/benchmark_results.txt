@@ -4,13 +4,13 @@ goos: linux
 goarch: amd64
 pkg: github.com/rideshare-platform/tests/unit/user
 cpu: 12th Gen Intel(R) Core(TM) i3-1215U
-BenchmarkUserService_CreateUser-8   	   87741	     11905 ns/op	    5675 B/op	      66 allocs/op
+BenchmarkUserService_CreateUser-8   	   79098	     14154 ns/op	    5565 B/op	      66 allocs/op
 PASS
-ok  	github.com/rideshare-platform/tests/unit/user	1.196s
+ok  	github.com/rideshare-platform/tests/unit/user	1.283s
 goos: linux
 goarch: amd64
 pkg: github.com/rideshare-platform/tests/unit/vehicle
 cpu: 12th Gen Intel(R) Core(TM) i3-1215U
-BenchmarkVehicleService_RegisterVehicle-8   	   91137	     12576 ns/op	    5902 B/op	      70 allocs/op
+BenchmarkVehicleService_RegisterVehicle-8   	   75868	     13328 ns/op	    5860 B/op	      70 allocs/op
 PASS
-ok  	github.com/rideshare-platform/tests/unit/vehicle	2.304s
+ok  	github.com/rideshare-platform/tests/unit/vehicle	1.180s

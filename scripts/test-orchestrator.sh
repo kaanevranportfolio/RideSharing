@@ -96,7 +96,6 @@ print_results() {
     local fail_count="$3"
     local duration="$4"
     
-    echo
     echo -e "${BOLD}📊 $category SUMMARY:${NC}"
     echo -e "   ${GREEN}✅ Passed: $pass_count${NC}"
     echo -e "   ${RED}❌ Failed: $fail_count${NC}"
@@ -173,12 +172,13 @@ print_summary_table() {
     
     # Get durations from the associative array, default to "0s" if not set
     local unit_duration="${test_durations[$UNIT_TESTS]:-0s}"
-    local integration_duration="${test_durations[$INTEGRATION_TESTS]:-0s}"
+    local integration_key="integration"
+    local integration_duration="${test_durations[$integration_key]:-0s}"
     local e2e_duration="${test_durations[$E2E_TESTS]:-0s}"
-    
+
     # Calculate coverage values
     local unit_coverage="${test_coverage[$UNIT_TESTS]:-25.0%}"
-    local integration_coverage="${test_coverage[$INTEGRATION_TESTS]:-N/A}"
+    local integration_coverage="${test_coverage[$integration_key]:-N/A}"
     local e2e_coverage="${test_coverage[$E2E_TESTS]:-N/A}"
     
     # Unit tests row
@@ -519,6 +519,8 @@ run_integration_tests() {
     local integration_count=0
     
     # Run all integration test files with proper build tags
+    local integration_key="integration"
+    local integration_count=0
     for test_file in integration/*.go; do
         if [[ -f "$test_file" ]]; then
             echo "    ▶️  Running $(basename "$test_file")..."
@@ -568,17 +570,18 @@ run_integration_tests() {
     local duration=$((end_time - start_time))
     
     # Set result status and duration
+    local integration_key="integration"
     if [[ $INTEGRATION_FAIL -gt 0 ]]; then
-        test_results["integration"]="FAIL"
+        test_results["$integration_key"]="FAIL"
     elif [[ $INTEGRATION_PASS -gt 0 ]]; then
-        test_results["integration"]="PASS"
+        test_results["$integration_key"]="PASS"
     else
-        test_results["integration"]="SKIP"
+        test_results["$integration_key"]="SKIP"
     fi
-    
-    test_durations["$INTEGRATION_TESTS"]="${duration}s"
+    test_durations["$integration_key"]="${duration}s"
     
     # Calculate integration coverage
+    local integration_key="integration"
     local integration_coverage="N/A"
     local coverage_files=()
     for cov_file in "${REPORTS_DIR}/integration/"*_coverage.out; do
@@ -594,15 +597,23 @@ run_integration_tests() {
             integration_coverage="$coverage_line"
         fi
     fi
-    test_coverage["$INTEGRATION_TESTS"]="$integration_coverage"
+    # Ensure associative array key exists before assignment (safe for set -u)
+    set +u
+    if [[ -z "${test_coverage["$integration_key"]+x}" ]]; then
+        test_coverage["$integration_key"]="$integration_coverage"
+    fi
+    set -u
     
     # Calculate duration
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    test_durations["$INTEGRATION_TESTS"]="${duration}s"
+    if [[ -z "${test_durations[$integration_key]+x}" ]]; then
+        test_durations["$integration_key"]="${duration}s"
+    fi
     
     echo
-    print_results "INTEGRATION TESTS" $INTEGRATION_PASS $INTEGRATION_FAIL "${duration}s"
+    # Safely handle unset variables in print_results and elsewhere
+    print_results "INTEGRATION TESTS" "${INTEGRATION_PASS:-0}" "${INTEGRATION_FAIL:-0}" "${duration:-0}s"
 }
 
 run_e2e_tests() {
