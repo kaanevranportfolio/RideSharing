@@ -1,3 +1,9 @@
+
+#HTML
+*.html
+*.htm
+*.xhtml
+
 # Go
 *.exe
 *.exe~

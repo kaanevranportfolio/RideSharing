@@ -4,17 +4,16 @@ import (
 	"context"
 	"errors"
 
-	"github.com/rideshare-platform/services/user-service/internal/repository"
 	"github.com/rideshare-platform/shared/models"
 )
 
 // UserService handles user business logic
 type UserService struct {
-	repo *repository.UserRepository
+	repo UserRepositoryInterface
 }
 
 // NewUserService creates a new user service
-func NewUserService(repo *repository.UserRepository) *UserService {
+func NewUserService(repo UserRepositoryInterface) *UserService {
 	return &UserService{
 		repo: repo,
 	}

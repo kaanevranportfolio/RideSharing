@@ -225,7 +225,7 @@ func (r *Resolver) TripAnalytics(ctx context.Context, args struct {
 	defer cancel()
 
 	// Get trip statistics (simplified example)
-	resp, err := r.grpcClient.TripClient.GetTrip(grpcCtx, &trippb.GetTripRequest{
+	_, err := r.grpcClient.TripClient.GetTrip(grpcCtx, &trippb.GetTripRequest{
 		TripId: "analytics", // This would be a different endpoint in practice
 	})
 	if err != nil {
@@ -335,28 +335,32 @@ func (r *Resolver) DriverLocationUpdates(ctx context.Context, args struct {
 	go func() {
 		defer close(ch)
 
-		// Stream driver location updates
-		stream, err := r.grpcClient.MatchingClient.StreamDriverUpdates(ctx, &matchingpb.StreamDriverUpdatesRequest{
-			TripId: args.TripID,
-		})
-		if err != nil {
-			return
-		}
+		// Simulate periodic location updates (in real implementation, this would be a stream)
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
 
 		for {
-			update, err := stream.Recv()
-			if err != nil {
-				return
-			}
-
 			select {
-			case ch <- &DriverLocationResolver{
-				driverID:  update.DriverId,
-				location:  convertFromGRPCLocation(update.Location),
-				timestamp: convertTimestamp(update.Timestamp),
-			}:
 			case <-ctx.Done():
 				return
+			case <-ticker.C:
+				// Check driver availability (simplified)
+				_, err := r.grpcClient.MatchingClient.UpdateDriverLocation(ctx, &matchingpb.UpdateDriverLocationRequest{
+					DriverId: args.TripID, // This would need proper trip-to-driver mapping
+				})
+				if err != nil {
+					return
+				}
+
+				select {
+				case ch <- &DriverLocationResolver{
+					driverID:  args.TripID,                                                // Mock driver ID
+					location:  &LocationResolver{latitude: 37.7749, longitude: -122.4194}, // Mock location
+					timestamp: graphql.Time{Time: time.Now()},                             // Current timestamp
+				}:
+				case <-ctx.Done():
+					return
+				}
 			}
 		}
 	}()
@@ -374,7 +378,7 @@ func (r *Resolver) PricingUpdates(ctx context.Context, args struct {
 
 		// Stream pricing updates
 		stream, err := r.grpcClient.PricingClient.SubscribeToPricingUpdates(ctx, &pricingpb.SubscribeToPricingUpdatesRequest{
-			Location: convertToGRPCLocation(args.Location),
+			ZoneIds: []string{"default_zone"}, // This would need proper zone mapping from location
 		})
 		if err != nil {
 			return

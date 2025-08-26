@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/rideshare-platform/services/vehicle-service/internal/repository"
@@ -13,7 +14,7 @@ import (
 
 // VehicleService handles vehicle business logic
 type VehicleService struct {
-	vehicleRepo    *repository.VehicleRepository
+	vehicleRepo    VehicleRepositoryInterface
 	cacheRepo      *repository.CacheRepository
 	eventPublisher *events.EventPublisher
 	logger         *logger.Logger
@@ -21,7 +22,7 @@ type VehicleService struct {
 
 // NewVehicleService creates a new vehicle service
 func NewVehicleService(
-	vehicleRepo *repository.VehicleRepository,
+	vehicleRepo VehicleRepositoryInterface,
 	cacheRepo *repository.CacheRepository,
 	eventPublisher *events.EventPublisher,
 	logger *logger.Logger,
@@ -83,41 +84,49 @@ func (s *VehicleService) CreateVehicle(ctx context.Context, req *CreateVehicleRe
 		return nil, fmt.Errorf("failed to create vehicle: %w", err)
 	}
 
-	// Cache the vehicle
-	if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+	// Cache the vehicle (skip if no cache available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+		}
 	}
 
-	// Invalidate driver vehicles cache
-	if err := s.cacheRepo.InvalidateDriverVehicles(ctx, req.DriverID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+	// Invalidate driver vehicles cache (skip if no cache available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.InvalidateDriverVehicles(ctx, req.DriverID); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+		}
 	}
 
-	// Publish event
-	event := events.NewEvent(
-		events.VehicleRegisteredEvent,
-		vehicle.ID,
-		1,
-		map[string]interface{}{
+	// Publish event (skip if no publisher available)
+	if s.eventPublisher != nil {
+		event := events.NewEvent(
+			events.VehicleRegisteredEvent,
+			vehicle.ID,
+			1,
+			map[string]interface{}{
+				"vehicle_id":    vehicle.ID,
+				"driver_id":     vehicle.DriverID,
+				"license_plate": vehicle.LicensePlate,
+				"make":          vehicle.Make,
+				"model":         vehicle.Model,
+				"vehicle_type":  vehicle.VehicleType,
+			},
+			"vehicle-service",
+		)
+
+		if err := s.eventPublisher.PublishEvent(ctx, event); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle registered event")
+		}
+	}
+
+	if s.logger != nil {
+		s.logger.WithContext(ctx).WithFields(logger.Fields{
 			"vehicle_id":    vehicle.ID,
 			"driver_id":     vehicle.DriverID,
 			"license_plate": vehicle.LicensePlate,
-			"make":          vehicle.Make,
-			"model":         vehicle.Model,
-			"vehicle_type":  vehicle.VehicleType,
-		},
-		"vehicle-service",
-	)
-
-	if err := s.eventPublisher.PublishEvent(ctx, event); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle registered event")
+		}).Info("Vehicle created successfully")
 	}
-
-	s.logger.WithContext(ctx).WithFields(logger.Fields{
-		"vehicle_id":    vehicle.ID,
-		"driver_id":     vehicle.DriverID,
-		"license_plate": vehicle.LicensePlate,
-	}).Info("Vehicle created successfully")
 
 	return vehicle, nil
 }
@@ -128,25 +137,31 @@ func (s *VehicleService) GetVehicle(ctx context.Context, id string) (*models.Veh
 		return nil, fmt.Errorf("vehicle ID is required")
 	}
 
-	// Try cache first
-	vehicle, err := s.cacheRepo.GetCachedVehicle(ctx, id)
-	if err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to get vehicle from cache")
-	}
+	// Try cache first (skip if no cache available)
+	var vehicle *models.Vehicle
+	if s.cacheRepo != nil {
+		var err error
+		vehicle, err = s.cacheRepo.GetCachedVehicle(ctx, id)
+		if err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to get vehicle from cache")
+		}
 
-	if vehicle != nil {
-		return vehicle, nil
+		if vehicle != nil {
+			return vehicle, nil
+		}
 	}
 
 	// Get from database
-	vehicle, err = s.vehicleRepo.GetByID(ctx, id)
+	vehicle, err := s.vehicleRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get vehicle: %w", err)
 	}
 
-	// Cache the result
-	if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+	// Cache the result (skip if no cache available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.CacheVehicle(ctx, vehicle, 1*time.Hour); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache vehicle")
+		}
 	}
 
 	return vehicle, nil
@@ -158,25 +173,31 @@ func (s *VehicleService) GetVehiclesByDriver(ctx context.Context, driverID strin
 		return nil, fmt.Errorf("driver ID is required")
 	}
 
-	// Try cache first
-	vehicles, err := s.cacheRepo.GetCachedDriverVehicles(ctx, driverID)
-	if err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to get driver vehicles from cache")
-	}
+	// Try cache first (skip if no cache available)
+	var vehicles []*models.Vehicle
+	if s.cacheRepo != nil {
+		var err error
+		vehicles, err = s.cacheRepo.GetCachedDriverVehicles(ctx, driverID)
+		if err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to get driver vehicles from cache")
+		}
 
-	if vehicles != nil {
-		return vehicles, nil
+		if vehicles != nil {
+			return vehicles, nil
+		}
 	}
 
 	// Get from database
-	vehicles, err = s.vehicleRepo.GetByDriverID(ctx, driverID)
+	vehicles, err := s.vehicleRepo.GetByDriverID(ctx, driverID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get vehicles by driver: %w", err)
 	}
 
-	// Cache the result
-	if err := s.cacheRepo.CacheDriverVehicles(ctx, driverID, vehicles, 30*time.Minute); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache driver vehicles")
+	// Cache the result (skip if no cache available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.CacheDriverVehicles(ctx, driverID, vehicles, 30*time.Minute); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache driver vehicles")
+		}
 	}
 
 	return vehicles, nil
@@ -188,28 +209,42 @@ func (s *VehicleService) GetAvailableVehicles(ctx context.Context, driverID stri
 		return nil, fmt.Errorf("driver ID is required")
 	}
 
-	// Try cache first
-	vehicles, err := s.cacheRepo.GetCachedAvailableVehicles(ctx, driverID)
-	if err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to get available vehicles from cache")
-	}
+	// Try cache first (skip if no cache available)
+	var vehicles []*models.Vehicle
+	if s.cacheRepo != nil {
+		var err error
+		vehicles, err = s.cacheRepo.GetCachedAvailableVehicles(ctx, driverID)
+		if err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to get available vehicles from cache")
+		}
 
-	if vehicles != nil {
-		return vehicles, nil
+		if vehicles != nil {
+			return vehicles, nil
+		}
 	}
 
 	// Get from database
-	vehicles, err = s.vehicleRepo.GetAvailableVehicles(ctx, driverID)
+	vehicles, err := s.vehicleRepo.GetByDriverID(ctx, driverID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get available vehicles: %w", err)
 	}
 
-	// Cache the result
-	if err := s.cacheRepo.CacheAvailableVehicles(ctx, driverID, vehicles, 15*time.Minute); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache available vehicles")
+	// Filter for only available vehicles
+	var availableVehicles []*models.Vehicle
+	for _, vehicle := range vehicles {
+		if vehicle.Status == models.VehicleStatusActive {
+			availableVehicles = append(availableVehicles, vehicle)
+		}
 	}
 
-	return vehicles, nil
+	// Cache the result (skip if no cache available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.CacheAvailableVehicles(ctx, driverID, availableVehicles, 15*time.Minute); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to cache available vehicles")
+		}
+	}
+
+	return availableVehicles, nil
 }
 
 // UpdateVehicle updates a vehicle
@@ -277,11 +312,17 @@ func (s *VehicleService) UpdateVehicle(ctx context.Context, req *UpdateVehicleRe
 	}
 
 	// Invalidate caches
-	if err := s.cacheRepo.InvalidateVehicle(ctx, vehicle.ID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
-	}
-	if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.InvalidateVehicle(ctx, vehicle.ID); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+			}
+		}
+		if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+			}
+		}
 	}
 
 	// Publish event
@@ -297,14 +338,20 @@ func (s *VehicleService) UpdateVehicle(ctx context.Context, req *UpdateVehicleRe
 		"vehicle-service",
 	)
 
-	if err := s.eventPublisher.PublishEvent(ctx, event); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle updated event")
+	if s.eventPublisher != nil {
+		if err := s.eventPublisher.PublishEvent(ctx, event); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle updated event")
+			}
+		}
 	}
 
-	s.logger.WithContext(ctx).WithFields(logger.Fields{
-		"vehicle_id": vehicle.ID,
-		"driver_id":  vehicle.DriverID,
-	}).Info("Vehicle updated successfully")
+	if s.logger != nil {
+		s.logger.WithContext(ctx).WithFields(logger.Fields{
+			"vehicle_id": vehicle.ID,
+			"driver_id":  vehicle.DriverID,
+		}).Info("Vehicle updated successfully")
+	}
 
 	return vehicle, nil
 }
@@ -326,21 +373,26 @@ func (s *VehicleService) UpdateVehicleStatus(ctx context.Context, id string, sta
 		return fmt.Errorf("failed to update vehicle status: %w", err)
 	}
 
-	// Invalidate caches
-	if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
-	}
-	if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
-	}
-	if err := s.cacheRepo.InvalidateAvailableVehicles(ctx, vehicle.DriverID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate available vehicles cache")
+	// Invalidate caches (only if cache is available)
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+		}
+		if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+		}
+		if err := s.cacheRepo.InvalidateAvailableVehicles(ctx, vehicle.DriverID); err != nil && s.logger != nil {
+			s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate available vehicles cache")
+		}
 	}
 
-	s.logger.WithContext(ctx).WithFields(logger.Fields{
-		"vehicle_id": id,
-		"status":     status,
-	}).Info("Vehicle status updated successfully")
+	// Log only if logger is available
+	if s.logger != nil {
+		s.logger.WithContext(ctx).WithFields(logger.Fields{
+			"vehicle_id": id,
+			"status":     status,
+		}).Info("Vehicle status updated successfully")
+	}
 
 	return nil
 }
@@ -363,11 +415,17 @@ func (s *VehicleService) DeleteVehicle(ctx context.Context, id string) error {
 	}
 
 	// Invalidate caches
-	if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
-	}
-	if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+	if s.cacheRepo != nil {
+		if err := s.cacheRepo.InvalidateVehicle(ctx, id); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate vehicle cache")
+			}
+		}
+		if err := s.cacheRepo.InvalidateDriverVehicles(ctx, vehicle.DriverID); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to invalidate driver vehicles cache")
+			}
+		}
 	}
 
 	// Publish event
@@ -383,14 +441,20 @@ func (s *VehicleService) DeleteVehicle(ctx context.Context, id string) error {
 		"vehicle-service",
 	)
 
-	if err := s.eventPublisher.PublishEvent(ctx, event); err != nil {
-		s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle deactivated event")
+	if s.eventPublisher != nil {
+		if err := s.eventPublisher.PublishEvent(ctx, event); err != nil {
+			if s.logger != nil {
+				s.logger.WithContext(ctx).WithError(err).Warn("Failed to publish vehicle deactivated event")
+			}
+		}
 	}
 
-	s.logger.WithContext(ctx).WithFields(logger.Fields{
-		"vehicle_id": id,
-		"driver_id":  vehicle.DriverID,
-	}).Info("Vehicle deleted successfully")
+	if s.logger != nil {
+		s.logger.WithContext(ctx).WithFields(logger.Fields{
+			"vehicle_id": id,
+			"driver_id":  vehicle.DriverID,
+		}).Info("Vehicle deleted successfully")
+	}
 
 	return nil
 }
@@ -402,14 +466,23 @@ func (s *VehicleService) ListVehicles(ctx context.Context, req *ListVehiclesRequ
 		return nil, fmt.Errorf("invalid request: %w", err)
 	}
 
+	// Build filters map
+	filters := make(map[string]interface{})
+	if req.Status != "" {
+		filters["status"] = req.Status
+	}
+	if req.VehicleType != "" {
+		filters["vehicle_type"] = req.VehicleType
+	}
+
 	// Get vehicles from database
-	vehicles, err := s.vehicleRepo.List(ctx, req.Limit, req.Offset, req.Status, req.VehicleType)
+	vehicles, err := s.vehicleRepo.List(ctx, req.Limit, req.Offset, filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list vehicles: %w", err)
 	}
 
 	// Get total count
-	total, err := s.vehicleRepo.Count(ctx, req.Status, req.VehicleType)
+	total, err := s.vehicleRepo.Count(ctx, filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to count vehicles: %w", err)
 	}
@@ -440,17 +513,17 @@ func (s *VehicleService) GetVehicleStats(ctx context.Context) (*VehicleStatsResp
 	}
 
 	// Calculate stats from database
-	totalVehicles, err := s.vehicleRepo.Count(ctx, "", "")
+	totalVehicles, err := s.vehicleRepo.Count(ctx, map[string]interface{}{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to count total vehicles: %w", err)
 	}
 
-	activeVehicles, err := s.vehicleRepo.Count(ctx, "active", "")
+	activeVehicles, err := s.vehicleRepo.Count(ctx, map[string]interface{}{"status": "active"})
 	if err != nil {
 		return nil, fmt.Errorf("failed to count active vehicles: %w", err)
 	}
 
-	inactiveVehicles, err := s.vehicleRepo.Count(ctx, "inactive", "")
+	inactiveVehicles, err := s.vehicleRepo.Count(ctx, map[string]interface{}{"status": "inactive"})
 	if err != nil {
 		return nil, fmt.Errorf("failed to count inactive vehicles: %w", err)
 	}
@@ -458,7 +531,7 @@ func (s *VehicleService) GetVehicleStats(ctx context.Context) (*VehicleStatsResp
 	// Get vehicles by type
 	vehiclesByType := make(map[string]interface{})
 	for _, vehicleType := range models.GetVehicleTypes() {
-		count, err := s.vehicleRepo.Count(ctx, "", string(vehicleType))
+		count, err := s.vehicleRepo.Count(ctx, map[string]interface{}{"vehicle_type": string(vehicleType)})
 		if err != nil {
 			s.logger.WithContext(ctx).WithError(err).WithFields(logger.Fields{
 				"vehicle_type": vehicleType,
@@ -612,4 +685,19 @@ type VehicleStatsResponse struct {
 	ActiveVehicles   int64                  `json:"active_vehicles"`
 	InactiveVehicles int64                  `json:"inactive_vehicles"`
 	VehiclesByType   map[string]interface{} `json:"vehicles_by_type"`
+}
+
+// Validation methods
+func (s *VehicleService) isValidVehicleType(vehicleType string) bool {
+	validTypes := map[string]bool{
+		"sedan":       true,
+		"suv":         true,
+		"hatchback":   true,
+		"coupe":       true,
+		"convertible": true,
+		"truck":       true,
+		"motorcycle":  true,
+		"luxury":      true,
+	}
+	return validTypes[strings.ToLower(vehicleType)]
 }

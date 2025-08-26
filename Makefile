@@ -10,6 +10,16 @@ test-env-up: ## Start test environment (databases, services)
 
 test-env-down: ## Stop test environment and cleanup
 	@echo "🧹 Stopping test environment..."
+	@if [ -f "logs/test-api-mock.pid" ]; then \
+		echo "🎭 Stopping test API mock..."; \
+		PID=$$(cat logs/test-api-mock.pid); \
+		if kill -0 "$$PID" 2>/dev/null; then \
+			kill "$$PID"; \
+			echo "✅ Test API mock stopped"; \
+		fi; \
+		rm -f logs/test-api-mock.pid; \
+	fi
+	@docker compose down api-gateway user-service trip-service || true
 	@docker compose -f docker-compose-test.yml down -v --remove-orphans || true
 	@echo "✅ Test environment stopped"
 
@@ -62,22 +72,28 @@ test-infra:
 .PHONY: test-all test-fast test-full test-ci test-dev test-report
 
 # 🚀 MASTER TEST COMMANDS
-test-all: ## Run all tests in best-practice order with proper environment management
+test-all: ## Run all tests with centralized environment management
 	@echo "🚀 Running comprehensive test suite (unit → integration → e2e)..."
 	@trap 'echo "🧹 Cleaning up test environment..."; $(MAKE) test-env-down' EXIT; \
-	$(MAKE) test-unit && \
-	$(MAKE) test-env-up && \
-	$(MAKE) test-integration && \
-	$(MAKE) test-e2e && \
-	echo "✅ All tests completed successfully" || \
-	{ echo "❌ Some tests failed"; exit 1; }
+	unit_result=0; integration_result=0; e2e_result=0; \
+	$(MAKE) test-unit-only || unit_result=$$?; \
+	$(MAKE) test-env-up; \
+	$(MAKE) test-integration-only || integration_result=$$?; \
+	$(MAKE) test-e2e-only || e2e_result=$$?; \
+	total_failures=$$((unit_result + integration_result + e2e_result)); \
+	if [ $$total_failures -eq 0 ]; then \
+		echo "✅ All tests completed successfully"; \
+	else \
+		echo "❌ Some tests failed ($$total_failures failure(s))"; \
+		exit 1; \
+	fi
 
-test-fast: ## Run fast tests only (unit + integration) with proper environment management
-	@echo "⚡ Running fast test suite..."
+test-fast: ## Run fast tests with centralized environment management
+	@echo "⚡ Running fast test suite (unit + integration)..."
 	@trap 'echo "🧹 Cleaning up test environment..."; $(MAKE) test-env-down' EXIT; \
-	$(MAKE) test-unit && \
+	$(MAKE) test-unit-only && \
 	$(MAKE) test-env-up && \
-	$(MAKE) test-integration && \
+	$(MAKE) test-integration-only && \
 	echo "✅ Fast tests completed successfully" || \
 	{ echo "❌ Some tests failed"; exit 1; }
 
@@ -101,7 +117,20 @@ test-report: ## Generate comprehensive test reports
 	@./scripts/test-orchestrator.sh all
 	@echo "📁 Reports available in: test-reports/"
 
-# Individual Test Categories
+# Individual Test Categories (Environment-Agnostic)
+test-unit-only: ## Run unit tests without environment management
+	@echo "🧪 Running unit tests (no environment setup)..."
+	@./scripts/test-orchestrator.sh unit
+
+test-integration-only: ## Run integration tests (assumes environment exists)
+	@echo "🔗 Running integration tests (assumes environment ready)..."
+	@ENABLE_API_MOCK=true ./scripts/test-orchestrator.sh integration
+
+test-e2e-only: ## Run E2E tests (assumes environment exists)
+	@echo "🎭 Running E2E tests (assumes environment ready)..."
+	@ENABLE_API_MOCK=true ./scripts/test-orchestrator.sh e2e
+
+# Individual Test Categories (With Environment Management - Backward Compatibility)
 test-unit: ## Run unit tests with enhanced output
 	@echo "🧪 Running unit tests..."
 	@./scripts/test-orchestrator.sh unit

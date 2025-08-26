@@ -58,6 +58,7 @@ type AddPaymentMethodInput struct {
 	ExpiryYear     int32
 	CardholderName string
 	BillingAddress string
+	IsDefault      bool
 }
 
 type LocationInput struct {
@@ -266,28 +267,20 @@ func (r *PriceEstimateResolver) TimeFare() float64 {
 	return r.estimate.TimeFare
 }
 
-func (r *PriceEstimateResolver) SurgeFare() float64 {
-	return r.estimate.SurgeFare
+func (r *PriceEstimateResolver) SurgeAmount() float64 {
+	return r.estimate.GetSurgeAmount()
 }
 
-func (r *PriceEstimateResolver) TotalFare() float64 {
-	return r.estimate.TotalFare
+func (r *PriceEstimateResolver) TotalAmount() float64 {
+	return r.estimate.GetTotalAmount()
 }
 
 func (r *PriceEstimateResolver) Currency() string {
-	return r.estimate.Currency
+	return r.estimate.GetCurrency()
 }
 
 func (r *PriceEstimateResolver) SurgeMultiplier() float64 {
-	return r.estimate.SurgeMultiplier
-}
-
-func (r *PriceEstimateResolver) EstimatedDuration() int32 {
-	return r.estimate.EstimatedDuration
-}
-
-func (r *PriceEstimateResolver) EstimatedDistance() float64 {
-	return r.estimate.EstimatedDistance
+	return r.estimate.GetSurgeMultiplier()
 }
 
 // MatchResultResolver resolves MatchResult fields
@@ -300,14 +293,15 @@ func (r *MatchResultResolver) Success() bool {
 }
 
 func (r *MatchResultResolver) Driver() *DriverResolver {
-	if r.result.Driver == nil {
+	if r.result.GetBestMatch() == nil {
 		return nil
 	}
-	return &DriverResolver{driver: r.result.Driver}
+	return &DriverResolver{driver: r.result.GetBestMatch()}
 }
 
 func (r *MatchResultResolver) EstimatedArrival() int32 {
-	return r.result.EstimatedArrival
+	// Returning mock data since this field doesn't exist in the protobuf
+	return 300 // 5 minutes in seconds
 }
 
 func (r *MatchResultResolver) Message() string {
@@ -340,28 +334,28 @@ func (r *PaymentResolver) Status() string {
 }
 
 func (r *PaymentResolver) PaymentMethodID() string {
-	return r.payment.PaymentMethodId
+	return r.payment.GetPaymentMethod().String()
 }
 
 func (r *PaymentResolver) TransactionID() string {
-	return r.payment.TransactionId
+	return r.payment.GetId()
 }
 
 func (r *PaymentResolver) CreatedAt() graphql.Time {
-	return graphql.Time{Time: time.Unix(r.payment.CreatedAt, 0)}
+	return graphql.Time{Time: r.payment.GetCreatedAt().AsTime()}
 }
 
 func (r *PaymentResolver) ProcessedAt() *graphql.Time {
-	if r.payment.ProcessedAt == 0 {
+	if r.payment.GetProcessedAt() == nil {
 		return nil
 	}
-	t := graphql.Time{Time: time.Unix(r.payment.ProcessedAt, 0)}
+	t := graphql.Time{Time: r.payment.GetProcessedAt().AsTime()}
 	return &t
 }
 
 // PaymentMethodResolver resolves PaymentMethod fields
 type PaymentMethodResolver struct {
-	method *paymentpb.PaymentMethod
+	method *paymentpb.PaymentMethodDetails
 }
 
 func (r *PaymentMethodResolver) ID() graphql.ID {
@@ -377,19 +371,31 @@ func (r *PaymentMethodResolver) Type() string {
 }
 
 func (r *PaymentMethodResolver) LastFour() string {
-	return r.method.LastFour
+	return r.method.LastFourDigits
 }
 
 func (r *PaymentMethodResolver) ExpiryMonth() int32 {
-	return r.method.ExpiryMonth
+	// Extract month from expiry date timestamp
+	if r.method.ExpiryDate != nil {
+		return int32(r.method.ExpiryDate.AsTime().Month())
+	}
+	return 0
 }
 
 func (r *PaymentMethodResolver) ExpiryYear() int32 {
-	return r.method.ExpiryYear
+	// Extract year from expiry date timestamp
+	if r.method.ExpiryDate != nil {
+		return int32(r.method.ExpiryDate.AsTime().Year())
+	}
+	return 0
 }
 
 func (r *PaymentMethodResolver) CardholderName() string {
-	return r.method.CardholderName
+	// Get from details map
+	if r.method.Details != nil {
+		return r.method.Details["cardholder_name"]
+	}
+	return ""
 }
 
 func (r *PaymentMethodResolver) IsDefault() bool {
@@ -397,7 +403,10 @@ func (r *PaymentMethodResolver) IsDefault() bool {
 }
 
 func (r *PaymentMethodResolver) CreatedAt() graphql.Time {
-	return graphql.Time{Time: time.Unix(r.method.CreatedAt, 0)}
+	if r.method.CreatedAt != nil {
+		return graphql.Time{Time: r.method.CreatedAt.AsTime()}
+	}
+	return graphql.Time{Time: time.Time{}}
 }
 
 // Analytics resolvers
@@ -439,26 +448,33 @@ func (r *TripUpdateResolver) TripID() string {
 }
 
 func (r *TripUpdateResolver) Status() string {
-	return r.update.Status.String()
+	return r.update.NewStatus.String()
 }
 
 func (r *TripUpdateResolver) Location() *LocationResolver {
-	if r.update.Location == nil {
+	if r.update.CurrentLocation == nil {
 		return nil
 	}
 	return &LocationResolver{
-		latitude:  r.update.Location.Latitude,
-		longitude: r.update.Location.Longitude,
-		address:   r.update.Location.Address,
+		latitude:  r.update.CurrentLocation.Latitude,
+		longitude: r.update.CurrentLocation.Longitude,
+		address:   r.update.CurrentLocation.Address,
 	}
 }
 
 func (r *TripUpdateResolver) Timestamp() graphql.Time {
-	return graphql.Time{Time: time.Unix(r.update.Timestamp, 0)}
+	if r.update.Timestamp != nil {
+		return graphql.Time{Time: r.update.Timestamp.AsTime()}
+	}
+	return graphql.Time{Time: time.Time{}}
 }
 
 func (r *TripUpdateResolver) Message() string {
-	return r.update.Message
+	// Get message from metadata if available
+	if r.update.Metadata != nil && r.update.Metadata["message"] != "" {
+		return r.update.Metadata["message"]
+	}
+	return "Trip status updated"
 }
 
 type DriverLocationResolver struct {
@@ -483,25 +499,18 @@ type PricingUpdateResolver struct {
 	update *pricingpb.PricingUpdateEvent
 }
 
-func (r *PricingUpdateResolver) Location() *LocationResolver {
-	if r.update.Location == nil {
-		return nil
-	}
-	return &LocationResolver{
-		latitude:  r.update.Location.Latitude,
-		longitude: r.update.Location.Longitude,
-		address:   r.update.Location.Address,
-	}
+func (r *PricingUpdateResolver) ZoneId() string {
+	return r.update.GetZoneId()
 }
 
-func (r *PricingUpdateResolver) SurgeMultiplier() float64 {
-	return r.update.SurgeMultiplier
+func (r *PricingUpdateResolver) NewMultiplier() float64 {
+	return r.update.GetNewMultiplier()
 }
 
-func (r *PricingUpdateResolver) BaseFare() float64 {
-	return r.update.BaseFare
+func (r *PricingUpdateResolver) OldMultiplier() float64 {
+	return r.update.GetOldMultiplier()
 }
 
-func (r *PricingUpdateResolver) Timestamp() graphql.Time {
-	return graphql.Time{Time: time.Unix(r.update.Timestamp, 0)}
+func (r *PricingUpdateResolver) Timestamp() string {
+	return r.update.GetTimestamp().AsTime().Format(time.RFC3339)
 }

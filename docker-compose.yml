@@ -252,7 +252,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=rideshare
       - DB_USERNAME=rideshare_user
-      - DB_PASSWORD=rideshare_password
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     ports:

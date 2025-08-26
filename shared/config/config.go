@@ -145,7 +145,7 @@ func LoadConfig() (*Config, error) {
 			IdleTimeout:  getEnvAsDuration("REDIS_IDLE_TIMEOUT", 5*time.Minute),
 		},
 		JWT: JWTConfig{
-			SecretKey:       getEnv("JWT_SECRET", "your-secret-key"),
+			SecretKey:       getEnv("JWT_SECRET_KEY", ""),
 			ExpiryDuration:  getEnvAsDuration("JWT_EXPIRY", 24*time.Hour),
 			RefreshDuration: getEnvAsDuration("JWT_REFRESH_EXPIRY", 7*24*time.Hour),
 			Issuer:          getEnv("JWT_ISSUER", "rideshare-platform"),

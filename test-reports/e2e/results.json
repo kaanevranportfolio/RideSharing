@@ -1,2 +1,39 @@
-go: warning: "./e2e/..." matched no packages
-no packages to test
+{"Time":"2025-08-26T09:35:58.032013547+03:00","Action":"start","Package":"github.com/rideshare-platform/tests/e2e"}
+{"Time":"2025-08-26T09:35:58.033940145+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestUserLifecycle"}
+{"Time":"2025-08-26T09:35:58.033976872+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestUserLifecycle","Output":"=== RUN   TestUserLifecycle\n"}
+{"Time":"2025-08-26T09:36:28.066126834+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestUserLifecycle","Output":"    api_gateway_e2e_test.go:20: Service at http://localhost:8080 did not become ready within 30s\n"}
+{"Time":"2025-08-26T09:36:28.066304185+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestUserLifecycle","Output":"--- FAIL: TestUserLifecycle (30.03s)\n"}
+{"Time":"2025-08-26T09:36:28.066353534+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestUserLifecycle","Elapsed":30.03}
+{"Time":"2025-08-26T09:36:28.066417528+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestTripLifecycle"}
+{"Time":"2025-08-26T09:36:28.066442778+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestTripLifecycle","Output":"=== RUN   TestTripLifecycle\n"}
+{"Time":"2025-08-26T09:36:58.098675465+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestTripLifecycle","Output":"    api_gateway_e2e_test.go:38: Service at http://localhost:8080 did not become ready within 30s\n"}
+{"Time":"2025-08-26T09:36:58.098722741+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestTripLifecycle","Output":"--- FAIL: TestTripLifecycle (30.03s)\n"}
+{"Time":"2025-08-26T09:36:58.098728378+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestTripLifecycle","Elapsed":30.03}
+{"Time":"2025-08-26T09:36:58.098733439+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPricingEstimate"}
+{"Time":"2025-08-26T09:36:58.098736374+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPricingEstimate","Output":"=== RUN   TestPricingEstimate\n"}
+{"Time":"2025-08-26T09:37:28.132350462+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPricingEstimate","Output":"    api_gateway_e2e_test.go:57: Service at http://localhost:8080 did not become ready within 30s\n"}
+{"Time":"2025-08-26T09:37:28.132534837+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPricingEstimate","Output":"--- FAIL: TestPricingEstimate (30.03s)\n"}
+{"Time":"2025-08-26T09:37:28.132581644+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPricingEstimate","Elapsed":30.03}
+{"Time":"2025-08-26T09:37:28.132609167+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestDriverMatching"}
+{"Time":"2025-08-26T09:37:28.132628831+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestDriverMatching","Output":"=== RUN   TestDriverMatching\n"}
+{"Time":"2025-08-26T09:37:58.167272358+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestDriverMatching","Output":"    api_gateway_e2e_test.go:90: Service at http://localhost:8080 did not become ready within 30s\n"}
+{"Time":"2025-08-26T09:37:58.167423159+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestDriverMatching","Output":"--- FAIL: TestDriverMatching (30.03s)\n"}
+{"Time":"2025-08-26T09:37:58.167488699+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestDriverMatching","Elapsed":30.03}
+{"Time":"2025-08-26T09:37:58.16751932+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPaymentProcessing"}
+{"Time":"2025-08-26T09:37:58.168269798+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPaymentProcessing","Output":"=== RUN   TestPaymentProcessing\n"}
+{"Time":"2025-08-26T09:38:28.198580433+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPaymentProcessing","Output":"    api_gateway_e2e_test.go:106: Service at http://localhost:8080 did not become ready within 30s\n"}
+{"Time":"2025-08-26T09:38:28.198718425+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPaymentProcessing","Output":"--- FAIL: TestPaymentProcessing (30.03s)\n"}
+{"Time":"2025-08-26T09:38:28.198749681+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestPaymentProcessing","Elapsed":30.03}
+{"Time":"2025-08-26T09:38:28.198774129+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestWebSocketConnection"}
+{"Time":"2025-08-26T09:38:28.19879886+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestWebSocketConnection","Output":"=== RUN   TestWebSocketConnection\n"}
+{"Time":"2025-08-26T09:38:28.198815062+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestWebSocketConnection","Output":"    api_gateway_e2e_test.go:120: WebSocket E2E test requires additional setup\n"}
+{"Time":"2025-08-26T09:38:28.19885415+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestWebSocketConnection","Output":"--- SKIP: TestWebSocketConnection (0.00s)\n"}
+{"Time":"2025-08-26T09:38:28.198875223+03:00","Action":"skip","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestWebSocketConnection","Elapsed":0}
+{"Time":"2025-08-26T09:38:28.198898284+03:00","Action":"run","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestCORSHeaders"}
+{"Time":"2025-08-26T09:38:28.198921297+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestCORSHeaders","Output":"=== RUN   TestCORSHeaders\n"}
+{"Time":"2025-08-26T09:38:28.200042404+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestCORSHeaders","Output":"    api_gateway_e2e_test.go:137: Failed to send OPTIONS request: Options \"http://localhost:8080/api/v1/users/123\": dial tcp 127.0.0.1:8080: connect: connection refused\n"}
+{"Time":"2025-08-26T09:38:28.200223173+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestCORSHeaders","Output":"--- FAIL: TestCORSHeaders (0.00s)\n"}
+{"Time":"2025-08-26T09:38:28.200285126+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Test":"TestCORSHeaders","Elapsed":0}
+{"Time":"2025-08-26T09:38:28.200310563+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Output":"FAIL\n"}
+{"Time":"2025-08-26T09:38:28.201909893+03:00","Action":"output","Package":"github.com/rideshare-platform/tests/e2e","Output":"FAIL\tgithub.com/rideshare-platform/tests/e2e\t150.170s\n"}
+{"Time":"2025-08-26T09:38:28.201969173+03:00","Action":"fail","Package":"github.com/rideshare-platform/tests/e2e","Elapsed":150.17}
