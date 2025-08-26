@@ -73,5 +73,5 @@ if [ $failed -eq 0 ]; then
 else
     echo -e "\n${YELLOW}⚠ Some components need attention${NC}"
     echo -e "${BLUE}ℹ This is expected for a comprehensive platform${NC}"
-    exit 0
+    exit 1
 fi

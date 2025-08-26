@@ -1,11 +1,39 @@
+
 #!/bin/bash
 # Start all required services for integration tests
+
+# Set PROJECT_ROOT to the parent directory of this script
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "Starting test dependencies with docker-compose-test.yml..."
 docker compose -f docker-compose-test.yml up -d
 
-# Note: Skipping application services for now - they need proper environment setup
-# TODO: Add application service startup once Docker builds are working
+
+# Start application services needed for integration tests
+echo "Starting application services for integration tests..."
+SERVICES=("api-gateway" "user-service" "vehicle-service" "geo-service" "matching-service" "trip-service" "payment-service" "pricing-service")
+for svc in "${SERVICES[@]}"; do
+    echo "Building $svc..."
+    (cd "$PROJECT_ROOT/services/$svc" && go build -o $svc main.go)
+    echo "Starting $svc..."
+    (cd "$PROJECT_ROOT/services/$svc" && nohup ./$svc > "$PROJECT_ROOT/services/$svc/$svc.log" 2>&1 &)
+done
+
+# Wait for API Gateway to be healthy
+echo "Waiting for API Gateway to be healthy..."
+for i in {1..30}; do
+    if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+        echo "✅ API Gateway is healthy"
+        break
+    fi
+    echo "Waiting for API Gateway... ($i/30)"
+    sleep 1
+done
+
+if ! curl -s http://localhost:8080/health > /dev/null 2>&1; then
+    echo "❌ API Gateway failed to start"
+    exit 1
+fi
 
 # Wait for test PostgreSQL to be healthy using docker exec
 POSTGRES_URL="localhost:5433"

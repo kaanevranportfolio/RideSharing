@@ -27,26 +27,50 @@ func main() {
 	// Create HTTP router
 	router := mux.NewRouter()
 
-	// Health check endpoint
+	// Health check endpoint (always returns 200 OK)
 	router.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		health := grpcClient.HealthCheck(r.Context())
 		w.Header().Set("Content-Type", "application/json")
 
 		allHealthy := true
-		for _, healthy := range health {
+		degradedServices := []string{}
+		for service, healthy := range health {
 			if !healthy {
 				allHealthy = false
-				break
+				degradedServices = append(degradedServices, service)
 			}
 		}
 
-		if allHealthy {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"status": "healthy", "services": "all connected"}`))
-		} else {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte(`{"status": "degraded", "message": "some services unavailable"}`))
+		if !allHealthy {
+			log.Printf("[HEALTH] Degraded: %v not healthy", degradedServices)
 		}
+
+		// Compose JSON response with per-service health
+		response := `{"status": "running", "degraded": `
+		if allHealthy {
+			response += "false"
+		} else {
+			response += "true"
+		}
+		response += `, "services": {`
+		first := true
+		for service, healthy := range health {
+			if !first {
+				response += ","
+			}
+			response += `"` + service + `": "` + func() string {
+				if healthy {
+					return "healthy"
+				} else {
+					return "degraded"
+				}
+			}() + `"`
+			first = false
+		}
+		response += `}}`
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(response))
 	}).Methods("GET")
 
 	// Service status endpoint

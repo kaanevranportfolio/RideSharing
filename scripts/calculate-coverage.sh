@@ -7,18 +7,18 @@ set -euo pipefail
 
 PROJECT_ROOT="/home/kaan/Projects/rideshare-platform"
 COVERAGE_DIR="${PROJECT_ROOT}/coverage-reports"
+REPORTS_DIR="${PROJECT_ROOT}/test-reports"
+
+source "${PROJECT_ROOT}/scripts/test-helpers.sh"
 
 # Function to calculate actual coverage percentage from coverage files
 calculate_actual_coverage() {
     local service_name="$1"
     local coverage_file="${COVERAGE_DIR}/${service_name}_coverage.out"
-    
     if [ ! -f "$coverage_file" ]; then
         echo "0.0"
         return
     fi
-    
-    # Use go tool cover to get actual percentage
     if command -v go >/dev/null 2>&1; then
         local coverage=$(go tool cover -func="$coverage_file" 2>/dev/null | tail -1 | awk '{print $3}' | sed 's/%//' || echo "0.0")
         echo "$coverage"
@@ -27,28 +27,21 @@ calculate_actual_coverage() {
     fi
 }
 
-# Function to run tests with coverage for a service
+# Function to run tests with coverage for a service (uses shared helper)
 run_service_tests_with_coverage() {
     local service_path="$1"
     local service_name="$2"
-    
     echo "Running tests with coverage for $service_name..."
-    
     if [ -d "$service_path" ]; then
         cd "$service_path"
-        
-        # Run tests with coverage
-        go test -coverprofile="${COVERAGE_DIR}/${service_name}_coverage.out" ./... -v 2>&1 | tee "${COVERAGE_DIR}/${service_name}_test.log"
-        
-        # Generate HTML coverage report
+        run_go_tests "./..." "30s" "${COVERAGE_DIR}/${service_name}_coverage.out" | tee "${COVERAGE_DIR}/${service_name}_test.log"
         if [ -f "${COVERAGE_DIR}/${service_name}_coverage.out" ]; then
             go tool cover -html="${COVERAGE_DIR}/${service_name}_coverage.out" -o "${COVERAGE_DIR}/${service_name}_coverage.html"
             go tool cover -func="${COVERAGE_DIR}/${service_name}_coverage.out" > "${COVERAGE_DIR}/${service_name}_functions.txt"
         fi
-        
         cd "$PROJECT_ROOT"
     else
-        echo "Service directory not found: $service_path"
+        print_result "FAIL" "Service directory not found: $service_path"
     fi
 }
 

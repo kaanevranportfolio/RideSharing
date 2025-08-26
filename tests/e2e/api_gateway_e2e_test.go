@@ -495,3 +495,9 @@ func TestCORSHeaders(t *testing.T) {
 		t.Errorf("Expected Access-Control-Allow-Methods to contain GET, got %s", methods)
 	}
 }
+
+// Example usage in a test:
+func TestGenerateIDUsage(t *testing.T) {
+	id := testutils.GenerateTestID()
+	t.Logf("Generated test ID: %s", id)
+}

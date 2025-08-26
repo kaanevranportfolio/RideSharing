@@ -19,16 +19,18 @@ func TestPaymentServiceE2E(t *testing.T) {
 
 	t.Run("payment_processing_flow", func(t *testing.T) {
 		// Create trip for payment
-		rider := createTestRider(t, config.APIGatewayURL)
-		trip := requestTrip(t, config.APIGatewayURL, rider.ID, 40.7128, -74.0060, 40.7589, -73.9851)
+		rider := testutils.CreateTestRider(t, config.APIGatewayURL)
+		trip := testutils.RequestTrip(t, config.APIGatewayURL, rider.ID, 40.7128, -74.0060, 40.7589, -73.9851)
 
 		// Test payment creation
-		payment := TestPayment{
+		payment := testutils.TestPayment{
+			ID:     testutils.GenerateTestID(),
+			Amount: 10.0,
+			UserID: rider.ID,
 			TripID: trip.ID,
-			Amount: 1500, // $15.00
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/payments", payment)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/payments", payment)
 		defer resp.Body.Close()
 
 		validStatuses := []int{201, 503}
@@ -37,12 +39,12 @@ func TestPaymentServiceE2E(t *testing.T) {
 
 	t.Run("payment_validation", func(t *testing.T) {
 		// Test with invalid payment data
-		invalidPayment := TestPayment{
+		invalidPayment := testutils.TestPayment{
 			TripID: "invalid-trip-id",
 			Amount: -100, // Negative amount
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/payments", invalidPayment)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/payments", invalidPayment)
 		defer resp.Body.Close()
 
 		validStatuses := []int{400, 422, 503}
@@ -56,7 +58,7 @@ func TestGeoServiceE2E(t *testing.T) {
 	testutils.WaitForService(t, config.APIGatewayURL, config.TestTimeout)
 
 	t.Run("location_tracking", func(t *testing.T) {
-		driver := createTestDriver(t, config.APIGatewayURL)
+		driver := testutils.CreateTestDriver(t, config.APIGatewayURL)
 
 		// Set driver location
 		locationData := map[string]interface{}{
@@ -65,7 +67,7 @@ func TestGeoServiceE2E(t *testing.T) {
 			"longitude": -74.0060,
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/geo/driver-location", locationData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/geo/driver-location", locationData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 201, 503}
@@ -79,7 +81,7 @@ func TestGeoServiceE2E(t *testing.T) {
 			"radius":    5000, // 5km
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/geo/nearby-drivers", searchData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/geo/nearby-drivers", searchData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 503}
@@ -93,10 +95,10 @@ func TestVehicleServiceE2E(t *testing.T) {
 	testutils.WaitForService(t, config.APIGatewayURL, config.TestTimeout)
 
 	t.Run("vehicle_lifecycle", func(t *testing.T) {
-		driver := createTestDriver(t, config.APIGatewayURL)
+		driver := testutils.CreateTestDriver(t, config.APIGatewayURL)
 
 		// Register vehicle
-		vehicle := registerDriverVehicle(t, config.APIGatewayURL, driver.ID)
+		vehicle := testutils.RegisterDriverVehicle(t, config.APIGatewayURL, driver.ID)
 		require.NotEmpty(t, vehicle.ID, "Vehicle should be registered")
 
 		// Update vehicle status
@@ -104,7 +106,7 @@ func TestVehicleServiceE2E(t *testing.T) {
 			"status": "available",
 		}
 
-		resp := makeAPIRequest(t, "PUT", config.APIGatewayURL+"/api/v1/vehicles/"+vehicle.ID, updateData)
+		resp := testutils.MakeAPIRequest(t, "PUT", config.APIGatewayURL+"/api/v1/vehicles/"+vehicle.ID, updateData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 503}
@@ -133,7 +135,7 @@ func TestPricingServiceE2E(t *testing.T) {
 			"vehicle_type": "sedan",
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/pricing/estimate", estimateData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/pricing/estimate", estimateData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 503}
@@ -148,7 +150,7 @@ func TestPricingServiceE2E(t *testing.T) {
 			"current_time": time.Now().Format(time.RFC3339),
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/pricing/surge", surgeData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/pricing/surge", surgeData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 503}
@@ -162,11 +164,11 @@ func TestMatchingServiceE2E(t *testing.T) {
 	testutils.WaitForService(t, config.APIGatewayURL, config.TestTimeout)
 
 	t.Run("driver_matching_flow", func(t *testing.T) {
-		rider := createTestRider(t, config.APIGatewayURL)
-		driver := createTestDriver(t, config.APIGatewayURL)
+		rider := testutils.CreateTestRider(t, config.APIGatewayURL)
+		driver := testutils.CreateTestDriver(t, config.APIGatewayURL)
 
 		// Set driver as available
-		setDriverLocation(t, config.APIGatewayURL, driver.ID, 40.7128, -74.0060)
+		testutils.SetDriverLocation(t, config.APIGatewayURL, driver.ID, 40.7128, -74.0060)
 
 		// Request match
 		matchData := map[string]interface{}{
@@ -176,7 +178,7 @@ func TestMatchingServiceE2E(t *testing.T) {
 			"vehicle_type": "sedan",
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/matching/find", matchData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/matching/find", matchData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 503}
@@ -190,7 +192,7 @@ func TestMatchingServiceE2E(t *testing.T) {
 			"reason":   "user_cancelled",
 		}
 
-		resp := makeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/matching/cancel", cancellationData)
+		resp := testutils.MakeAPIRequest(t, "POST", config.APIGatewayURL+"/api/v1/matching/cancel", cancellationData)
 		defer resp.Body.Close()
 
 		validStatuses := []int{200, 404, 503}
@@ -233,4 +235,10 @@ func TestErrorRecoveryE2E(t *testing.T) {
 		validStatuses := []int{400, 422, 503}
 		assert.Contains(t, validStatuses, resp.StatusCode, "Invalid JSON should be rejected or unavailable")
 	})
+}
+
+// Example usage in a test:
+func TestGenerateIDUsage(t *testing.T) {
+	id := testutils.GenerateTestID()
+	t.Logf("Generated test ID: %s", id)
 }

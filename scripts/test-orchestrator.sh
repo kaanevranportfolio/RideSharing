@@ -269,6 +269,23 @@ print_summary_table() {
     echo ""
 }
 
+cleanup_ports_and_processes() {
+    print_result "INFO" "Cleaning up ports and processes before starting tests..."
+    # List of ports to clear
+    local ports=(8080 9083 9084 9085 9086 9087 9088 9089 9090)
+    for port in "${ports[@]}"; do
+        local pid=$(lsof -ti tcp:${port})
+        if [ -n "$pid" ]; then
+            print_result "INFO" "Killing process on port $port (PID: $pid)"
+            kill -9 $pid
+        fi
+    done
+    # Remove old docker containers (optional, uncomment if needed)
+    # docker compose -f docker-compose-test.yml down --remove-orphans
+    # Remove old test reports, logs, etc. (optional)
+    # rm -rf "${REPORTS_DIR}"/*
+}
+
 setup_test_environment() {
     print_section "Environment Setup"
     
@@ -301,30 +318,57 @@ setup_test_environment() {
 }
 
 setup_real_integration_environment() {
+    cleanup_ports_and_processes
     print_result "INFO" "Setting up real integration test environment..."
-    
+
     # Ensure test databases are running
     if ! docker compose -f docker-compose-test.yml ps postgres-test | grep -q "Up"; then
         print_result "INFO" "Starting test database infrastructure..."
         docker compose -f docker-compose-test.yml up -d postgres-test mongodb-test redis-test
         sleep 3
     fi
-    
+
     # Wait for database to be ready
     local max_attempts=10
     local attempt=1
     while [ $attempt -le $max_attempts ]; do
         if docker compose -f docker-compose-test.yml exec -T postgres-test pg_isready -U postgres > /dev/null 2>&1; then
             print_result "PASS" "Test database is ready"
-            return 0
+            break
         fi
         echo "    Waiting for test database... ($attempt/$max_attempts)"
         sleep 2
         ((attempt++))
     done
-    
-    print_result "FAIL" "Test database failed to start within ${max_attempts}s"
-    return 1
+    if [ $attempt -gt $max_attempts ]; then
+        print_result "FAIL" "Test database failed to start within ${max_attempts}s"
+        return 1
+    fi
+
+    # Wait for all core services to be healthy
+    local services=("api-gateway" "user-service" "vehicle-service" "geo-service" "matching-service" "pricing-service" "trip-service" "payment-service")
+    local service_ports=(8080 9084 9085 9087 9088 9089 9086 9090)
+    local service_health_paths=("/health" "/health" "/health" "/health" "/health" "/health" "/health" "/health")
+    for i in "${!services[@]}"; do
+        local svc="${services[$i]}"
+        local port="${service_ports[$i]}"
+        local health_path="${service_health_paths[$i]}"
+        local max_attempts=15
+        local attempt=1
+        while [ $attempt -le $max_attempts ]; do
+            if curl -s "http://localhost:${port}${health_path}" | grep -q '"status":"ok"'; then
+                print_result "PASS" "${svc} is healthy on port ${port}"
+                break
+            fi
+            echo "    Waiting for ${svc} to be healthy... ($attempt/$max_attempts)"
+            sleep 2
+            ((attempt++))
+        done
+        if [ $attempt -gt $max_attempts ]; then
+            print_result "FAIL" "${svc} failed to become healthy within ${max_attempts}s"
+            return 1
+        fi
+    done
 }
 
 # =============================================================================
@@ -633,39 +677,33 @@ run_e2e_tests() {
     if [[ -d "e2e" ]]; then
         # Run all E2E test files individually for better reporting
         for test_file in e2e/*.go; do
-            if [[ -f "$test_file" && "$test_file" == *"_test.go" ]]; then
+            if [[ -f "$test_file" && "$test_file" == *_test.go ]]; then
                 echo "    ▶️  Running $(basename "$test_file")..."
                 local test_output="${REPORTS_DIR}/e2e/$(basename "$test_file" .go).log"
-                
-                if run_test_command "go test -tags=e2e ./$test_file -v -timeout=300s"; then
+                if run_test_command "go test -tags=e2e ./$test_file -v -timeout=60s"; then
                     ((E2E_PASS++))
                     ((e2e_count++))
                     echo "        ✅ $(basename "$test_file") passed"
                 else
-                    # Some E2E tests may fail if services aren't running - this is acceptable
-                    echo "        ⚠️  $(basename "$test_file") - services may not be available"
-                    ((E2E_PASS++)) # Count as pass since service unavailability is expected
+                    ((E2E_FAIL++))
                     ((e2e_count++))
+                    echo "        ❌ $(basename "$test_file") failed"
                 fi
             fi
         done
-        
-        # Try running the entire E2E suite
+        # Try running the entire E2E suite if no individual files worked
         if [[ $e2e_count -eq 0 ]]; then
             echo "    ▶️  Running complete E2E test suite..."
-            if run_test_command "go test -tags=e2e ./e2e/... -v -timeout=600s"; then
+            if run_test_command "go test -tags=e2e ./e2e/... -v -timeout=60s"; then
                 ((E2E_PASS++))
                 echo "        ✅ E2E test suite passed"
             else
-                echo "        ⚠️  E2E test suite - services may not be available (expected)"
-                ((E2E_PASS++)) # Count as pass since this is expected behavior
+                ((E2E_FAIL++))
+                echo "        ❌ E2E test suite failed"
             fi
         fi
     else
-        echo "    ⚠️  No E2E test directory found, creating comprehensive scenarios..."
-        # Create some mock E2E scenarios to demonstrate coverage
-        ((E2E_PASS++))
-        echo "        ✅ Mock E2E scenarios completed"
+        echo "    ⚠️  No E2E test directory found. Skipping E2E tests."
     fi
     
     local end_time=$(date +%s)
