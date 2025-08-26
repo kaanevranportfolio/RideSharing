@@ -13,6 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/rideshare-platform/services/geo-service/internal/config"
@@ -89,24 +91,22 @@ func main() {
 	// Register routes
 	geoHandler.RegisterRoutes(router)
 
-	// Start gRPC server
+	// Start gRPC server with health
 	grpcSrv := grpc.NewServer()
 	geoGrpcServer := grpcServer.NewServer(*geoService, *appLogger)
 	geopb.RegisterGeospatialServiceServer(grpcSrv, geoGrpcServer)
-
-	// Enable gRPC reflection for debugging
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcSrv, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 	reflection.Register(grpcSrv)
-
 	go func() {
 		lis, err := net.Listen("tcp", ":"+strconv.Itoa(cfg.GRPCPort))
 		if err != nil {
 			appLogger.WithError(err).Fatal("Failed to listen on gRPC port")
 		}
-
 		appLogger.WithFields(logger.Fields{
 			"port": cfg.GRPCPort,
 		}).Info("Starting gRPC server")
-
 		if err := grpcSrv.Serve(lis); err != nil {
 			appLogger.WithError(err).Fatal("Failed to start gRPC server")
 		}

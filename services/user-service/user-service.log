@@ -1,0 +1,2 @@
+2025/08/26 18:15:35 Starting User Service on port 8081
+2025/08/26 18:15:35 Failed to ping database: dial tcp 127.0.0.1:5432: connect: connection refused

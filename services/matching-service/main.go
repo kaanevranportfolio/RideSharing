@@ -9,10 +9,15 @@ import (
 	"syscall"
 	"time"
 
+	"net"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/matching-service/internal/config"
 	"github.com/rideshare-platform/services/matching-service/internal/handler"
 	"github.com/rideshare-platform/services/matching-service/internal/service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -47,11 +52,27 @@ func main() {
 		Handler: router,
 	}
 
-	// Start server in goroutine
+	// Start HTTP server in goroutine
 	go func() {
 		log.Printf("HTTP server listening on port %s", cfg.HTTPPort)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start HTTP server: %v", err)
+		}
+	}()
+
+	// Start gRPC health server
+	grpcServer := grpc.NewServer()
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	go func() {
+		lis, err := net.Listen("tcp", ":8054")
+		if err != nil {
+			log.Fatalf("Failed to listen on gRPC port: %v", err)
+		}
+		log.Printf("gRPC server listening on port %s", "8054")
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("Failed to start gRPC server: %v", err)
 		}
 	}()
 

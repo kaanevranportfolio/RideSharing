@@ -9,11 +9,16 @@ import (
 	"syscall"
 	"time"
 
+	"net"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rideshare-platform/services/payment-service/internal/repository"
 	"github.com/rideshare-platform/services/payment-service/internal/service"
 	"github.com/rideshare-platform/services/payment-service/internal/types"
 	"github.com/rideshare-platform/shared/logger"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
@@ -204,11 +209,27 @@ func main() {
 		Handler: router,
 	}
 
-	// Start server in a goroutine
+	// Start HTTP server in a goroutine
 	go func() {
 		log.Printf("Payment service starting on port :8005")
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	// Start gRPC health server
+	grpcServer := grpc.NewServer()
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	go func() {
+		lis, err := net.Listen("tcp", ":8055")
+		if err != nil {
+			log.Fatalf("Failed to listen on gRPC port: %v", err)
+		}
+		log.Printf("gRPC server listening on port %s", "8055")
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("Failed to start gRPC server: %v", err)
 		}
 	}()
 

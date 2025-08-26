@@ -81,7 +81,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50051"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -113,7 +113,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50052"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -145,7 +145,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8053/health"]
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50053"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -175,7 +175,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:8054"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -264,7 +264,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:8055"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -11,6 +11,8 @@ import (
 	"syscall"
 	"time"
 
+	"net"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -19,10 +21,28 @@ import (
 	"github.com/rideshare-platform/services/user-service/internal/metrics"
 	"github.com/rideshare-platform/services/user-service/internal/repository"
 	"github.com/rideshare-platform/services/user-service/internal/service"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 )
 
 func main() {
 	// Load configuration
+	// Start gRPC health server
+	grpcServer := grpc.NewServer()
+	healthServer := health.NewServer()
+	grpc_health_v1.RegisterHealthServer(grpcServer, healthServer)
+	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
+	go func() {
+		lis, err := net.Listen("tcp", ":50051")
+		if err != nil {
+			log.Fatalf("Failed to listen on gRPC port: %v", err)
+		}
+		log.Printf("gRPC server listening on port %s", "50051")
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("Failed to start gRPC server: %v", err)
+		}
+	}()
 	cfg, err := config.Load()
 	if err != nil {
 		log.Fatalf("Failed to load configuration: %v", err)

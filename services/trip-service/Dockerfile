@@ -23,12 +23,12 @@ RUN go build -o trip-service main.go
 FROM alpine:latest
 WORKDIR /app
 ARG TARGETARCH
-# Install curl and download correct grpc-health-probe for Linux x86_64 or arm64
-RUN apk add --no-cache curl \
+# Install curl, jq and download latest grpc-health-probe for Linux x86_64 or arm64
+RUN apk add --no-cache curl jq \
 	&& if [ "$TARGETARCH" = "amd64" ]; then \
-		PROBE_URL="https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.40/grpc_health_probe-linux-amd64"; \
+		PROBE_URL=$(curl -s https://api.github.com/repos/grpc-ecosystem/grpc-health-probe/releases/latest | jq -r '.assets[] | select(.name | test("linux-amd64$")) | .browser_download_url'); \
 	elif [ "$TARGETARCH" = "arm64" ]; then \
-		PROBE_URL="https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.40/grpc_health_probe-linux-arm64"; \
+		PROBE_URL=$(curl -s https://api.github.com/repos/grpc-ecosystem/grpc-health-probe/releases/latest | jq -r '.assets[] | select(.name | test("linux-arm64$")) | .browser_download_url'); \
 	else \
 		echo "Unsupported architecture: $TARGETARCH"; exit 1; \
 	fi; \

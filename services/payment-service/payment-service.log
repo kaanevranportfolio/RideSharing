@@ -1,0 +1,15 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /health                   --> main.main.func1 (3 handlers)
+[GIN-debug] POST   /api/v1/payments          --> main.main.func2 (3 handlers)
+[GIN-debug] POST   /api/v1/refunds           --> main.main.func3 (3 handlers)
+[GIN-debug] POST   /api/v1/payment-methods   --> main.main.func4 (3 handlers)
+[GIN-debug] GET    /api/v1/users/:user_id/payment-methods --> main.main.func5 (3 handlers)
+[GIN-debug] GET    /api/v1/payments/:payment_id --> main.main.func6 (3 handlers)
+[GIN-debug] GET    /api/v1/stats             --> main.main.func7 (3 handlers)
+2025/08/26 18:15:35 Payment service starting on port :8005
+2025/08/26 18:15:35 Failed to start server: listen tcp :8005: bind: address already in use
