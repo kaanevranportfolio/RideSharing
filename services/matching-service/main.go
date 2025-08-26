@@ -34,6 +34,10 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.Use(gin.Recovery())
+	// Add health endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "healthy", "service": "matching-service"})
+	})
 
 	// Register routes
 	matchingHandler.RegisterRoutes(router)

@@ -14,6 +14,8 @@ RUN go build -o api-gateway main.go
 
 FROM alpine:latest
 WORKDIR /app
+# Install curl for healthcheck support
+RUN apk add --no-cache curl
 COPY --from=builder /app/services/api-gateway/api-gateway .
 EXPOSE 8080
 CMD ["./api-gateway"]

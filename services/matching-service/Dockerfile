@@ -22,6 +22,8 @@ RUN go build -o matching-service main.go
 
 FROM alpine:latest
 WORKDIR /app
+# Install curl for healthcheck support
+RUN apk add --no-cache curl
 COPY --from=builder /app/services/matching-service/matching-service .
 EXPOSE 8084
 CMD ["./matching-service"]

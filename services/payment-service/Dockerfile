@@ -22,6 +22,8 @@ RUN go build -o payment-service main.go
 
 FROM alpine:latest
 WORKDIR /app
+# Install curl for healthcheck support
+RUN apk add --no-cache curl
 COPY --from=builder /app/services/payment-service/payment-service .
-EXPOSE 8086
+EXPOSE 9087
 CMD ["./payment-service"]
