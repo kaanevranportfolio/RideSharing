@@ -1,22 +1,16 @@
-# github.com/rideshare-platform/tests/unit/user_test [github.com/rideshare-platform/tests/unit/user.test]
-unit/user/user_business_logic_test.go:232:3: unknown field Name in struct literal of type models.User
-unit/user/user_business_logic_test.go:234:3: unknown field PhoneNumber in struct literal of type models.User
-unit/user/user_business_logic_test.go:247:13: u.Name undefined (type *models.User has no field or method Name)
-unit/user/user_business_logic_test.go:247:41: u.PhoneNumber undefined (type *models.User has no field or method PhoneNumber)
-unit/user/user_business_logic_test.go:325:4: unknown field ConsecutiveCancellations in struct literal of type models.User
-unit/user/user_business_logic_test.go:326:4: unknown field LowRatingCount in struct literal of type models.User
-unit/user/user_business_logic_test.go:334:4: unknown field ConsecutiveCancellations in struct literal of type models.User
-unit/user/user_business_logic_test.go:335:4: unknown field LowRatingCount in struct literal of type models.User
-unit/user/user_business_logic_test.go:346:10: user.Name undefined (type *models.User has no field or method Name)
-unit/user/user_business_logic_test.go:354:37: user.PhoneNumber undefined (type *models.User has no field or method PhoneNumber)
-unit/user/user_business_logic_test.go:354:37: too many errors
-FAIL	github.com/rideshare-platform/tests/unit/geo [build failed]
-FAIL	github.com/rideshare-platform/tests/unit/user [build failed]
+PASS
+ok  	github.com/rideshare-platform/tests/unit/geo	0.003s
+goos: linux
+goarch: amd64
+pkg: github.com/rideshare-platform/tests/unit/user
+cpu: 12th Gen Intel(R) Core(TM) i3-1215U
+BenchmarkUserService_CreateUser-8   	   87741	     11905 ns/op	    5675 B/op	      66 allocs/op
+PASS
+ok  	github.com/rideshare-platform/tests/unit/user	1.196s
 goos: linux
 goarch: amd64
 pkg: github.com/rideshare-platform/tests/unit/vehicle
 cpu: 12th Gen Intel(R) Core(TM) i3-1215U
-BenchmarkVehicleService_RegisterVehicle-8   	   95492	     12600 ns/op	    5856 B/op	      70 allocs/op
+BenchmarkVehicleService_RegisterVehicle-8   	   91137	     12576 ns/op	    5902 B/op	      70 allocs/op
 PASS
-ok  	github.com/rideshare-platform/tests/unit/vehicle	2.368s
-FAIL
+ok  	github.com/rideshare-platform/tests/unit/vehicle	2.304s

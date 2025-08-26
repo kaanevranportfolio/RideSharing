@@ -440,3 +440,181 @@ func (s *AdvancedPricingService) GetPricingAnalytics(ctx context.Context) (*Pric
 		},
 	}, nil
 }
+
+// CalculateFare calculates fare for a trip request
+func (s *AdvancedPricingService) CalculateFare(ctx context.Context, request *PricingRequest) (*PricingResponse, error) {
+	return s.CalculatePrice(ctx, request)
+}
+
+// CalculateSurge calculates surge multiplier based on area and demand level
+func (s *AdvancedPricingService) CalculateSurge(area, demandLevel string) float64 {
+	baseMultiplier := 1.0
+
+	// Area-based multiplier
+	if areaMultiplier, exists := s.areaMultipliers[area]; exists {
+		baseMultiplier = areaMultiplier
+	}
+
+	// Demand-based surge
+	switch demandLevel {
+	case "extreme":
+		return baseMultiplier * (2.5 + float64(time.Now().Unix()%3)*0.5) // 2.5-4.0x
+	case "high":
+		return baseMultiplier * (1.8 + float64(time.Now().Unix()%3)*0.4) // 1.8-3.0x
+	case "medium":
+		return baseMultiplier * (1.3 + float64(time.Now().Unix()%2)*0.2) // 1.3-1.7x
+	default:
+		return baseMultiplier * (1.0 + float64(time.Now().Unix()%2)*0.1) // 1.0-1.2x
+	}
+}
+
+// ApplyDiscounts applies discounts to a fare
+func (s *AdvancedPricingService) ApplyDiscounts(riderID string, baseFare float64) ([]*DiscountInfo, float64) {
+	var discounts []*DiscountInfo
+	finalFare := baseFare
+
+	// Mock discount logic based on rider ID patterns
+	if riderID == "new_rider_001" || len(riderID) > 10 && riderID[:3] == "new" {
+		discount := baseFare * 0.25 // 25% first ride discount
+		discounts = append(discounts, &DiscountInfo{
+			Type:        "first_ride",
+			Amount:      discount,
+			Description: "First ride discount (25% off)",
+		})
+		finalFare -= discount
+	}
+
+	if riderID == "loyalty_rider_001" || len(riderID) > 10 && riderID[:7] == "loyalty" {
+		discount := baseFare * 0.15 // 15% loyalty discount
+		discounts = append(discounts, &DiscountInfo{
+			Type:        "loyalty",
+			Amount:      discount,
+			Description: "Loyalty discount (15% off)",
+		})
+		finalFare -= discount
+	}
+
+	return discounts, math.Max(finalFare, 0)
+}
+
+// UpdateSurgeInfo updates surge information for an area
+func (s *AdvancedPricingService) UpdateSurgeInfo(ctx context.Context, surgeInfo *SurgeInfo) error {
+	if s.redis == nil {
+		return nil // Skip if Redis unavailable
+	}
+
+	data, err := json.Marshal(surgeInfo)
+	if err != nil {
+		return err
+	}
+
+	key := fmt.Sprintf("surge_info:%s", surgeInfo.Area)
+	return s.redis.SetEx(ctx, key, data, time.Hour).Err()
+}
+
+// GetSurgeInfo retrieves surge information for an area
+func (s *AdvancedPricingService) GetSurgeInfo(ctx context.Context, area string) (*SurgeInfo, error) {
+	if s.redis == nil {
+		// Return default surge info if Redis unavailable
+		return &SurgeInfo{
+			Area:             area,
+			Multiplier:       1.0,
+			DemandLevel:      "low",
+			ActiveRequests:   0,
+			AvailableDrivers: 10,
+			UpdatedAt:        time.Now(),
+			ExpiresAt:        time.Now().Add(time.Hour),
+		}, nil
+	}
+
+	key := fmt.Sprintf("surge_info:%s", area)
+	val, err := s.redis.Get(ctx, key).Result()
+	if err == redis.Nil {
+		// Return default if not found
+		return &SurgeInfo{
+			Area:             area,
+			Multiplier:       1.0,
+			DemandLevel:      "low",
+			ActiveRequests:   0,
+			AvailableDrivers: 10,
+			UpdatedAt:        time.Now(),
+			ExpiresAt:        time.Now().Add(time.Hour),
+		}, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	var surgeInfo SurgeInfo
+	if err := json.Unmarshal([]byte(val), &surgeInfo); err != nil {
+		return nil, err
+	}
+
+	return &surgeInfo, nil
+}
+
+// ValidateRequest validates a pricing request
+func (s *AdvancedPricingService) ValidateRequest(request *PricingRequest) error {
+	if request.TripID == "" {
+		return fmt.Errorf("trip ID is required")
+	}
+	if request.Distance < 0 {
+		return fmt.Errorf("distance cannot be negative")
+	}
+	if request.EstimatedTime < 0 {
+		return fmt.Errorf("estimated time cannot be negative")
+	}
+	if request.RiderID == "" {
+		return fmt.Errorf("rider ID is required")
+	}
+
+	// Validate vehicle type
+	if _, exists := s.vehicleRates[request.VehicleType]; !exists {
+		return fmt.Errorf("invalid vehicle type: %s", request.VehicleType)
+	}
+
+	return nil
+}
+
+// EstimateQuote provides a quick fare estimate
+func (s *AdvancedPricingService) EstimateQuote(ctx context.Context, request *PricingRequest) (*PricingResponse, error) {
+	if err := s.ValidateRequest(request); err != nil {
+		return nil, err
+	}
+
+	return s.CalculatePrice(ctx, request)
+}
+
+// GetVehicleRates returns pricing rates for a vehicle type
+func (s *AdvancedPricingService) GetVehicleRates(vehicleType string) *VehicleRates {
+	if rates, exists := s.vehicleRates[vehicleType]; exists {
+		return rates
+	}
+	return nil
+}
+
+// CalculatePeakHours returns current peak hours
+func (s *AdvancedPricingService) CalculatePeakHours() []int {
+	// Return typical peak hours: morning rush, lunch, evening rush
+	return []int{7, 8, 9, 12, 13, 17, 18, 19, 20}
+}
+
+// CalculateDemandLevel calculates demand level based on supply/demand ratio
+func (s *AdvancedPricingService) CalculateDemandLevel(activeRequests, availableDrivers int) string {
+	if availableDrivers == 0 {
+		return "extreme"
+	}
+
+	ratio := float64(activeRequests) / float64(availableDrivers)
+
+	switch {
+	case ratio >= 10:
+		return "extreme"
+	case ratio >= 5:
+		return "high"
+	case ratio >= 2:
+		return "medium"
+	default:
+		return "low"
+	}
+}

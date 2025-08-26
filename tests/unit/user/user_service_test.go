@@ -39,6 +39,11 @@ func (m *MockUserRepository) GetUserByEmail(ctx context.Context, email string) (
 	return args.Get(0).(*models.User), args.Error(1)
 }
 
+func (m *MockUserRepository) UpdateUser(ctx context.Context, user *models.User) error {
+	args := m.Called(ctx, user)
+	return args.Error(0)
+}
+
 // UserService interface for testing
 type UserService interface {
 	CreateUser(ctx context.Context, user *models.User) (*models.User, error)

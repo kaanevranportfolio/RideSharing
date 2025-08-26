@@ -497,3 +497,50 @@ func (s *SimpleFraudDetectionService) analyzeLocation() float64 {
 	rand.Seed(time.Now().UnixNano())
 	return rand.Float64() * 0.5 // Max 0.5 for location
 }
+
+// GetPaymentHistory returns payment history for a user
+func (s *PaymentService) GetPaymentHistory(ctx context.Context, userID string) ([]*types.Payment, error) {
+	return s.paymentRepo.GetPaymentsByUser(ctx, userID, 100, 0) // Get last 100 payments
+}
+
+// ValidatePaymentAmount validates if the payment amount is within acceptable limits
+func (s *PaymentService) ValidatePaymentAmount(amount float64, currency string) error {
+	if amount <= 0 {
+		return fmt.Errorf("payment amount must be greater than zero")
+	}
+
+	if amount > 5000.0 { // Max transaction limit
+		return fmt.Errorf("payment amount exceeds maximum limit of 5000 %s", currency)
+	}
+
+	return nil
+}
+
+// CalculateProcessingFee calculates the processing fee based on payment method and amount
+func (s *PaymentService) CalculateProcessingFee(amount float64, paymentMethod types.PaymentMethod) float64 {
+	var feePercentage float64
+
+	switch paymentMethod {
+	case types.PaymentMethodCreditCard:
+		feePercentage = 0.029 // 2.9%
+	case types.PaymentMethodDebitCard:
+		feePercentage = 0.025 // 2.5%
+	case types.PaymentMethodDigitalWallet:
+		feePercentage = 0.025 // 2.5%
+	case types.PaymentMethodBankTransfer:
+		feePercentage = 0.01 // 1%
+	case types.PaymentMethodCash:
+		feePercentage = 0.0 // No fee for cash
+	default:
+		feePercentage = 0.03 // Default 3%
+	}
+
+	fee := amount * feePercentage
+
+	// Minimum fee of $0.30
+	if fee < 0.30 && fee > 0 {
+		fee = 0.30
+	}
+
+	return fee
+}
