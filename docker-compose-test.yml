@@ -1,54 +1,289 @@
-version: '3.8'
-
+## version field removed (obsolete)
 services:
+  user-service:
+    build:
+      context: .
+      dockerfile: ./services/user-service/Dockerfile
+    container_name: rideshare-user-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - HTTP_PORT=${TEST_USER_SERVICE_HTTP_PORT-8051}
+      - DB_HOST=${TEST_DB_HOST-postgres-test}
+      - DB_PORT=${TEST_DB_PORT-5432}
+      - DB_NAME=${TEST_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_DB_USERNAME-postgres}
+      - DB_PASSWORD=${TEST_POSTGRES_PASSWORD-testpass_change_me}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "8051:8051"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./services/api-gateway/Dockerfile
+    container_name: rideshare-api-gateway-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - HTTP_PORT=${TEST_API_GATEWAY_HTTP_PORT-8080}
+      - USER_SERVICE_URL=http://user-service:8051
+      - VEHICLE_SERVICE_URL=http://vehicle-service:8052
+      - GEO_SERVICE_URL=http://geo-service:8053
+      - MATCHING_SERVICE_URL=http://matching-service:8084
+      - TRIP_SERVICE_URL=http://trip-service:8085
+      - PAYMENT_SERVICE_URL=http://payment-service:9087
+    ports:
+      - "8080:8080"
+    depends_on:
+      user-service:
+        condition: service_healthy
+      vehicle-service:
+        condition: service_healthy
+      geo-service:
+        condition: service_healthy
+      matching-service:
+        condition: service_healthy
+      trip-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   postgres-test:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: rideshare_test
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD:-testpass_change_me}
-      PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-      - ./scripts/init-postgres.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d rideshare_test"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  mongodb-test:
-    image: mongo:7.0
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: testpass123
-      MONGO_INITDB_DATABASE: rideshare_test
-    ports:
-      - "27018:27017"
-    volumes:
-      - mongodb_test_data:/data/db
-      - ./scripts/init-mongodb.js:/docker-entrypoint-initdb.d/init.js:ro
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - POSTGRES_DB=${TEST_POSTGRES_DB-rideshare_test}
+  # volumes removed; only root-level volumes block should exist
 
   redis-test:
     image: redis:7-alpine
     ports:
       - "6380:6379"
-    volumes:
-      - redis_test_data:/data
+    # volumes removed; only root-level volumes block should exist
+    depends_on:
+      postgres-test:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50051"]
+      interval: 10s
       timeout: 5s
       retries: 5
+
+  vehicle-service:
+    build:
+      context: .
+      dockerfile: ./services/vehicle-service/Dockerfile
+    container_name: rideshare-vehicle-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - GRPC_PORT=${TEST_VEHICLE_SERVICE_GRPC_PORT-50052}
+      - HTTP_PORT=${TEST_VEHICLE_SERVICE_HTTP_PORT-8052}
+      - DB_HOST=${TEST_DB_HOST-postgres-test}
+      - DB_PORT=${TEST_DB_PORT-5432}
+      - DB_NAME=${TEST_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_DB_USERNAME-postgres}
+      - DB_PASSWORD=${TEST_POSTGRES_PASSWORD-testpass_change_me}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "50052:50052"
+      - "8052:8052"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50052"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  geo-service:
+    build:
+      context: .
+      dockerfile: ./services/geo-service/Dockerfile
+    container_name: rideshare-geo-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - GRPC_PORT=${TEST_GEO_SERVICE_GRPC_PORT-50053}
+      - HTTP_PORT=${TEST_GEO_SERVICE_HTTP_PORT-8053}
+      - DB_HOST=${TEST_MONGO_HOST-mongodb-test}
+      - DB_PORT=${TEST_MONGO_PORT-27017}
+      - DB_NAME=${TEST_MONGO_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_MONGO_DB_USERNAME-admin}
+      - DB_PASSWORD=${TEST_MONGO_DB_PASSWORD-testpass123}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "50053:50053"
+      - "8053:8053"
+    depends_on:
+  # Removed undefined mongodb-test dependency
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50053"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  matching-service:
+    build:
+      context: .
+      dockerfile: ./services/matching-service/Dockerfile
+    container_name: rideshare-matching-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - HTTP_PORT=${TEST_MATCHING_SERVICE_HTTP_PORT-8084}
+      - DB_HOST=${TEST_DB_HOST-postgres-test}
+      - DB_PORT=${TEST_DB_PORT-5432}
+      - DB_NAME=${TEST_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_DB_USERNAME-postgres}
+      - DB_PASSWORD=${TEST_POSTGRES_PASSWORD-testpass_change_me}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:8054"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  trip-service:
+    build:
+      context: .
+      dockerfile: ./services/trip-service/Dockerfile
+    container_name: rideshare-trip-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - HTTP_PORT=${TEST_TRIP_SERVICE_HTTP_PORT-8085}
+      - DB_HOST=${TEST_DB_HOST-postgres-test}
+      - DB_PORT=${TEST_DB_PORT-5432}
+      - DB_NAME=${TEST_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_DB_USERNAME-postgres}
+      - DB_PASSWORD=${TEST_POSTGRES_PASSWORD-testpass_change_me}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:50053"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./services/payment-service/Dockerfile
+    container_name: rideshare-payment-service-test
+    environment:
+      - ENVIRONMENT=${TEST_ENVIRONMENT-test}
+      - LOG_LEVEL=${TEST_LOG_LEVEL-info}
+      - HTTP_PORT=${TEST_PAYMENT_SERVICE_HTTP_PORT-9087}
+      - DB_HOST=${TEST_DB_HOST-postgres-test}
+      - DB_PORT=${TEST_DB_PORT-5432}
+      - DB_NAME=${TEST_DB_NAME-rideshare_test}
+      - DB_USERNAME=${TEST_DB_USERNAME-postgres}
+      - DB_PASSWORD=${TEST_POSTGRES_PASSWORD-testpass_change_me}
+      - REDIS_HOST=${TEST_REDIS_HOST-redis-test}
+      - REDIS_PORT=${TEST_REDIS_PORT-6379}
+    ports:
+      - "9087:9087"
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "grpc-health-probe", "-addr=localhost:8055"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  unit-test-runner:
+    build:
+      context: .
+      dockerfile: test-containers/unit-test/Dockerfile
+    container_name: rideshare-unit-test-runner
+    working_dir: /app
+    volumes:
+      - .:/app
+    entrypoint:
+      - sh
+      - -c
+      - ./scripts/test-orchestrator.sh unit
+
+  test-runner:
+    image: golang:1.23-alpine
+    container_name: rideshare-test-runner
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - API_GATEWAY_URL=http://api-gateway:8080
+      - USER_SERVICE_URL=http://user-service:8051
+      - VEHICLE_SERVICE_URL=http://vehicle-service:8052
+      - GEO_SERVICE_URL=http://geo-service:8053
+      - MATCHING_SERVICE_URL=http://matching-service:8084
+      - TRIP_SERVICE_URL=http://trip-service:8085
+      - PAYMENT_SERVICE_URL=http://payment-service:9087
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      vehicle-service:
+        condition: service_healthy
+      geo-service:
+        condition: service_healthy
+      matching-service:
+        condition: service_healthy
+      trip-service:
+        condition: service_healthy
+      payment-service:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - go test -v ./tests/...
 
 volumes:
   postgres_test_data:
   mongodb_test_data:
   redis_test_data:
+  
+  
+  
+

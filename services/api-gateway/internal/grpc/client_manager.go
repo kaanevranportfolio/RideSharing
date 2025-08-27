@@ -49,37 +49,37 @@ func NewClientManager() *ClientManager {
 		connections: make(map[string]*grpc.ClientConn),
 		config: map[string]ServiceConfig{
 			"geo": {
-				Address:        "localhost:9083",
+				Address:        "geo-service:50053",
 				MaxRetries:     3,
 				TimeoutSeconds: 30,
 				EnableTLS:      false,
 			},
 			"user": {
-				Address:        "localhost:9084",
+				Address:        "user-service:50051",
+				MaxRetries:     3,
+				TimeoutSeconds: 30,
+				EnableTLS:      false,
+			},
+			"vehicle": {
+				Address:        "vehicle-service:50052",
 				MaxRetries:     3,
 				TimeoutSeconds: 30,
 				EnableTLS:      false,
 			},
 			"trip": {
-				Address:        "localhost:9086",
+				Address:        "trip-service:8085",
 				MaxRetries:     3,
 				TimeoutSeconds: 30,
 				EnableTLS:      false,
 			},
 			"matching": {
-				Address:        "localhost:9085",
-				MaxRetries:     3,
-				TimeoutSeconds: 30,
-				EnableTLS:      false,
-			},
-			"pricing": {
-				Address:        "localhost:9087",
+				Address:        "matching-service:8084",
 				MaxRetries:     3,
 				TimeoutSeconds: 30,
 				EnableTLS:      false,
 			},
 			"payment": {
-				Address:        "localhost:9088",
+				Address:        "payment-service:9087",
 				MaxRetries:     3,
 				TimeoutSeconds: 30,
 				EnableTLS:      false,

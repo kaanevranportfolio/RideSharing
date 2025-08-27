@@ -1,3 +1,5 @@
+unit-tests: ## Run unit tests in unit-test-runner container
+	@docker compose -f docker-compose-test.yml run --rm --build unit-test-runner 
 # Run integration tests with automated test environment setup and teardown
 integration-test-env: test-env-up
 	@$(MAKE) test-integration
@@ -28,32 +30,6 @@ test-env-status: ## Check test environment status
 	@docker compose -f docker-compose-test.yml ps
 .PHONY: build run test clean help deps start-db test-infra test-services stop-all proto
 
-# Default target
-help:
-	@echo "Available commands:"
-	@echo "  proto          - Generate protobuf files"
-	@echo "  test-infra     - Run complete infrastructure tests (self-contained)"
-	@echo "  test-services  - Run complete service integration tests (self-contained)"
-	@echo "  start-db       - Start only databases"
-	@echo "  build          - Build all services (Go binaries)"
-	@echo "  build-docker   - Build all services with Docker Compose"
-	@echo "  start-services - Start all Go services locally"
-	@echo "  run            - Start all services with Docker Compose"
-	@echo "  test           - Run unit tests"
-	@echo "  stop-all       - Stop all running containers and services"
-	@echo "  clean          - Clean up everything (containers, volumes, binaries)"
-	@echo "  deps           - Download dependencies"
-	@echo "  setup          - Complete setup for new developers (Go version, proto, deps)"
-	@echo ""
-	@echo "Phase 3-5 Commands:"
-	@echo "  start-monitoring - Start monitoring stack (Prometheus, Grafana, Jaeger)"
-	@echo "  deploy-k8s     - Deploy to Kubernetes"
-	@echo "  test-performance - Run performance tests with k6"
-	@echo "  test-e2e       - Run end-to-end tests"
-	@echo "  security-scan  - Run security vulnerability scans"
-	@echo "  build-all      - Build all services and Docker images"
-	@echo "  helm-install   - Install using Helm charts"
-	@echo "  helm-upgrade   - Upgrade Helm deployment"
 
 # Self-contained infrastructure test
 test-infra:
@@ -302,25 +278,6 @@ start-services: build
 # Start all services
 run: start-services
 
-# Run unit tests
-test:
-	@echo "Running unit tests..."
-	@go test ./...
-
-# Download dependencies
-deps:
-	@echo "Downloading dependencies..."
-	@go mod download
-	@go mod tidy
-
-# Clean up everything
-clean: stop-all
-	@echo "Cleaning up..."
-	@docker compose -f docker-compose-db.yml down -v 2>/dev/null || true
-	@docker compose down -v 2>/dev/null || true
-	@docker system prune -f
-	@rm -f test-service user-service vehicle-service geo-service matching-service trip-service
-	@echo "✓ Cleanup completed"
 
 # Check service health (requires services to be running)
 health:
@@ -360,22 +317,6 @@ status:
 # Run all tests (unit + integration + e2e) - DEPRECATED
 # test-all: unit-test integration-test e2e-test
 
-# Unit tests for individual packages (fast, no external dependencies)
-unit-test:
-	@echo "Running unit tests..."
-	@if [ -d "tests/unit" ]; then \
-		cd tests && go test ./unit/... -v -timeout=30s; \
-	fi
-	@if [ -d "tests/testutils" ]; then \
-		cd tests && go test ./testutils/... -v -timeout=30s; \
-	fi
-	@for service in services/*/; do \
-		if [ -d "$$service" ] && [ -f "$${service}go.mod" ]; then \
-			echo "Testing service: $$(basename $$service)"; \
-			cd "$$service" && go test ./... -v -timeout=30s || true; \
-			cd - > /dev/null; \
-		fi; \
-	done
 
 # Integration tests (require external services like databases)
 integration-test:
@@ -396,12 +337,6 @@ e2e-test:
 # Legacy test target (consolidated with unit-test)
 test: unit-test
 
-# Test coverage report
-test-coverage:
-	@echo "Generating test coverage report..."
-	@go test -coverprofile=coverage.out ./services/... ./shared/... ./tests/...
-	@go tool cover -html=coverage.out -o coverage.html
-	@echo "Coverage report generated: coverage.html"
 
 # Race condition detection
 test-race:
@@ -473,9 +408,6 @@ test-performance-extended:
 	@echo "Running extended performance tests..."
 	@k6 run --vus 50 --duration 5m tests/performance/load-test.js
 
-test-e2e:
-	@echo "Running end-to-end tests..."
-	@go test -v ./tests/e2e/...
 
 # Legacy test-all target - DEPRECATED
 # test-all:

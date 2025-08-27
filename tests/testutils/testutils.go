@@ -37,7 +37,7 @@ func DefaultTestConfig() *TestConfig {
 
 	return &TestConfig{
 		DatabaseURL:    databaseURL,
-		APIGatewayURL:  getEnv("API_GATEWAY_URL", "http://localhost:8080"),
+		APIGatewayURL:  getEnv("API_GATEWAY_URL", "http://api-gateway:8080"),
 		UserServiceURL: getEnv("USER_SERVICE_URL", "http://localhost:9084"),
 		TripServiceURL: getEnv("TRIP_SERVICE_URL", "http://localhost:9086"),
 		TestTimeout:    30 * time.Second,

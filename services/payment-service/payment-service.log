@@ -11,5 +11,6 @@
 [GIN-debug] GET    /api/v1/users/:user_id/payment-methods --> main.main.func5 (3 handlers)
 [GIN-debug] GET    /api/v1/payments/:payment_id --> main.main.func6 (3 handlers)
 [GIN-debug] GET    /api/v1/stats             --> main.main.func7 (3 handlers)
-2025/08/26 18:15:35 Payment service starting on port :8005
-2025/08/26 18:15:35 Failed to start server: listen tcp :8005: bind: address already in use
+2025/08/26 21:53:28 Payment service starting on port :8005
+2025/08/26 22:04:49 Shutting down payment service...
+2025/08/26 22:04:49 Payment service shut down successfully
