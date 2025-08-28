@@ -238,7 +238,7 @@ func TestErrorRecoveryE2E(t *testing.T) {
 }
 
 // Example usage in a test:
-func TestGenerateIDUsage(t *testing.T) {
+func TestComprehensiveGenerateIDUsage(t *testing.T) {
 	id := testutils.GenerateTestID()
 	t.Logf("Generated test ID: %s", id)
 }

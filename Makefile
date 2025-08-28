@@ -1,8 +1,16 @@
-unit-tests: ## Run unit tests in unit-test-runner container
-	@docker compose -f docker-compose-test.yml run --rm --build unit-test-runner 
-# Run integration tests with automated test environment setup and teardown
+unit-tests: ## Run unit tests in containerized unit-test runner
+	@echo "🧪 Running unit tests in Docker container..."
+	@docker compose -f docker-compose-test.yml run --rm --build unit-tests
+
+# Run integration tests in containerized integration-test runner
+integration-tests: ## Run integration tests in containerized integration-test runner  
+	@echo "🔗 Running integration tests in Docker container..."
+	@docker compose -f docker-compose-test.yml run --rm --build integration-tests
+
+# Run integration tests with full environment setup and teardown
 integration-test-env: test-env-up
-	@$(MAKE) test-integration
+	@echo "🔗 Running integration tests with environment management..."
+	@$(MAKE) integration-tests
 	@$(MAKE) test-env-down
 # Test environment setup and teardown
 test-env-up: ## Start test environment (databases, services)

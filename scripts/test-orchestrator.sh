@@ -377,287 +377,105 @@ setup_real_integration_environment() {
 
 run_unit_tests() {
     echo_header "🧪 UNIT TESTS"
+    if command -v go >/dev/null 2>&1; then
+        echo "  🧹 Cleaning Go test cache..."
+        go clean -testcache
+    fi
     local start_time=$(date +%s)
-    local coverage_file="${REPORTS_DIR}/unit/coverage.out"
-    
-    echo "  🔍 Discovering unit tests..."
-    
-    # Test the main tests directory with coverage
-    if [ -d "${TEST_ROOT}/unit" ]; then
-        echo "  📂 Testing tests/unit..."
-        cd "${TEST_ROOT}"
-        if run_test_command "go test ./unit/... -v -timeout=30s -coverprofile=${coverage_file}"; then
-            ((UNIT_PASS++))
+    local module_dirs
+    # Find all directories with go.mod files (excluding vendor)
+    module_dirs=( $(find "$PROJECT_ROOT" -name go.mod -not -path "*/vendor/*" -exec dirname {} \;) )
+    local total_pass=0
+    local total_fail=0
+    for mod_dir in "${module_dirs[@]}"; do
+        echo "\n🔎 Running unit tests in: $mod_dir"
+        cd "$mod_dir"
+        if run_test_command "go test ./... -v -timeout=60s -cover"; then
+            print_result "PASS" "Unit tests passed in $mod_dir"
+            ((total_pass++))
         else
-            ((UNIT_FAIL++))
-        fi
-        cd "${PROJECT_ROOT}"
-    fi
-    
-    # Test testutils
-    if [ -d "${TEST_ROOT}/testutils" ]; then
-        echo "  🛠️  Testing testutils..."
-        cd "${TEST_ROOT}"
-        local testutils_coverage="${REPORTS_DIR}/unit/testutils_coverage.out"
-        if run_test_command "go test ./testutils/... -v -timeout=30s -coverprofile=${testutils_coverage}"; then
-            ((UNIT_PASS++))
-        else
-            ((UNIT_FAIL++))
-        fi
-        cd "${PROJECT_ROOT}"
-    fi
-    
-    # Test individual services that have test files
-    for service_dir in "${PROJECT_ROOT}"/services/*/; do
-        if [ -d "$service_dir" ] && [ -f "${service_dir}go.mod" ]; then
-            service_name=$(basename "$service_dir")
-            
-            # Check if service has test files
-            if find "$service_dir" -name "*_test.go" -type f | grep -q .; then
-                echo "  🔧 Testing service: $service_name"
-                
-                cd "$service_dir"
-                local service_coverage="${REPORTS_DIR}/unit/${service_name}_coverage.out"
-                if run_test_command "go test ./... -v -timeout=30s -coverprofile=${service_coverage}"; then
-                    ((UNIT_PASS++))
-                else
-                    ((UNIT_FAIL++))
-                fi
-                cd "${PROJECT_ROOT}"
-            else
-                echo "  ⚠️  Service $service_name has no test files - skipping"
-            fi
+            print_result "FAIL" "Unit tests failed in $mod_dir"
+            ((total_fail++))
         fi
     done
-    
-    # Calculate overall coverage
-    local total_coverage="0.0"
-    local coverage_files=()
-    
-    # Collect all coverage files
-    if [[ -f "$coverage_file" ]]; then
-        coverage_files+=("$coverage_file")
-    fi
-    if [[ -f "${REPORTS_DIR}/unit/testutils_coverage.out" ]]; then
-        coverage_files+=("${REPORTS_DIR}/unit/testutils_coverage.out")
-    fi
-    for service_dir in "${PROJECT_ROOT}"/services/*/; do
-        if [[ -d "$service_dir" ]]; then
-            service_name=$(basename "$service_dir")
-            local service_coverage="${REPORTS_DIR}/unit/${service_name}_coverage.out"
-            if [[ -f "$service_coverage" ]]; then
-                coverage_files+=("$service_coverage")
-            fi
-        fi
-    done
-    
-    # Calculate overall coverage from all coverage files
-    local total_coverage="0.0"
-    local coverage_files=()
-    local coverage_values=()
-    
-    # Collect all coverage files
-    if [[ -f "$coverage_file" ]]; then
-        coverage_files+=("$coverage_file")
-    fi
-    if [[ -f "${REPORTS_DIR}/unit/testutils_coverage.out" ]]; then
-        coverage_files+=("${REPORTS_DIR}/unit/testutils_coverage.out")
-    fi
-    for service_dir in "${PROJECT_ROOT}"/services/*/; do
-        if [[ -d "$service_dir" ]]; then
-            service_name=$(basename "$service_dir")
-            local service_coverage="${REPORTS_DIR}/unit/${service_name}_coverage.out"
-            if [[ -f "$service_coverage" ]]; then
-                coverage_files+=("$service_coverage")
-            fi
-        fi
-    done
-    
-    # Extract coverage percentages from coverage files
-    for cov_file in "${coverage_files[@]}"; do
-        if [[ -f "$cov_file" ]]; then
-            # Use go tool cover to get precise coverage percentage
-            local coverage_output=$(go tool cover -func="$cov_file" 2>/dev/null | tail -1)
-            if [[ "$coverage_output" =~ total:.*\(statements\)[[:space:]]+([0-9]+\.?[0-9]*)% ]]; then
-                local pct="${BASH_REMATCH[1]}"
-                if [[ -n "$pct" ]] && (( $(echo "$pct > 0" | bc -l 2>/dev/null || echo 0) )); then
-                    coverage_values+=("$pct")
-                fi
-            fi
-        fi
-    done
-    
-    # Calculate weighted average coverage
-    if [[ ${#coverage_values[@]} -gt 0 ]]; then
-        local sum=0
-        for val in "${coverage_values[@]}"; do
-            sum=$(echo "$sum + $val" | bc -l 2>/dev/null || echo "$sum")
-        done
-        if [[ ${#coverage_values[@]} -gt 0 ]]; then
-            total_coverage=$(echo "scale=1; $sum / ${#coverage_values[@]}" | bc -l 2>/dev/null || echo "0.0")
-        fi
-    fi
-    
-    # Fallback: extract from test logs if coverage files don't work
-    if [[ "$total_coverage" == "0.0" ]]; then
-        # Look for coverage in test output logs
-        local log_files=("${REPORTS_DIR}/unit/"*.log)
-        for log_file in "${log_files[@]}"; do
-            if [[ -f "$log_file" ]]; then
-                local coverage_line=$(grep "coverage: [0-9]*\.*[0-9]*% of statements" "$log_file" | tail -1 || echo "")
-                if [[ "$coverage_line" =~ coverage:\ ([0-9]+\.?[0-9]*)%\ of\ statements ]]; then
-                    local pct="${BASH_REMATCH[1]}"
-                    if [[ -n "$pct" ]] && (( $(echo "$pct > 0" | bc -l 2>/dev/null || echo 0) )); then
-                        coverage_values+=("$pct")
-                    fi
-                fi
-            fi
-        done
-        
-        # Recalculate if we found coverage in logs
-        if [[ ${#coverage_values[@]} -gt 0 ]]; then
-            local sum=0
-            for val in "${coverage_values[@]}"; do
-                sum=$(echo "$sum + $val" | bc -l 2>/dev/null || echo "$sum")
-            done
-            total_coverage=$(echo "scale=1; $sum / ${#coverage_values[@]}" | bc -l 2>/dev/null || echo "0.0")
-        fi
-    fi
-    
-    # Set a reasonable minimum coverage based on actual test execution
-    if [[ "$total_coverage" == "0.0" && $UNIT_PASS -gt 0 ]]; then
-        # If tests passed but no coverage calculated, estimate based on test complexity
-        total_coverage="25.0" # Conservative estimate for meaningful tests
-    fi
-    
+    cd "$PROJECT_ROOT"
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
-    # Set result status and coverage
-    if [[ $UNIT_FAIL -gt 0 ]]; then
-        test_results["unit"]="FAIL"
-    else
-        test_results["unit"]="PASS"
-    fi
-    
+    UNIT_PASS=$total_pass
+    UNIT_FAIL=$total_fail
+    test_results["unit"]=$([ "$total_fail" -eq 0 ] && echo "PASS" || echo "FAIL")
     test_durations["$UNIT_TESTS"]="${duration}s"
-    test_coverage["$UNIT_TESTS"]="${total_coverage}%"
-    
+    test_coverage["$UNIT_TESTS"]="N/A"
     echo
     print_results "UNIT TESTS" $UNIT_PASS $UNIT_FAIL $duration
 }
 
 run_integration_tests() {
     echo_header "🔗 INTEGRATION TESTS"
+    if command -v go >/dev/null 2>&1; then
+        echo "  🧹 Cleaning Go test cache..."
+        go clean -testcache
+    fi
     local start_time=$(date +%s)
-    
-    # Setup real integration environment with databases
-    setup_real_integration_environment
-    
-    echo "  🔍 Discovering integration tests..."
-    
-    # Run comprehensive integration tests with coverage
-    echo "  🏗️  Testing comprehensive integration scenarios..."
-    cd "$TEST_ROOT"
-    
-    local integration_count=0
-    
-    # Run all integration test files with proper build tags
-    local integration_key="integration"
-    local integration_count=0
-    for test_file in integration/*.go; do
-        if [[ -f "$test_file" ]]; then
-            echo "    ▶️  Running $(basename "$test_file")..."
-            local test_coverage="${REPORTS_DIR}/integration/$(basename "$test_file" .go)_coverage.out"
-            
-            if run_test_command "go test -tags=integration ./$test_file -v -timeout=60s -coverprofile=$test_coverage"; then
-                ((INTEGRATION_PASS++))
-                ((integration_count++))
-                echo "        ✅ $(basename "$test_file") passed"
-            else
-                ((INTEGRATION_FAIL++))
-                echo "        ❌ $(basename "$test_file") failed"
-            fi
-        fi
-    done
-    
-    # If no individual files worked, try running all integration tests
-    if [[ $integration_count -eq 0 ]]; then
-        echo "    ▶️  Running integration test suite..."
-        if run_test_command "go test -tags=integration ./integration/... -v -timeout=120s"; then
-            ((INTEGRATION_PASS++))
-            echo "        ✅ Integration test suite passed"
+    local module_dirs
+    module_dirs=( $(find "$PROJECT_ROOT" -name go.mod -not -path "*/vendor/*" -exec dirname {} \;) )
+    local total_pass=0
+    local total_fail=0
+    for mod_dir in "${module_dirs[@]}"; do
+        echo "\n🔎 Running integration tests in: $mod_dir"
+        cd "$mod_dir"
+        if run_test_command "go test ./... -v -timeout=120s -tags=integration"; then
+            print_result "PASS" "Integration tests passed in $mod_dir"
+            ((total_pass++))
         else
-            ((INTEGRATION_FAIL++))
-            echo "        ❌ Integration test suite failed"
-        fi
-    fi
-    
-    # Run service-specific integration tests with real implementations
-    echo "  🔧 Testing service integration with real database..."
-    
-    # Test user service integration with real database
-    echo "    ▶️  Running user service integration tests..."
-    cd "${PROJECT_ROOT}/services/user-service"
-    local user_integration_coverage="${REPORTS_DIR}/integration/user_service_integration_coverage.out"
-    if run_test_command "go test -tags=integration ./internal/service -v -run='TestUserService_RealIntegration' -coverprofile=$user_integration_coverage"; then
-        ((INTEGRATION_PASS++))
-        echo "        ✅ User service real integration tests passed"
-    else
-        ((INTEGRATION_FAIL++))
-        echo "        ❌ User service real integration tests failed"
-    fi
-    
-    cd "$PROJECT_ROOT"
-    
-    local end_time=$(date +%s)
-    local duration=$((end_time - start_time))
-    
-    # Set result status and duration
-    local integration_key="integration"
-    if [[ $INTEGRATION_FAIL -gt 0 ]]; then
-        test_results["$integration_key"]="FAIL"
-    elif [[ $INTEGRATION_PASS -gt 0 ]]; then
-        test_results["$integration_key"]="PASS"
-    else
-        test_results["$integration_key"]="SKIP"
-    fi
-    test_durations["$integration_key"]="${duration}s"
-    
-    # Calculate integration coverage
-    local integration_key="integration"
-    local integration_coverage="N/A"
-    local coverage_files=()
-    for cov_file in "${REPORTS_DIR}/integration/"*_coverage.out; do
-        if [[ -f "$cov_file" ]]; then
-            coverage_files+=("$cov_file")
+            print_result "FAIL" "Integration tests failed in $mod_dir"
+            ((total_fail++))
         fi
     done
-    
-    if [[ ${#coverage_files[@]} -gt 0 ]]; then
-        # Extract coverage from the first available coverage file
-        local coverage_line=$(go tool cover -func="${coverage_files[0]}" 2>/dev/null | tail -1 | grep -o '[0-9]\+\.[0-9]\+%' || echo "")
-        if [[ -n "$coverage_line" ]]; then
-            integration_coverage="$coverage_line"
-        fi
-    fi
-    # Ensure associative array key exists before assignment (safe for set -u)
-    set +u
-    if [[ -z "${test_coverage["$integration_key"]+x}" ]]; then
-        test_coverage["$integration_key"]="$integration_coverage"
-    fi
-    set -u
-    
-    # Calculate duration
+    cd "$PROJECT_ROOT"
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    if [[ -z "${test_durations[$integration_key]+x}" ]]; then
-        test_durations["$integration_key"]="${duration}s"
-    fi
-    
+    INTEGRATION_PASS=$total_pass
+    INTEGRATION_FAIL=$total_fail
+    test_results["integration"]=$([ "$total_fail" -eq 0 ] && echo "PASS" || echo "FAIL")
+    test_durations["$INTEGRATION_TESTS"]="${duration}s"
+    test_coverage["$INTEGRATION_TESTS"]="N/A"
     echo
-    # Safely handle unset variables in print_results and elsewhere
-    print_results "INTEGRATION TESTS" "${INTEGRATION_PASS:-0}" "${INTEGRATION_FAIL:-0}" "${duration:-0}s"
+    print_results "INTEGRATION TESTS" $INTEGRATION_PASS $INTEGRATION_FAIL $duration
+}
+
+run_e2e_tests() {
+    echo_header "🌐 E2E TESTS"
+    if command -v go >/dev/null 2>&1; then
+        echo "  🧹 Cleaning Go test cache..."
+        go clean -testcache
+    fi
+    local start_time=$(date +%s)
+    local module_dirs
+    module_dirs=( $(find "$PROJECT_ROOT" -name go.mod -not -path "*/vendor/*" -exec dirname {} \;) )
+    local total_pass=0
+    local total_fail=0
+    for mod_dir in "${module_dirs[@]}"; do
+        echo "\n🔎 Running e2e tests in: $mod_dir"
+        cd "$mod_dir"
+        if run_test_command "go test ./... -v -timeout=180s -tags=e2e"; then
+            print_result "PASS" "E2E tests passed in $mod_dir"
+            ((total_pass++))
+        else
+            print_result "FAIL" "E2E tests failed in $mod_dir"
+            ((total_fail++))
+        fi
+    done
+    cd "$PROJECT_ROOT"
+    local end_time=$(date +%s)
+    local duration=$((end_time - start_time))
+    E2E_PASS=$total_pass
+    E2E_FAIL=$total_fail
+    test_results["e2e"]=$([ "$total_fail" -eq 0 ] && echo "PASS" || echo "FAIL")
+    test_durations["$E2E_TESTS"]="${duration}s"
+    test_coverage["$E2E_TESTS"]="N/A"
+    echo
+    print_results "E2E TESTS" $E2E_PASS $E2E_FAIL $duration
 }
 
 run_e2e_tests() {

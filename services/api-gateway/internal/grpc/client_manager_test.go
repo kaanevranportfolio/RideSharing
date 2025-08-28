@@ -21,7 +21,7 @@ func TestClientManagerInitialization(t *testing.T) {
 	}
 
 	// Verify default service configurations
-	expectedServices := []string{"geo", "user", "trip", "matching", "pricing", "payment"}
+	expectedServices := []string{"geo", "user", "vehicle", "trip", "matching", "payment"}
 	for _, service := range expectedServices {
 		if _, exists := cm.config[service]; !exists {
 			t.Errorf("Expected configuration for service %s", service)
