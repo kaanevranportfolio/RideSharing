@@ -2,11 +2,22 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
 // TripStatus represents the current status of a trip
 type TripStatus string
+
+// TripError represents a trip-related error
+type TripError struct {
+	Code    string `json:"code"`
+	Message string `json:"message"`
+}
+
+func (e *TripError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Code, e.Message)
+}
 
 const (
 	TripStatusRequested      TripStatus = "requested"
@@ -134,8 +145,16 @@ func (t *Trip) HasVehicle() bool {
 	return t.VehicleID != nil
 }
 
-// UpdateStatus updates the trip status and sets appropriate timestamps
-func (t *Trip) UpdateStatus(status TripStatus, userID *string) *TripEvent {
+// UpdateStatus updates the trip status with state machine validation
+func (t *Trip) UpdateStatus(status TripStatus, userID *string) (*TripEvent, error) {
+	// Validate state transition
+	if !t.isValidTransition(t.Status, status) {
+		return nil, &TripError{
+			Code:    "INVALID_STATE_TRANSITION",
+			Message: fmt.Sprintf("Cannot transition from %s to %s", t.Status, status),
+		}
+	}
+
 	oldStatus := t.Status
 	t.Status = status
 	t.UpdatedAt = time.Now()
@@ -155,14 +174,14 @@ func (t *Trip) UpdateStatus(status TripStatus, userID *string) *TripEvent {
 		t.CompletedAt = &now
 	}
 
-	// Create event
+	// Create event for event sourcing
 	eventData := map[string]interface{}{
 		"old_status": string(oldStatus),
 		"new_status": string(status),
 		"timestamp":  now,
 	}
 
-	return NewTripEvent(t.ID, "status_changed", eventData, userID)
+	return NewTripEvent(t.ID, "status_changed", eventData, userID), nil
 }
 
 // AssignDriver assigns a driver and vehicle to the trip
@@ -314,4 +333,260 @@ func GetTripStatuses() []TripStatus {
 		TripStatusCancelled,
 		TripStatusFailed,
 	}
+}
+
+// isValidTransition validates state transitions according to business rules
+func (t *Trip) isValidTransition(from, to TripStatus) bool {
+	// Define valid state transitions
+	validTransitions := map[TripStatus][]TripStatus{
+		TripStatusRequested: {
+			TripStatusMatched,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusMatched: {
+			TripStatusDriverAssigned,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusDriverAssigned: {
+			TripStatusDriverArriving,
+			TripStatusDriverArrived,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusDriverArriving: {
+			TripStatusDriverArrived,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusDriverArrived: {
+			TripStatusTripStarted,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusTripStarted: {
+			TripStatusInProgress,
+			TripStatusCompleted,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusInProgress: {
+			TripStatusCompleted,
+			TripStatusCancelled,
+			TripStatusFailed,
+		},
+		TripStatusCompleted: {}, // Terminal state
+		TripStatusCancelled: {}, // Terminal state
+		TripStatusFailed:    {}, // Terminal state
+	}
+
+	allowedStates, exists := validTransitions[from]
+	if !exists {
+		return false
+	}
+
+	for _, allowedState := range allowedStates {
+		if to == allowedState {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ProcessStateTransition processes a state transition with business logic validation
+func (t *Trip) ProcessStateTransition(newStatus TripStatus, context *TransitionContext) (*TripEvent, error) {
+	// Validate state transition
+	if !t.isValidTransition(t.Status, newStatus) {
+		return nil, &TripError{
+			Code:    "INVALID_STATE_TRANSITION",
+			Message: fmt.Sprintf("Cannot transition from %s to %s", t.Status, newStatus),
+		}
+	}
+
+	// Apply business rules based on transition
+	switch newStatus {
+	case TripStatusDriverAssigned:
+		if context.DriverID == "" || context.VehicleID == "" {
+			return nil, &TripError{
+				Code:    "MISSING_DRIVER_INFO",
+				Message: "Driver ID and Vehicle ID are required for driver assignment",
+			}
+		}
+		return t.assignDriverInternal(context.DriverID, context.VehicleID, context.UserID)
+
+	case TripStatusTripStarted:
+		if context.StartLocation == nil {
+			return nil, &TripError{
+				Code:    "MISSING_START_LOCATION",
+				Message: "Start location is required when starting trip",
+			}
+		}
+		return t.startTripInternal(*context.StartLocation, context.UserID)
+
+	case TripStatusCompleted:
+		if context.EndLocation == nil {
+			return nil, &TripError{
+				Code:    "MISSING_END_LOCATION",
+				Message: "End location is required when completing trip",
+			}
+		}
+		return t.completeTripInternal(*context.EndLocation, context.FinalFare, context.UserID)
+
+	default:
+		// Default state transition
+		return t.UpdateStatus(newStatus, context.UserID)
+	}
+}
+
+// TransitionContext holds context data for state transitions
+type TransitionContext struct {
+	UserID        *string
+	DriverID      string
+	VehicleID     string
+	StartLocation *Location
+	EndLocation   *Location
+	FinalFare     *int64
+}
+
+// assignDriverInternal handles driver assignment with validation
+func (t *Trip) assignDriverInternal(driverID, vehicleID string, userID *string) (*TripEvent, error) {
+	if t.DriverID != nil {
+		return nil, &TripError{
+			Code:    "DRIVER_ALREADY_ASSIGNED",
+			Message: "Trip already has a driver assigned",
+		}
+	}
+
+	t.DriverID = &driverID
+	t.VehicleID = &vehicleID
+	t.Status = TripStatusDriverAssigned
+	t.DriverAssignedAt = &time.Time{}
+	*t.DriverAssignedAt = time.Now()
+	t.UpdatedAt = time.Now()
+
+	eventData := map[string]interface{}{
+		"driver_id":  driverID,
+		"vehicle_id": vehicleID,
+		"timestamp":  time.Now(),
+	}
+
+	return NewTripEvent(t.ID, "driver_assigned", eventData, userID), nil
+}
+
+// startTripInternal handles trip start with validation
+func (t *Trip) startTripInternal(startLocation Location, userID *string) (*TripEvent, error) {
+	if t.DriverID == nil {
+		return nil, &TripError{
+			Code:    "NO_DRIVER_ASSIGNED",
+			Message: "Cannot start trip without driver assignment",
+		}
+	}
+
+	t.Status = TripStatusTripStarted
+	t.StartedAt = &time.Time{}
+	*t.StartedAt = time.Now()
+	t.UpdatedAt = time.Now()
+
+	// Initialize actual route with start location
+	t.ActualRoute = &[]Location{startLocation}
+
+	eventData := map[string]interface{}{
+		"start_location": startLocation,
+		"timestamp":      time.Now(),
+	}
+
+	return NewTripEvent(t.ID, "trip_started", eventData, userID), nil
+}
+
+// completeTripInternal handles trip completion with validation
+func (t *Trip) completeTripInternal(endLocation Location, finalFare *int64, userID *string) (*TripEvent, error) {
+	if t.StartedAt == nil {
+		return nil, &TripError{
+			Code:    "TRIP_NOT_STARTED",
+			Message: "Cannot complete trip that hasn't been started",
+		}
+	}
+
+	t.Status = TripStatusCompleted
+	t.CompletedAt = &time.Time{}
+	*t.CompletedAt = time.Now()
+	t.UpdatedAt = time.Now()
+
+	// Add end location to route
+	if t.ActualRoute != nil {
+		*t.ActualRoute = append(*t.ActualRoute, endLocation)
+	}
+
+	// Set final fare if provided
+	if finalFare != nil {
+		t.ActualFareCents = finalFare
+	}
+
+	// Calculate actual duration
+	if t.StartedAt != nil {
+		duration := int(t.CompletedAt.Sub(*t.StartedAt).Seconds())
+		t.ActualDurationSeconds = &duration
+	}
+
+	eventData := map[string]interface{}{
+		"end_location": endLocation,
+		"final_fare":   finalFare,
+		"timestamp":    time.Now(),
+	}
+
+	return NewTripEvent(t.ID, "trip_completed", eventData, userID), nil
+}
+
+// ApplyEvent applies an event to reconstruct trip state (for event sourcing)
+func (t *Trip) ApplyEvent(event *TripEvent) error {
+	switch event.EventType {
+	case "status_changed":
+		if newStatus, ok := event.EventData["new_status"].(string); ok {
+			t.Status = TripStatus(newStatus)
+		}
+	case "driver_assigned":
+		if driverID, ok := event.EventData["driver_id"].(string); ok {
+			t.DriverID = &driverID
+		}
+		if vehicleID, ok := event.EventData["vehicle_id"].(string); ok {
+			t.VehicleID = &vehicleID
+		}
+	case "trip_started":
+		t.Status = TripStatusTripStarted
+		if timestamp, ok := event.EventData["timestamp"].(time.Time); ok {
+			t.StartedAt = &timestamp
+		}
+	case "trip_completed":
+		t.Status = TripStatusCompleted
+		if timestamp, ok := event.EventData["timestamp"].(time.Time); ok {
+			t.CompletedAt = &timestamp
+		}
+		if finalFare, ok := event.EventData["final_fare"].(int64); ok {
+			t.ActualFareCents = &finalFare
+		}
+	case "trip_cancelled":
+		t.Status = TripStatusCancelled
+		if cancelledBy, ok := event.EventData["cancelled_by"].(string); ok {
+			t.CancelledBy = &cancelledBy
+		}
+		if reason, ok := event.EventData["reason"].(string); ok {
+			t.CancellationReason = &reason
+		}
+	}
+
+	// Update timestamp to event timestamp
+	t.UpdatedAt = event.Timestamp
+	return nil
+}
+
+// ReplayEvents replays a sequence of events to reconstruct trip state
+func (t *Trip) ReplayEvents(events []*TripEvent) error {
+	for _, event := range events {
+		if err := t.ApplyEvent(event); err != nil {
+			return fmt.Errorf("failed to replay event %s: %w", event.ID, err)
+		}
+	}
+	return nil
 }
